@@ -15,7 +15,7 @@
  *  - يعرض رسالة خطأ في حال الفشل
  */
 import { useEffect, useState, useCallback, type FC } from 'react';
-import { IonItem, IonLabel, IonInput, IonSpinner, IonText } from '@ionic/react';
+import { IonItem, IonLabel, IonInput, IonSpinner, IonText, useIonViewWillEnter } from '@ionic/react';
 import { Geolocation } from '@capacitor/geolocation';
 import axios from 'axios';
 
@@ -45,7 +45,11 @@ const GetLocation: FC<GetLocationProps> = ({ onLocationChange }) => {
         try {
             setStatus('loading');
 
-            const coordinates = await Geolocation.getCurrentPosition();
+            const coordinates = await Geolocation.getCurrentPosition({
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 10000
+            });
             const { latitude, longitude } = coordinates.coords;
 
             const response = await axios.get(NOMINATIM_URL, {
@@ -82,6 +86,11 @@ const GetLocation: FC<GetLocationProps> = ({ onLocationChange }) => {
     useEffect(() => {
         fetchLocation();
     }, [fetchLocation]);
+
+    // إعادة جلب الموقع في كل مرة يتم الدخول للصفحة
+    useIonViewWillEnter(() => {
+        fetchLocation();
+    });
 
     return (
         <>

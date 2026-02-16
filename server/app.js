@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import router from './routes/index.js';
 import cors from 'cors';
+import fs from 'node:fs';
+import https from 'node:https';
 import db from './utilities/database.js';
 import { imagesRoot } from './utilities/files.js';
 
@@ -47,10 +49,30 @@ const initializeServer = async () => {
     await db.sync({ alter: true });
     console.log('✅ Database synced successfully');
     
-    app.listen(PORT, () => {
-      console.log(`✅ Server is running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'production'}`);
-    });
+    const httpsKeyPath = process.env.HTTPS_KEY_PATH;
+    const httpsCertPath = process.env.HTTPS_CERT_PATH;
+    const httpsCaPath = process.env.HTTPS_CA_PATH;
+
+    if (httpsKeyPath && httpsCertPath) {
+      const tlsOptions = {
+        key: fs.readFileSync(httpsKeyPath),
+        cert: fs.readFileSync(httpsCertPath),
+      };
+
+      if (httpsCaPath) {
+        tlsOptions.ca = fs.readFileSync(httpsCaPath);
+      }
+
+      https.createServer(tlsOptions, app).listen(PORT, () => {
+        console.log(`✅ HTTPS server is running on port ${PORT}`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV || 'production'}`);
+      });
+    } else {
+      app.listen(PORT, () => {
+        console.log(`✅ Server is running on port ${PORT}`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV || 'production'}`);
+      });
+    }
   } catch (error) {
     console.error('❌ Failed to initialize server:', error.message);
     process.exit(1);

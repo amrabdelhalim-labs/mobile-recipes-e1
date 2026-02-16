@@ -12,6 +12,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@capacitor/android": "8.0.2",
     "@capacitor/app": "8.0.0",
     "@capacitor/camera": "^8.0.0",
     "@capacitor/core": "8.0.2",
@@ -48,6 +49,7 @@
     "@testing-library/user-event": "^14.4.3",
     "@types/react": "19.0.10",
     "@types/react-dom": "19.0.4",
+    "@types/node": "^22.13.0",
     "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-react": "^4.0.1",
     "cypress": "^13.5.0",
