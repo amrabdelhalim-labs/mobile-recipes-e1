@@ -1,112 +1,156 @@
-name: Deploy Server and Web
+name: Build & Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Manual run button in GitHub Actions
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "What to deploy?"
+        type: choice
+        required: true
+        default: both
+        options:
+          - both
+          - server
+          - app
 
+# Allow pushing to deployment branches (server/web)
 permissions:
   contents: write
-  pages: write
-  id-token: write
+
+# Avoid concurrent deployments stomping each other
+concurrency:
+  group: build-and-deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  # Job 1: Deploy Server to server branch
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 1: Deploy Server
+  # Pure JavaScript server - no build step required
+  # Copies the entire server/ folder directly to the server branch
+  # ─────────────────────────────────────────────────────────────────────────────
   deploy-server:
+    name: Deploy Server
     runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'server' || inputs.target == 'both'))
+
     steps:
-      - name: Checkout main branch
+      - name: Checkout source
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Configure Git
+      - name: Push to server branch
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          set -euo pipefail
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name  "github-actions[bot]"
 
-      - name: Create and push server branch
-        run: |
-          # Create orphan branch if it doesn't exist
-          git checkout --orphan server || git checkout server
-          
-          # Remove all files
-          git rm -rf . || true
-          
-          # Copy server folder from main
-          git checkout main -- server
-          
-          # Move server contents to root
-          mv server/* . || true
-          mv server/.* . 2>/dev/null || true
-          rmdir server || true
-          
-          # Commit and push
-          git add .
-          git commit -m "Update server from main - $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          git push -f origin server
+          # 1️⃣ Save server files to temp (no build step - pure JS runs directly)
+          mkdir -p /tmp/server-deploy
+          cp -r server/. /tmp/server-deploy/
 
-  # Job 2: Build and deploy Web to web branch and GitHub Pages
-  deploy-web:
+          # 2️⃣ Create clean orphan branch
+          git checkout --orphan server-new-clean
+          git rm -rf . --cached 2>/dev/null || true
+
+          # 3️⃣ DELETE everything from disk (BUT KEEP .git)
+          find . -maxdepth 1 ! -name '.' ! -name '.git' -exec rm -rf {} + 2>/dev/null || true
+
+          # 4️⃣ Restore ONLY server files
+          cp -r /tmp/server-deploy/. .
+
+          # 5️⃣ Commit and push
+          git add -A
+          if [ -z "$(git diff --cached --name-only)" ]; then
+            echo "⏭️  No changes to deploy (server)"
+            exit 0
+          fi
+
+          git commit -m "deploy(server): $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
+          git branch -M server-new-clean server
+          git push origin server --force
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 2: Deploy App
+  # Ionic/React app - builds with Vite then deploys dist/ to web branch
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy-app:
+    name: Deploy App
     runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'app' || inputs.target == 'both'))
+
     steps:
-      - name: Checkout main branch
+      - name: Checkout source
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: app/package.json
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: app/package-lock.json
 
-      - name: Install dependencies
-        working-directory: ./app
+      - name: Install app dependencies
+        working-directory: app
         run: npm ci
 
-      - name: Build Ionic Web
-        working-directory: ./app
+      - name: Build app
+        working-directory: app
+        run: npm run build
         env:
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          # Add these secrets in: GitHub repo → Settings → Secrets → Actions
+          VITE_API_URL:  ${{ secrets.VITE_API_URL }}
+          # Base path: /mobile-recipes-e1/ for GitHub Pages, / for other platforms
+          # Auto-detected via GITHUB_ACTIONS env var if not set (see vite.config.ts)
+          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+
+      - name: Verify dist folder
         run: |
-          npm run build
-          # Ionic/Vite builds to dist folder by default
+          set -euo pipefail
+          if [ ! -d "app/dist" ]; then
+            echo "❌ Build failed: app/dist not found"
+            exit 1
+          fi
+          echo "✅ App build successful:"
+          du -sh app/dist
+          find app/dist -type f | wc -l
 
-      - name: Configure Git
+      - name: Publish to web branch (clean orphan)
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          set -euo pipefail
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name  "github-actions[bot]"
 
-      - name: Deploy to web branch
-        run: |
-          # Create orphan branch if it doesn't exist
-          git checkout --orphan web || git checkout web
-          
-          # Remove all files
-          git rm -rf . || true
-          
-          # Copy dist folder contents
-          cp -r app/dist/* . || cp -r app/build/* .
-          
-          # Create .nojekyll file for GitHub Pages
-          touch .nojekyll
-          
-          # Commit and push
-          git add .
-          git commit -m "Update web build from main - $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-          git push -f origin web
+          # 1️⃣ Save dist files to temp + add .nojekyll for GitHub Pages
+          mkdir -p /tmp/app-deploy
+          cp -r app/dist/. /tmp/app-deploy/
+          touch /tmp/app-deploy/.nojekyll
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+          # 2️⃣ Create clean orphan branch
+          git checkout --orphan web-new-clean
+          git rm -rf . --cached 2>/dev/null || true
 
-      - name: Upload artifact for GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './app/dist'
+          # 3️⃣ DELETE everything from disk (BUT KEEP .git)
+          find . -maxdepth 1 ! -name '.' ! -name '.git' -exec rm -rf {} + 2>/dev/null || true
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          # 4️⃣ Restore ONLY dist files (cp -r src/. copies hidden files too)
+          cp -r /tmp/app-deploy/. .
+
+          # 5️⃣ Commit and push
+          git add -A
+          if [ -z "$(git diff --cached --name-only)" ]; then
+            echo "⏭️  No changes to deploy (app)"
+            exit 0
+          fi
+
+          git commit -m "deploy(app): $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
+          git branch -M web-new-clean web
+          git push origin web --force
 

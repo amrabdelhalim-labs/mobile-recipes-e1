@@ -1,83 +1,81 @@
-\# GitHub Actions Workflow Setup
+# GitHub Actions Workflow Setup
 
 ## 🔧 إعداد المتغيرات المطلوبة
 
+أضف هذه المتغيرات في: `Settings` → `Secrets and variables` → `Actions` → **Secrets**
+
 ### المتغيرات الإلزامية
 
-قبل أن يعمل الـ Workflow بشكل صحيح، يجب إضافة المتغيرات التالية:
+| Secret | الوصف | مثال |
+|--------|-------|-------|
+| `VITE_API_URL` | عنوان API الخاص بالخادم | `https://your-api.onrender.com` |
 
-#### 1. VITE_API_URL (إلزامي)
-عنوان API الخاص بالخادم
+### المتغيرات الاختيارية
 
-**الإعداد:**
-1. اذهب إلى `Settings` → `Secrets and variables` → `Actions` → `Variables`
-2. اضغط `New repository variable`
-3. **Name:** `VITE_API_URL`
-4. **Value:** مثلاً `https://your-api-domain.com`
+| Secret | الوصف | القيمة الافتراضية |
+|--------|-------|-----------------|
+| `VITE_BASE_URL` | المسار الأساسي للتطبيق | `/mobile-recipes-e1/` تلقائياً على GitHub Actions |
 
-**أمثلة:**
-- `https://api.yourdomain.com`
-- `http://your-server-ip:3000`
+> **ملاحظة:** لا حاجة لضبط `VITE_BASE_URL` عند النشر على GitHub Pages — يتم اكتشافها تلقائياً عبر متغير البيئة `GITHUB_ACTIONS` في `vite.config.ts`.
 
 ---
 
 ## 🚀 كيف يعمل الـ Workflow
 
-عند عمل Push للفرع `main`، سيتم تلقائياً:
+عند عمل Push للفرع `main` يعمل jobان بالتوازي:
 
-- **deploy-server** → نسخ مجلد server إلى فرع `server`
-- **deploy-web** → بناء نسخة الويب ونشرها في فرع `web` و GitHub Pages
+### Job 1: deploy-server
+- **لا يوجد build step** — الخادم JavaScript خالص يعمل مباشرة
+- ينسخ كل محتويات `server/` إلى فرع `server` نظيف
+- **محتوى فرع server:** `app.js`, `package.json`, `Procfile`, المجلدات...
+
+### Job 2: deploy-app
+- يثبت dependencies من `app/package-lock.json`
+- يبني التطبيق (`tsc && vite build`) داخل `app/`
+- ينسخ محتويات `app/dist/` + `.nojekyll` إلى فرع `web` نظيف
+
+**تشغيل يدوي:** يمكن تشغيل الـ workflow يدوياً من تبويب Actions مع اختيار:
+- `both` — نشر الخادم والتطبيق
+- `server` — الخادم فقط
+- `app` — التطبيق فقط
 
 ---
 
-## ✅ GitHub Pages Setup
+## ✅ إعداد GitHub Pages (اختياري)
 
-لتفعيل GitHub Pages:
+لرؤية التطبيق على GitHub Pages:
 
 1. اذهب إلى `Settings` → `Pages`
-2. **Source:** اختر `GitHub Actions`
-3. احفظ التغييرات
+2. **Source:** اختر **Deploy from a branch**
+3. **Branch:** اختر `web` → `/ (root)`
+4. احفظ التغييرات
 
 سيكون الموقع متاحاً على:
 ```
-https://[username].github.io/[repo-name]/
+https://[username].github.io/mobile-recipes-e1/
 ```
 
 ---
 
-## 📝 ملاحظات مهمة
+## 📝 للتطوير المحلي
 
-### للتطوير المحلي:
-أنشئ ملف `.env` في مجلد `app`:
+أنشئ ملف `.env.local` في مجلد `app` (مستثنى من git):
 ```env
 VITE_API_URL=http://localhost:3000
 ```
-
-### الحد الأدنى للعمل:
-- ✅ يجب إضافة `VITE_API_URL` فقط
-
-### Build Outputs:
-- **Web:** يُبنى في `app/dist/`
 
 ---
 
 ## 🔍 استكشاف الأخطاء
 
-### إذا فشل البناء:
-1. تحقق من أن `VITE_API_URL` مُضاف في Variables
-2. تحقق من أن `npm run build` يعمل محلياً
-3. راجع سجلات (logs) الـ Actions في GitHub
-
-### إذا لم يظهر الموقع على Pages:
-1. تأكد من تفعيل GitHub Pages في Settings
-2. تأكد من أن الـ workflow اكتمل بنجاح
-3. انتظر 1-2 دقيقة لنشر التغييرات
-
----
-
-## 🆘 للمساعدة
+| المشكلة | الحل |
+|---------|------|
+| فشل بناء التطبيق | تحقق من `VITE_API_URL` في Secrets |
+| الموقع لا يفتح | تأكد من تفعيل GitHub Pages في Settings |
+| تكرار الملفات في الفروع | الـ Workflow يستخدم orphan branch نظيف — لن يحدث |
+| خطأ `not a git repository` | المنطق الحالي يحافظ على `.git` أثناء الحذف |
 
 راجع سجلات الـ Actions في:
 ```
-Repository → Actions → Deploy Server and Web
+Repository → Actions → Build & Deploy
 ```
