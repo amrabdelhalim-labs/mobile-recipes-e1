@@ -17,7 +17,7 @@ const newPost = [
             if (typeof value === 'string') {
                 try {
                     const parsed = JSON.parse(value);
-                    // يقبل مصفوفة أو كائن Draft.js (يحتوي على blocks)
+                    // Accepts array or Draft.js object (contains blocks)
                     if (!Array.isArray(parsed) && (typeof parsed !== 'object' || parsed === null)) {
                         throw new Error('الخطوات يجب أن تكون بصيغة صحيحة');
                     }

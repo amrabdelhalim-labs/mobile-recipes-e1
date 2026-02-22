@@ -10,21 +10,51 @@ import { imagesRoot } from './utilities/files.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// ============================================================
+// CORS Configuration
+// ============================================================
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:5173', 'http://localhost:8100']; // Default for development
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️  Blocked CORS request from: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+
 if (process.env.NODE_ENV === 'development') {
   const { default: morgan } = await import('morgan');
   app.use(morgan('dev'));
 }
+
 app.use(express.json({ limit: '1mb' }));
 app.use('/', router);
 app.use('/images', express.static(imagesRoot));
 
 // Health check route
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Server is running' });
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    environment: process.env.NODE_ENV || 'production',
+    timestamp: new Date().toISOString()
+  });
 });
 
-// Error handler عام
+// Global error handler
 app.use((err, req, res, next) => {
     console.error('Error:', err.message);
     console.error('Stack:', err.stack);
@@ -48,6 +78,9 @@ const initializeServer = async () => {
     
     await db.sync({ alter: true });
     console.log('✅ Database synced successfully');
+    
+    // Log CORS configuration
+    console.log(`🌐 CORS allowed origins: ${allowedOrigins.join(', ')}`);
     
     const httpsKeyPath = process.env.HTTPS_KEY_PATH;
     const httpsCertPath = process.env.HTTPS_CERT_PATH;

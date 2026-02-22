@@ -1,9 +1,9 @@
 import models from "../models/index.js";
-import { imagesRoot, extractFileName } from "../utilities/files.js";
-import fs from "node:fs";
-import path from "node:path";
+import { getStorageService } from "../utilities/files.js";
 
 const newPost = async (req, res) => {
+    const uploadedFiles = [];
+    
     try {
         const userId = req.currentUser?.id;
         if (!userId) {
@@ -17,7 +17,7 @@ const newPost = async (req, res) => {
 
         const { title, content, steps, country, region } = req.body;
 
-        // التحقق من الحقول المطلوبة
+        // Validate required fields
         if (!title || typeof title !== 'string' || !title.trim()) {
             return res.status(400).json({ message: "العنوان مطلوب" });
         }
@@ -26,12 +26,12 @@ const newPost = async (req, res) => {
             return res.status(400).json({ message: "المحتوى مطلوب" });
         }
 
-        // التحقق من وجود صورة واحدة على الأقل (إجباري)
+        // At least one image is required
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({ message: "يجب إرفاق صورة واحدة على الأقل" });
         }
 
-        // معالجة الخطوات (steps) - يمكن أن تكون JSON string أو array أو كائن Draft.js
+        // Parse steps - can be JSON string, array, or Draft.js object
         let parsedSteps = null;
         if (steps !== undefined && steps !== null && steps !== '') {
             if (typeof steps === 'string') {
@@ -46,17 +46,17 @@ const newPost = async (req, res) => {
                 return res.status(400).json({ message: "الخطوات يجب أن تكون بصيغة صحيحة" });
             }
 
-            // التحقق من أن الخطوات إما مصفوفة أو كائن Draft.js (يحتوي على blocks)
+            // Validate that steps is either array or Draft.js object
             if (!Array.isArray(parsedSteps) && (typeof parsedSteps !== 'object' || parsedSteps === null)) {
                 return res.status(400).json({ message: "الخطوات يجب أن تكون بصيغة صحيحة" });
             }
         }
 
-        // معالجة الحقول الاختيارية
+        // Sanitize optional fields
         const sanitizedCountry = country && typeof country === 'string' ? country.trim() : null;
         const sanitizedRegion = region && typeof region === 'string' ? region.trim() : null;
 
-        // إنشاء المنشور
+        // Create post
         const post = await models.Post.create({
             title: title.trim(),
             content: content.trim(),
@@ -66,20 +66,20 @@ const newPost = async (req, res) => {
             UserId: userId,
         });
 
-        // معالجة الصور المرفقة
-        const uploadedImages = [];
-        if (req.files && req.files.length > 0) {
-            for (const file of req.files) {
-                const imageUrl = `/images/${file.filename}`;
-                const postImage = await models.Post_Image.create({
-                    imageUrl,
-                    PostId: post.id,
-                });
-                uploadedImages.push(postImage);
-            }
+        // Upload images using Storage Service
+        const storage = getStorageService();
+        const uploadResults = await storage.uploadFiles(req.files);
+        
+        // Save image metadata to database
+        for (const result of uploadResults) {
+            uploadedFiles.push(result);
+            await models.Post_Image.create({
+                imageUrl: result.url,
+                PostId: post.id,
+            });
         }
 
-        // جلب المنشور مع الصور والمستخدم
+        // Fetch post with images and user
         const fullPost = await models.Post.findByPk(post.id, {
             include: [
                 {
@@ -95,18 +95,15 @@ const newPost = async (req, res) => {
 
         return res.status(201).json({ message: "تم إنشاء المنشور بنجاح", post: fullPost });
     } catch (error) {
-        console.error(error);
+        console.error('Error creating post:', error);
 
-        // حذف الصور المرفوعة في حالة حدوث خطأ
-        if (req.files && req.files.length > 0) {
-            for (const file of req.files) {
-                const filePath = path.join(imagesRoot, file.filename);
-                fs.promises.unlink(filePath).catch((err) => {
-                    if (err?.code !== 'ENOENT') {
-                        console.error('Failed to delete uploaded image:', err.message);
-                    }
-                });
-            }
+        // Cleanup uploaded images on error
+        if (uploadedFiles.length > 0) {
+            const storage = getStorageService();
+            const filenames = uploadedFiles.map(f => f.filename);
+            storage.deleteFiles(filenames).catch(err => {
+                console.error('Failed to cleanup uploaded images:', err);
+            });
         }
 
         return res.status(500).json({ message: "خطأ في الخادم" });
@@ -348,6 +345,8 @@ const getPostById = async (req, res) => {
 };
 
 const updatePost = async (req, res) => {
+    const uploadedFiles = [];
+    
     try {
         const userId = req.currentUser?.id;
         if (!userId) {
@@ -415,7 +414,9 @@ const updatePost = async (req, res) => {
             updates.region = region && typeof region === 'string' ? region.trim() : null;
         }
 
-        // حذف صور محددة
+        const storage = getStorageService();
+
+        // Delete specified images
         let imagesToDelete = [];
         if (deletedImages !== undefined && deletedImages !== null && deletedImages !== '') {
             if (typeof deletedImages === 'string') {
@@ -433,40 +434,40 @@ const updatePost = async (req, res) => {
                     where: { id: imagesToDelete, PostId: postId },
                 });
 
+                // Delete images from storage
+                const imageUrls = existingImages.map(img => img.imageUrl);
+                if (imageUrls.length > 0) {
+                    await storage.deleteFiles(imageUrls).catch(err => {
+                        console.error('Failed to delete images from storage:', err);
+                    });
+                }
+
+                // Delete from database
                 for (const img of existingImages) {
-                    const fileName = extractFileName(img.imageUrl);
-                    if (fileName) {
-                        const filePath = path.join(imagesRoot, fileName);
-
-                        await fs.promises.unlink(filePath).catch((err) => {
-                            if (err?.code !== 'ENOENT') {
-                                console.error('Failed to delete post image:', err.message);
-                            }
-                        });
-                    }
-
                     await img.destroy();
                 }
             }
         }
 
-        // إضافة صور جديدة
+        // Add new images
         if (req.files && req.files.length > 0) {
-            for (const file of req.files) {
-                const imageUrl = `/images/${file.filename}`;
+            const uploadResults = await storage.uploadFiles(req.files);
+            
+            for (const result of uploadResults) {
+                uploadedFiles.push(result);
                 await models.Post_Image.create({
-                    imageUrl,
+                    imageUrl: result.url,
                     PostId: postId,
                 });
             }
         }
 
-        // تحديث المنشور
+        // Update post
         if (Object.keys(updates).length > 0) {
             await post.update(updates);
         }
 
-        // جلب المنشور المحدث
+        // Fetch updated post
         const updatedPost = await models.Post.findByPk(postId, {
             include: [
                 {
@@ -490,17 +491,15 @@ const updatePost = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error updating post:', error);
 
-        if (req.files && req.files.length > 0) {
-            for (const file of req.files) {
-                const filePath = path.join(imagesRoot, file.filename);
-                fs.promises.unlink(filePath).catch((err) => {
-                    if (err?.code !== 'ENOENT') {
-                        console.error('Failed to delete uploaded image:', err.message);
-                    }
-                });
-            }
+        // Cleanup uploaded images on error
+        if (uploadedFiles.length > 0) {
+            const storage = getStorageService();
+            const filenames = uploadedFiles.map(f => f.filename);
+            storage.deleteFiles(filenames).catch(err => {
+                console.error('Failed to cleanup uploaded images:', err);
+            });
         }
 
         return res.status(500).json({ message: "خطأ في الخادم" });
@@ -530,28 +529,22 @@ const deletePost = async (req, res) => {
             return res.status(403).json({ message: "غير مسموح بحذف هذا المنشور" });
         }
 
-        // حذف صور المنشور من السيرفر
+        // Delete post images from storage
         if (post.Post_Images && post.Post_Images.length > 0) {
-            for (const img of post.Post_Images) {
-                const fileName = extractFileName(img.imageUrl);
-                if (fileName) {
-                    const filePath = path.join(imagesRoot, fileName);
-
-                    await fs.promises.unlink(filePath).catch((err) => {
-                        if (err?.code !== 'ENOENT') {
-                            console.error('Failed to delete post image:', err.message);
-                        }
-                    });
-                }
-            }
+            const storage = getStorageService();
+            const imageUrls = post.Post_Images.map(img => img.imageUrl);
+            
+            await storage.deleteFiles(imageUrls).catch(err => {
+                console.error('Failed to delete post images from storage:', err);
+            });
         }
 
-        // CASCADE سيحذف التعليقات والإعجابات والصور تلقائياً
+        // CASCADE will delete comments, likes, and images automatically
         await post.destroy();
 
         return res.status(200).json({ message: "تم حذف المنشور بنجاح" });
     } catch (error) {
-        console.error(error);
+        console.error('Error deleting post:', error);
         return res.status(500).json({ message: "خطأ في الخادم" });
     }
 };

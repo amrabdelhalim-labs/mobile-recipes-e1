@@ -1,9 +1,7 @@
 import models from "../models/index.js";
 import bcrypt from "bcrypt";
 import * as jwt from "../utilities/jwt.js";
-import { imagesRoot, extractFileName } from "../utilities/files.js";
-import fs from "node:fs";
-import path from "node:path";
+import { getStorageService } from "../utilities/files.js";
 
 const DEFAULT_PROFILE_IMAGE = 'default-profile.svg';
 
@@ -75,6 +73,8 @@ const getProfile = async (req, res) => {
 };
 
 const updateImage = async (req, res) => {
+    let uploadedFile = null;
+    
     try {
         const userId = req.currentUser?.id;
         if (!userId) {
@@ -91,31 +91,37 @@ const updateImage = async (req, res) => {
         }
 
         const previousImageUrl = user.ImageUrl;
-        const newImageUrl = `/images/${req.file.filename}`;
+        const storage = getStorageService();
+        
+        // Upload new image
+        const uploadResult = await storage.uploadFile(req.file);
+        uploadedFile = uploadResult;
 
-        await user.update({ ImageUrl: newImageUrl });
+        // Update database
+        await user.update({ ImageUrl: uploadResult.url });
 
         const sanitizeUser = user.toJSON();
         delete sanitizeUser.password;
 
-        try {
-            const oldFileName = extractFileName(previousImageUrl);
-            if (oldFileName && oldFileName !== req.file.filename && oldFileName !== DEFAULT_PROFILE_IMAGE) {
-                const oldFilePath = path.join(imagesRoot, oldFileName);
-
-                await fs.promises.unlink(oldFilePath).catch((err) => {
-                    if (err?.code !== 'ENOENT') {
-                        console.error('Failed to delete old profile picture:', err.message);
-                    }
-                });
-            }
-        } catch (err) {
-            console.error('Error while cleaning old profile picture:', err?.message || err);
+        // Delete old image
+        if (previousImageUrl && !previousImageUrl.includes(DEFAULT_PROFILE_IMAGE)) {
+            await storage.deleteFile(previousImageUrl).catch(err => {
+                console.error('Failed to delete old profile picture:', err);
+            });
         }
 
         return res.status(200).json({ message: "تم تحديث صورة الملف الشخصي بنجاح", user: sanitizeUser });
     } catch (error) {
-        console.error(error);
+        console.error('Error updating profile image:', error);
+        
+        // Cleanup uploaded image on error
+        if (uploadedFile) {
+            const storage = getStorageService();
+            await storage.deleteFile(uploadedFile.filename).catch(err => {
+                console.error('Failed to cleanup uploaded image:', err);
+            });
+        }
+        
         return res.status(500).json({ message: "خطأ في الخادم" });
     }
 };
@@ -140,24 +146,17 @@ const resetImage = async (req, res) => {
         const sanitizeUser = user.toJSON();
         delete sanitizeUser.password;
 
-        try {
-            const oldFileName = extractFileName(previousImageUrl);
-            if (oldFileName && oldFileName !== DEFAULT_PROFILE_IMAGE) {
-                const oldFilePath = path.join(imagesRoot, oldFileName);
-
-                await fs.promises.unlink(oldFilePath).catch((err) => {
-                    if (err?.code !== 'ENOENT') {
-                        console.error('Failed to delete old profile picture:', err.message);
-                    }
-                });
-            }
-        } catch (err) {
-            console.error('Error while cleaning old profile picture:', err?.message || err);
+        // Delete old image
+        if (previousImageUrl && !previousImageUrl.includes(DEFAULT_PROFILE_IMAGE)) {
+            const storage = getStorageService();
+            await storage.deleteFile(previousImageUrl).catch(err => {
+                console.error('Failed to delete old profile picture:', err);
+            });
         }
 
         return res.status(200).json({ message: "تمت إعادة الصورة الافتراضية بنجاح", user: sanitizeUser });
     } catch (error) {
-        console.error(error);
+        console.error('Error resetting profile image:', error);
         return res.status(500).json({ message: "خطأ في الخادم" });
     }
 };
@@ -224,7 +223,7 @@ const deleteUser = async (req, res) => {
 
         const userImageUrl = user.ImageUrl;
 
-        // جمع صور منشورات المستخدم لحذفها من القرص
+        // Collect user's post images for deletion
         const userPosts = await models.Post.findAll({
             where: { UserId: userId },
             include: [{ model: models.Post_Image }]
@@ -232,40 +231,34 @@ const deleteUser = async (req, res) => {
 
         const filesToDelete = [];
 
+        // Collect post images
         for (const post of userPosts) {
             if (post.Post_Images) {
                 for (const img of post.Post_Images) {
-                    const fileName = extractFileName(img.imageUrl);
-                    if (fileName) {
-                        filesToDelete.push(fileName);
-                    }
+                    filesToDelete.push(img.imageUrl);
                 }
             }
         }
 
-        // حذف صورة الملف الشخصي
-        const profileFileName = extractFileName(userImageUrl);
-        if (profileFileName && profileFileName !== DEFAULT_PROFILE_IMAGE) {
-            filesToDelete.push(profileFileName);
+        // Add profile image
+        if (userImageUrl && !userImageUrl.includes(DEFAULT_PROFILE_IMAGE)) {
+            filesToDelete.push(userImageUrl);
         }
 
-        // حذف المستخدم (CASCADE سيحذف المنشورات والتعليقات والإعجابات)
+        // Delete user (CASCADE will delete posts, comments, and likes)
         await user.destroy();
 
-        // تنظيف الملفات من القرص
-        for (const fileName of filesToDelete) {
-            try {
-                await fs.promises.unlink(path.join(imagesRoot, fileName));
-            } catch (err) {
-                if (err?.code !== 'ENOENT') {
-                    console.error('Failed to delete file:', fileName, err.message);
-                }
-            }
+        // Delete files from storage
+        if (filesToDelete.length > 0) {
+            const storage = getStorageService();
+            await storage.deleteFiles(filesToDelete).catch(err => {
+                console.error('Failed to delete user files from storage:', err);
+            });
         }
 
         return res.status(200).json({ message: "تم حذف الحساب بنجاح" });
     } catch (error) {
-        console.error(error);
+        console.error('Error deleting user:', error);
         return res.status(500).json({ message: "خطأ في الخادم" });
     }
 };
