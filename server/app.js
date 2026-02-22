@@ -4,8 +4,10 @@ import router from './routes/index.js';
 import cors from 'cors';
 import fs from 'node:fs';
 import https from 'node:https';
+import { pathToFileURL } from 'url';
 import db from './utilities/database.js';
 import { imagesRoot } from './utilities/files.js';
+import './models/index.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -119,4 +121,10 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-initializeServer();
+const isDirectRun = import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isDirectRun) {
+  initializeServer();
+}
+
+export { initializeServer };
+export default app;

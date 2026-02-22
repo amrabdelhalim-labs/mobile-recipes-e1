@@ -1,7 +1,7 @@
-import models from "../models/index.js";
 import bcrypt from "bcrypt";
 import * as jwt from "../utilities/jwt.js";
 import { getStorageService } from "../utilities/files.js";
+import { getRepositoryManager } from "../repositories/index.js";
 
 const DEFAULT_PROFILE_IMAGE = 'default-profile.svg';
 
@@ -9,13 +9,15 @@ const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        const existingUser = await models.User.findOne({ where: { email } });
+        const repositories = getRepositoryManager();
+        
+        const existingUser = await repositories.user.findByEmail(email);
         if (existingUser) {
             return res.status(400).json({ message: "الإيميل مستخدم بالفعل" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await models.User.create({
+        await repositories.user.create({
             name,
             email,
             password: hashedPassword,
@@ -33,7 +35,8 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await models.User.findOne({ where: { email } });
+        const repositories = getRepositoryManager();
+        const user = await repositories.user.findByEmail(email);
         if (!user) {
             return res.status(400).json({ message: "الإيميل أو كلمة المرور غير صحيحة" });
         }
@@ -58,14 +61,16 @@ const getProfile = async (req, res) => {
             return res.status(401).json({ message: "غير مصرح" });
         }
 
-        const user = await models.User.findByPk(userId, {
-            attributes: { exclude: ['password'] }
-        });
+        const repositories = getRepositoryManager();
+        const user = await repositories.user.findByPk(userId);
         if (!user) {
             return res.status(404).json({ message: "المستخدم غير موجود" });
         }
 
-        return res.status(200).json({ user });
+        const sanitizeUser = user.toJSON();
+        delete sanitizeUser.password;
+
+        return res.status(200).json({ user: sanitizeUser });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "خطأ في الخادم" });
@@ -85,7 +90,8 @@ const updateImage = async (req, res) => {
             return res.status(400).json({ message: "لم يتم تحميل صورة" });
         }
 
-        const user = await models.User.findByPk(userId);
+        const repositories = getRepositoryManager();
+        const user = await repositories.user.findByPk(userId);
         if (!user) {
             return res.status(404).json({ message: "المستخدم غير موجود" });
         }
@@ -98,7 +104,7 @@ const updateImage = async (req, res) => {
         uploadedFile = uploadResult;
 
         // Update database
-        await user.update({ ImageUrl: uploadResult.url });
+        await repositories.user.update(userId, { ImageUrl: uploadResult.url });
 
         const sanitizeUser = user.toJSON();
         delete sanitizeUser.password;
@@ -133,7 +139,8 @@ const resetImage = async (req, res) => {
             return res.status(401).json({ message: "غير مصرح" });
         }
 
-        const user = await models.User.findByPk(userId);
+        const repositories = getRepositoryManager();
+        const user = await repositories.user.findByPk(userId);
         if (!user) {
             return res.status(404).json({ message: "المستخدم غير موجود" });
         }
@@ -141,7 +148,7 @@ const resetImage = async (req, res) => {
         const previousImageUrl = user.ImageUrl;
         const newImageUrl = `/images/${DEFAULT_PROFILE_IMAGE}`;
 
-        await user.update({ ImageUrl: newImageUrl });
+        await repositories.user.update(userId, { ImageUrl: newImageUrl });
 
         const sanitizeUser = user.toJSON();
         delete sanitizeUser.password;
@@ -192,12 +199,13 @@ const updateInfo = async (req, res) => {
             return res.status(400).json({ message: "لا توجد بيانات لتحديثها" });
         }
 
-        const user = await models.User.findByPk(userId);
+        const repositories = getRepositoryManager();
+        const user = await repositories.user.findByPk(userId);
         if (!user) {
             return res.status(404).json({ message: "المستخدم غير موجود" });
         }
 
-        await user.update(updates);
+        await repositories.user.update(userId, updates);
 
         const sanitizeUser = user.toJSON();
         delete sanitizeUser.password;
@@ -216,7 +224,8 @@ const deleteUser = async (req, res) => {
             return res.status(401).json({ message: "غير مصرح" });
         }
 
-        const user = await models.User.findByPk(userId);
+        const repositories = getRepositoryManager();
+        const user = await repositories.user.findByPk(userId);
         if (!user) {
             return res.status(404).json({ message: "المستخدم غير موجود" });
         }
@@ -224,17 +233,13 @@ const deleteUser = async (req, res) => {
         const userImageUrl = user.ImageUrl;
 
         // Collect user's post images for deletion
-        const userPosts = await models.Post.findAll({
-            where: { UserId: userId },
-            include: [{ model: models.Post_Image }]
-        });
-
+        const userPosts = await repositories.post.findByUser(userId, 1, 1000);
         const filesToDelete = [];
 
         // Collect post images
-        for (const post of userPosts) {
-            if (post.Post_Images) {
-                for (const img of post.Post_Images) {
+        for (const post of userPosts.rows) {
+            if (post.images && post.images.length > 0) {
+                for (const img of post.images) {
                     filesToDelete.push(img.imageUrl);
                 }
             }
@@ -246,7 +251,7 @@ const deleteUser = async (req, res) => {
         }
 
         // Delete user (CASCADE will delete posts, comments, and likes)
-        await user.destroy();
+        await repositories.user.delete(userId);
 
         // Delete files from storage
         if (filesToDelete.length > 0) {

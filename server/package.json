@@ -7,9 +7,13 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "test": "node tests/repositories.test.js",
+    "test:e2e": "node tests/api.test.js",
+    "test:comprehensive": "node tests/comprehensive.test.js",
+    "test:integration": "node tests/integration.test.js",
+    "test:all": "npm run test && npm run test:comprehensive && npm run test:integration && npm run test:e2e"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

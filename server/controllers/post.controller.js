@@ -1,4 +1,4 @@
-import models from "../models/index.js";
+import { getRepositoryManager } from "../repositories/index.js";
 import { getStorageService } from "../utilities/files.js";
 
 const newPost = async (req, res) => {
@@ -10,7 +10,8 @@ const newPost = async (req, res) => {
             return res.status(401).json({ message: "غير مصرح" });
         }
 
-        const user = await models.User.findByPk(userId);
+        const repositories = getRepositoryManager();
+        const user = await repositories.user.findByPk(userId);
         if (!user) {
             return res.status(404).json({ message: "المستخدم غير موجود" });
         }
@@ -56,42 +57,23 @@ const newPost = async (req, res) => {
         const sanitizedCountry = country && typeof country === 'string' ? country.trim() : null;
         const sanitizedRegion = region && typeof region === 'string' ? region.trim() : null;
 
-        // Create post
-        const post = await models.Post.create({
+        // Upload images using Storage Service
+        const storage = getStorageService();
+        const uploadResults = await storage.uploadFiles(req.files);
+        uploadResults.forEach(result => uploadedFiles.push(result));
+
+        // Prepare images array for repository
+        const images = uploadResults.map(result => ({ imageUrl: result.url }));
+
+        // Create post with images through repository
+        const fullPost = await repositories.post.createWithImages({
             title: title.trim(),
             content: content.trim(),
             steps: parsedSteps,
             country: sanitizedCountry,
             region: sanitizedRegion,
             UserId: userId,
-        });
-
-        // Upload images using Storage Service
-        const storage = getStorageService();
-        const uploadResults = await storage.uploadFiles(req.files);
-        
-        // Save image metadata to database
-        for (const result of uploadResults) {
-            uploadedFiles.push(result);
-            await models.Post_Image.create({
-                imageUrl: result.url,
-                PostId: post.id,
-            });
-        }
-
-        // Fetch post with images and user
-        const fullPost = await models.Post.findByPk(post.id, {
-            include: [
-                {
-                    model: models.Post_Image,
-                    attributes: ['id', 'imageUrl'],
-                },
-                {
-                    model: models.User,
-                    attributes: ['id', 'name', 'ImageUrl'],
-                },
-            ],
-        });
+        }, images);
 
         return res.status(201).json({ message: "تم إنشاء المنشور بنجاح", post: fullPost });
     } catch (error) {
@@ -115,61 +97,32 @@ const getAllPosts = async (req, res) => {
         const currentUserId = req.currentUser?.id;
         const page = Math.max(parseInt(req.query.page) || 1, 1);
         const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
-        const offset = (page - 1) * limit;
 
-        const { count, rows: posts } = await models.Post.findAndCountAll({
-            distinct: true,
-            col: 'id',
-            order: [['createdAt', 'DESC']],
-            limit,
-            offset,
-            include: [
-                {
-                    model: models.User,
-                    attributes: ['id', 'name', 'ImageUrl'],
-                },
-                {
-                    model: models.Post_Image,
-                    attributes: ['id', 'imageUrl'],
-                },
-                {
-                    model: models.Comment,
-                    attributes: ['id'],
-                },
-            ],
-        });
+        const repositories = getRepositoryManager();
+        const result = await repositories.post.findAllWithUser(page, limit);
+        const posts = result.rows;
+        const count = result.count;
 
         const postIds = posts.map((post) => post.id);
         let likesMap = {};
 
         if (postIds.length > 0) {
-            const likeRows = await models.Like.findAll({
-                attributes: [
-                    'PostId',
-                    [
-                        models.Like.sequelize.fn('COUNT', models.Like.sequelize.col('id')),
-                        'count',
-                    ],
-                ],
-                where: { PostId: postIds },
-                group: ['PostId'],
-                raw: true,
-            });
-
-            likesMap = likeRows.reduce((acc, row) => {
-                acc[row.PostId] = Number(row.count) || 0;
-                return acc;
-            }, {});
+            // Get likes count for each post
+            for (const postId of postIds) {
+                const likesCount = await repositories.like.countByPost(postId);
+                likesMap[postId] = likesCount;
+            }
         }
 
         let userLikesSet = new Set();
         if (currentUserId && postIds.length > 0) {
-            const userLikes = await models.Like.findAll({
-                attributes: ['PostId'],
-                where: { UserId: currentUserId, PostId: postIds },
-                raw: true,
-            });
-            userLikesSet = new Set(userLikes.map((l) => l.PostId));
+            // Check if current user has liked each post
+            for (const postId of postIds) {
+                const isLiked = await repositories.like.isLikedByUser(currentUserId, postId);
+                if (isLiked) {
+                    userLikesSet.add(postId);
+                }
+            }
         }
 
         const postsWithLikes = posts.map((post) => ({
@@ -205,62 +158,32 @@ const getMyPosts = async (req, res) => {
         const currentUserId = userId;
         const page = Math.max(parseInt(req.query.page) || 1, 1);
         const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
-        const offset = (page - 1) * limit;
 
-        const { count, rows: posts } = await models.Post.findAndCountAll({
-            distinct: true,
-            col: 'id',
-            where: { UserId: userId },
-            order: [['createdAt', 'DESC']],
-            limit,
-            offset,
-            include: [
-                {
-                    model: models.User,
-                    attributes: ['id', 'name', 'ImageUrl'],
-                },
-                {
-                    model: models.Post_Image,
-                    attributes: ['id', 'imageUrl'],
-                },
-                {
-                    model: models.Comment,
-                    attributes: ['id'],
-                },
-            ],
-        });
+        const repositories = getRepositoryManager();
+        const result = await repositories.post.findByUser(userId, page, limit);
+        const posts = result.rows;
+        const count = result.count;
 
         const postIds = posts.map((post) => post.id);
         let likesMap = {};
 
         if (postIds.length > 0) {
-            const likeRows = await models.Like.findAll({
-                attributes: [
-                    'PostId',
-                    [
-                        models.Like.sequelize.fn('COUNT', models.Like.sequelize.col('id')),
-                        'count',
-                    ],
-                ],
-                where: { PostId: postIds },
-                group: ['PostId'],
-                raw: true,
-            });
-
-            likesMap = likeRows.reduce((acc, row) => {
-                acc[row.PostId] = Number(row.count) || 0;
-                return acc;
-            }, {});
+            // Get likes count for each post
+            for (const postId of postIds) {
+                const likesCount = await repositories.like.countByPost(postId);
+                likesMap[postId] = likesCount;
+            }
         }
 
         let userLikesSet = new Set();
         if (currentUserId && postIds.length > 0) {
-            const userLikes = await models.Like.findAll({
-                attributes: ['PostId'],
-                where: { UserId: currentUserId, PostId: postIds },
-                raw: true,
-            });
-            userLikesSet = new Set(userLikes.map((l) => l.PostId));
+            // Check if current user has liked each post
+            for (const postId of postIds) {
+                const isLiked = await repositories.like.isLikedByUser(currentUserId, postId);
+                if (isLiked) {
+                    userLikesSet.add(postId);
+                }
+            }
         }
 
         const postsWithLikes = posts.map((post) => ({
@@ -293,42 +216,19 @@ const getPostById = async (req, res) => {
             return res.status(400).json({ message: "معرف المنشور غير صالح" });
         }
 
-        const post = await models.Post.findByPk(postId, {
-            include: [
-                {
-                    model: models.User,
-                    attributes: ['id', 'name', 'ImageUrl'],
-                },
-                {
-                    model: models.Post_Image,
-                    attributes: ['id', 'imageUrl'],
-                },
-                {
-                    model: models.Comment,
-                    attributes: ['id', 'text', 'createdAt'],
-                    include: [
-                        {
-                            model: models.User,
-                            attributes: ['id', 'name', 'ImageUrl'],
-                        },
-                    ],
-                },
-            ],
-        });
+        const repositories = getRepositoryManager();
+        const post = await repositories.post.findWithDetails(postId);
 
         if (!post) {
             return res.status(404).json({ message: "المنشور غير موجود" });
         }
 
-        const likesCount = await models.Like.count({ where: { PostId: postId } });
+        const likesCount = await repositories.like.countByPost(postId);
 
         const currentUserId = req.currentUser?.id;
         let isLiked = false;
         if (currentUserId) {
-            const userLike = await models.Like.findOne({
-                where: { UserId: currentUserId, PostId: postId },
-            });
-            isLiked = !!userLike;
+            isLiked = await repositories.like.isLikedByUser(currentUserId, postId);
         }
 
         return res.status(200).json({
@@ -358,9 +258,8 @@ const updatePost = async (req, res) => {
             return res.status(400).json({ message: "معرف المنشور غير صالح" });
         }
 
-        const post = await models.Post.findByPk(postId, {
-            include: [{ model: models.Post_Image }],
-        });
+        const repositories = getRepositoryManager();
+        const post = await repositories.post.findByPk(postId);
         if (!post) {
             return res.status(404).json({ message: "المنشور غير موجود" });
         }
@@ -416,7 +315,7 @@ const updatePost = async (req, res) => {
 
         const storage = getStorageService();
 
-        // Delete specified images
+        // Delete specified images if needed - keep complex image handling for now
         let imagesToDelete = [];
         if (deletedImages !== undefined && deletedImages !== null && deletedImages !== '') {
             if (typeof deletedImages === 'string') {
@@ -430,6 +329,8 @@ const updatePost = async (req, res) => {
             }
 
             if (Array.isArray(imagesToDelete) && imagesToDelete.length > 0) {
+                // Import models directly for image deletion
+                const { default: models } = await import('../models/index.js');
                 const existingImages = await models.Post_Image.findAll({
                     where: { id: imagesToDelete, PostId: postId },
                 });
@@ -449,8 +350,9 @@ const updatePost = async (req, res) => {
             }
         }
 
-        // Add new images
+        // Add new images if provided
         if (req.files && req.files.length > 0) {
+            const { default: models } = await import('../models/index.js');
             const uploadResults = await storage.uploadFiles(req.files);
             
             for (const result of uploadResults) {
@@ -462,26 +364,14 @@ const updatePost = async (req, res) => {
             }
         }
 
-        // Update post
+        // Update post using repository
         if (Object.keys(updates).length > 0) {
-            await post.update(updates);
+            await repositories.post.update(postId, updates);
         }
 
         // Fetch updated post
-        const updatedPost = await models.Post.findByPk(postId, {
-            include: [
-                {
-                    model: models.Post_Image,
-                    attributes: ['id', 'imageUrl'],
-                },
-                {
-                    model: models.User,
-                    attributes: ['id', 'name', 'ImageUrl'],
-                },
-            ],
-        });
-
-        const likesCount = await models.Like.count({ where: { PostId: postId } });
+        const updatedPost = await repositories.post.findWithDetails(postId);
+        const likesCount = await repositories.like.countByPost(postId);
 
         return res.status(200).json({
             message: "تم تحديث المنشور بنجاح",
@@ -518,9 +408,8 @@ const deletePost = async (req, res) => {
             return res.status(400).json({ message: "معرف المنشور غير صالح" });
         }
 
-        const post = await models.Post.findByPk(postId, {
-            include: [{ model: models.Post_Image }],
-        });
+        const repositories = getRepositoryManager();
+        const post = await repositories.post.findByPk(postId);
         if (!post) {
             return res.status(404).json({ message: "المنشور غير موجود" });
         }
@@ -529,10 +418,16 @@ const deletePost = async (req, res) => {
             return res.status(403).json({ message: "غير مسموح بحذف هذا المنشور" });
         }
 
+        // Get post details with images
+        const { default: models } = await import('../models/index.js');
+        const postWithImages = await models.Post.findByPk(postId, {
+            include: [{ model: models.Post_Image }],
+        });
+
         // Delete post images from storage
-        if (post.Post_Images && post.Post_Images.length > 0) {
+        if (postWithImages?.Post_Images && postWithImages.Post_Images.length > 0) {
             const storage = getStorageService();
-            const imageUrls = post.Post_Images.map(img => img.imageUrl);
+            const imageUrls = postWithImages.Post_Images.map(img => img.imageUrl);
             
             await storage.deleteFiles(imageUrls).catch(err => {
                 console.error('Failed to delete post images from storage:', err);
@@ -540,7 +435,7 @@ const deletePost = async (req, res) => {
         }
 
         // CASCADE will delete comments, likes, and images automatically
-        await post.destroy();
+        await repositories.post.delete(postId);
 
         return res.status(200).json({ message: "تم حذف المنشور بنجاح" });
     } catch (error) {

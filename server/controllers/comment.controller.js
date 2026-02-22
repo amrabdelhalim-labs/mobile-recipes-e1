@@ -1,4 +1,4 @@
-import models from "../models/index.js";
+import { getRepositoryManager } from "../repositories/index.js";
 
 const addComment = async (req, res) => {
     try {
@@ -12,7 +12,8 @@ const addComment = async (req, res) => {
             return res.status(400).json({ message: "معرف المنشور غير صالح" });
         }
 
-        const post = await models.Post.findByPk(postId);
+        const repositories = getRepositoryManager();
+        const post = await repositories.post.findByPk(postId);
         if (!post) {
             return res.status(404).json({ message: "المنشور غير موجود" });
         }
@@ -22,20 +23,7 @@ const addComment = async (req, res) => {
             return res.status(400).json({ message: "نص التعليق مطلوب" });
         }
 
-        const comment = await models.Comment.create({
-            text: text.trim(),
-            UserId: userId,
-            PostId: postId,
-        });
-
-        const fullComment = await models.Comment.findByPk(comment.id, {
-            include: [
-                {
-                    model: models.User,
-                    attributes: ['id', 'name', 'ImageUrl'],
-                },
-            ],
-        });
+        const fullComment = await repositories.comment.createComment(userId, postId, text.trim());
 
         return res.status(201).json({ message: "تم إضافة التعليق بنجاح", comment: fullComment });
     } catch (error) {
@@ -56,7 +44,8 @@ const updateComment = async (req, res) => {
             return res.status(400).json({ message: "معرف التعليق غير صالح" });
         }
 
-        const comment = await models.Comment.findByPk(commentId);
+        const repositories = getRepositoryManager();
+        const comment = await repositories.comment.findByPk(commentId);
         if (!comment) {
             return res.status(404).json({ message: "التعليق غير موجود" });
         }
@@ -70,16 +59,10 @@ const updateComment = async (req, res) => {
             return res.status(400).json({ message: "نص التعليق مطلوب" });
         }
 
-        await comment.update({ text: text.trim() });
+        await repositories.comment.updateText(commentId, text.trim());
 
-        const updatedComment = await models.Comment.findByPk(commentId, {
-            include: [
-                {
-                    model: models.User,
-                    attributes: ['id', 'name', 'ImageUrl'],
-                },
-            ],
-        });
+        // Fetch updated comment with user details
+        const updatedComment = await repositories.comment.findByPk(commentId);
 
         return res.status(200).json({ message: "تم تعديل التعليق بنجاح", comment: updatedComment });
     } catch (error) {
@@ -100,7 +83,8 @@ const deleteComment = async (req, res) => {
             return res.status(400).json({ message: "معرف التعليق غير صالح" });
         }
 
-        const comment = await models.Comment.findByPk(commentId);
+        const repositories = getRepositoryManager();
+        const comment = await repositories.comment.findByPk(commentId);
         if (!comment) {
             return res.status(404).json({ message: "التعليق غير موجود" });
         }
@@ -109,7 +93,7 @@ const deleteComment = async (req, res) => {
             return res.status(403).json({ message: "غير مسموح بحذف هذا التعليق" });
         }
 
-        await comment.destroy();
+        await repositories.comment.delete(commentId);
 
         return res.status(200).json({ message: "تم حذف التعليق بنجاح" });
     } catch (error) {
@@ -127,26 +111,11 @@ const getMyComments = async (req, res) => {
 
         const page = Math.max(parseInt(req.query.page) || 1, 1);
         const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
-        const offset = (page - 1) * limit;
 
-        const { count, rows: comments } = await models.Comment.findAndCountAll({
-            distinct: true,
-            col: 'id',
-            where: { UserId: userId },
-            order: [['createdAt', 'DESC']],
-            limit,
-            offset,
-            include: [
-                {
-                    model: models.User,
-                    attributes: ['id', 'name', 'ImageUrl'],
-                },
-                {
-                    model: models.Post,
-                    attributes: ['id', 'title'],
-                },
-            ],
-        });
+        const repositories = getRepositoryManager();
+        const result = await repositories.comment.findByUser(userId, page, limit);
+        const comments = result.rows;
+        const count = result.count;
 
         const totalPages = Math.ceil(count / limit);
 

@@ -1,4 +1,4 @@
-import models from "../models/index.js";
+import { getRepositoryManager } from "../repositories/index.js";
 
 const toggleLike = async (req, res) => {
     try {
@@ -12,31 +12,18 @@ const toggleLike = async (req, res) => {
             return res.status(400).json({ message: "معرف المنشور غير صالح" });
         }
 
-        const post = await models.Post.findByPk(postId);
+        const repositories = getRepositoryManager();
+        const post = await repositories.post.findByPk(postId);
         if (!post) {
             return res.status(404).json({ message: "المنشور غير موجود" });
         }
 
-        const existingLike = await models.Like.findOne({
-            where: { UserId: userId, PostId: postId },
-        });
-
-        let isLiked;
-
-        if (existingLike) {
-            await existingLike.destroy();
-            isLiked = false;
-        } else {
-            await models.Like.create({ UserId: userId, PostId: postId });
-            isLiked = true;
-        }
-
-        const likesCount = await models.Like.count({ where: { PostId: postId } });
+        const result = await repositories.like.toggleLike(userId, postId);
 
         return res.status(200).json({
-            message: isLiked ? "تم تسجيل الإعجاب" : "تم إلغاء الإعجاب",
-            isLiked,
-            likesCount,
+            message: result.isLiked ? "تم تسجيل الإعجاب" : "تم إلغاء الإعجاب",
+            isLiked: result.isLiked,
+            likesCount: result.likesCount,
         });
     } catch (error) {
         console.error(error);
@@ -51,27 +38,18 @@ const getPostLikes = async (req, res) => {
             return res.status(400).json({ message: "معرف المنشور غير صالح" });
         }
 
-        const post = await models.Post.findByPk(postId);
+        const repositories = getRepositoryManager();
+        const post = await repositories.post.findByPk(postId);
         if (!post) {
             return res.status(404).json({ message: "المنشور غير موجود" });
         }
 
         const page = Math.max(parseInt(req.query.page) || 1, 1);
         const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 50);
-        const offset = (page - 1) * limit;
 
-        const { count, rows: likes } = await models.Like.findAndCountAll({
-            where: { PostId: postId },
-            order: [['createdAt', 'DESC']],
-            limit,
-            offset,
-            include: [
-                {
-                    model: models.User,
-                    attributes: ['id', 'name', 'ImageUrl'],
-                },
-            ],
-        });
+        const result = await repositories.like.findByPost(postId, page, limit);
+        const likes = result.rows;
+        const count = result.count;
 
         const users = likes.map((like) => like.User);
         const totalPages = Math.ceil(count / limit);
@@ -100,32 +78,11 @@ const getMyLikes = async (req, res) => {
 
         const page = Math.max(parseInt(req.query.page) || 1, 1);
         const limit = Math.min(Math.max(parseInt(req.query.limit) || 10, 1), 50);
-        const offset = (page - 1) * limit;
 
-        const { count, rows: likes } = await models.Like.findAndCountAll({
-            where: { UserId: userId },
-            order: [['createdAt', 'DESC']],
-            limit,
-            offset,
-            distinct: true,
-            col: 'id',
-            include: [
-                {
-                    model: models.Post,
-                    attributes: ['id', 'title', 'content', 'createdAt'],
-                    include: [
-                        {
-                            model: models.User,
-                            attributes: ['id', 'name', 'ImageUrl'],
-                        },
-                        {
-                            model: models.Post_Image,
-                            attributes: ['id', 'imageUrl'],
-                        },
-                    ],
-                },
-            ],
-        });
+        const repositories = getRepositoryManager();
+        const result = await repositories.like.findByUser(userId, page, limit);
+        const likes = result.rows;
+        const count = result.count;
 
         const posts = likes.map((like) => like.Post);
         const totalPages = Math.ceil(count / limit);

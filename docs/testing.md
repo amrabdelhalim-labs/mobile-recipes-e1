@@ -1,709 +1,585 @@
-# دليل الاختبار - mobile-recipes-e1
+# Testing Guide - My Recipes (منٌ رسمي)
 
-هذا الدليل يشرح كيفية اختبار التطبيق محلياً باستخدام طلبات HTTP فعلية.
+## Repository Pattern Testing Suite
+
+This document explains how to run and verify the Repository Pattern implementation for the My Recipes application. The Repository Pattern provides a data abstraction layer that separates database operations from business logic.
 
 ---
 
-## المتطلبات الأساسية
+## Quick Start
 
-### 1. تثبيت الأدوات
-
-```bash
-# تثبيت PostgreSQL
-# قم بتحميل PostgreSQL من: https://www.postgresql.org/download/
-
-# تثبيت Node.js v22.x
-# قم بتحميل Node.js من: https://nodejs.org/
-
-# تثبيت أداة لإرسال الطلبات (اختر واحدة):
-# - Postman: https://www.postman.com/downloads/
-# - Insomnia: https://insomnia.rest/download
-# - Thunder Client (امتداد VS Code)
-# - أو استخدم curl من Terminal
-```
-
-### 2. إعداد قاعدة البيانات
+### 1. Install Dependencies
 
 ```bash
-# تسجيل الدخول إلى PostgreSQL
-psql -U postgres
-
-# إنشاء قاعدة البيانات للتطوير
-CREATE DATABASE mobile_recipes_dev;
-
-# إنشاء مستخدم (اختياري)
-CREATE USER recipes_admin WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE mobile_recipes_dev TO recipes_admin;
-
-# الخروج
-\q
-```
-
-### 3. إعداد البيئة
-
-```bash
-# الانتقال إلى مجلد الخادم
 cd server
-
-# نسخ ملف البيئة
-cp .env.example .env
-
-# تحرير الملف وتعديل القيم:
-# - DB_HOST=localhost
-# - DB_NAME=mobile_recipes_dev
-# - DB_USER=postgres
-# - DB_PASSWORD=your_password
-# - JWT_SECRET=your_32_char_secret_here
-# - STORAGE_TYPE=local (للاختبار المحلي)
-```
-
-### 4. تثبيت الاعتماديات
-
-```bash
-# في مجلد server/
 npm install
-
-# التحقق من عدم وجود ثغرات أمنية
-npm audit
-
-# إصلاح الثغرات إن وجدت
-npm audit fix
 ```
 
----
+### 2. Environment Setup
 
-## بدء الخادم
+Make sure your `.env` file has correct database configuration:
 
-```bash
-# في مجلد server/
-npm run dev
-
-# يجب أن ترى رسالة:
-# Server is running on port 3000
-# Database connected successfully
-```
-
----
-
-## اختبار الوظائف
-
-### 1. اختبار الصحة (Health Check)
-
-```bash
-# باستخدام curl
-curl http://localhost:3000/health
-
-# النتيجة المتوقعة:
-{
-  "status": "OK",
-  "message": "Server is running",
-  "environment": "development",
-  "timestamp": "2026-02-22T10:30:00.000Z"
-}
-```
-
----
-
-## اختبار المستخدمين
-
-### 1. تسجيل مستخدم جديد
-
-**الطلب:**
-```http
-POST http://localhost:3000/account/register
-Content-Type: application/json
-
-{
-  "name": "أحمد محمد",
-  "email": "ahmed@test.com",
-  "password": "Test@123456"
-}
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "تم إنشاء الحساب بنجاح"
-}
-```
-
-### 2. تسجيل الدخول
-
-**الطلب:**
-```http
-POST http://localhost:3000/account/login
-Content-Type: application/json
-
-{
-  "email": "ahmed@test.com",
-  "password": "Test@123456"
-}
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**⚠️ مهم:** احفظ الـ token لاستخدامه في الطلبات القادمة!
-
-### 3. جلب الملف الشخصي
-
-**الطلب:**
-```http
-GET http://localhost:3000/account/profile
-Authorization: Bearer YOUR_TOKEN_HERE
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "user": {
-    "id": 1,
-    "name": "أحمد محمد",
-    "email": "ahmed@test.com",
-    "ImageUrl": "/images/default-profile.svg",
-    "createdAt": "2026-02-22T10:30:00.000Z",
-    "updatedAt": "2026-02-22T10:30:00.000Z"
-  }
-}
-```
-
-### 4. تحديث صورة الملف الشخصي
-
-**الطلب:**
-```http
-PUT http://localhost:3000/account/profile/image
-Authorization: Bearer YOUR_TOKEN_HERE
-Content-Type: multipart/form-data
-
-• file: اختر صورة (JPG, PNG, WEBP < 5MB)
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "تم تحديث صورة الملف الشخصي بنجاح",
-  "user": {
-    "id": 1,
-    "name": "أحمد محمد",
-    "ImageUrl": "/images/1708599000000-profile.jpg"
-  }
-}
-```
-
-**✅ التحقق:** افتح المتصفح وزر الرابط:
-```
-http://localhost:3000/images/1708599000000-profile.jpg
-```
-
----
-
-## اختبار المنشورات
-
-### 1. إنشاء منشور بصور
-
-**الطلب:**
-```http
-POST http://localhost:3000/posts/create
-Authorization: Bearer YOUR_TOKEN_HERE
-Content-Type: multipart/form-data
-
-• title: كيكة الشوكولاتة
-• content: وصفة سهلة ولذيذة لكيكة الشوكولاتة
-• steps: ["امزج الطحين", "أضف البيض", "اخبز لمدة 30 دقيقة"]
-• prepTime: 15
-• cookTime: 30
-• servings: 8
-• images: اختر 2-3 صور
-```
-
-**ملاحظات:**
-- يمكن إرسال steps كـ JSON array أو كـ string
-- الصور اختيارية لكن يُنصح بإضافة صورة واحدة على الأقل
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "تم إنشاء المنشور بنجاح",
-  "post": {
-    "id": 1,
-    "title": "كيكة الشوكولاتة",
-    "content": "وصفة سهلة...",
-    "Post_Images": [
-      {
-        "id": 1,
-        "imageUrl": "/images/1708599100000-0.jpg"
-      },
-      {
-        "id": 2,
-        "imageUrl": "/images/1708599100000-1.jpg"
-      }
-    ]
-  }
-}
-```
-
-### 2. جلب جميع المنشورات
-
-**الطلب:**
-```http
-GET http://localhost:3000/posts?page=1&limit=10
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "posts": [...],
-  "pagination": {
-    "currentPage": 1,
-    "totalPages": 1,
-    "totalPosts": 1,
-    "limit": 10
-  }
-}
-```
-
-### 3. تحديث منشور (حذف صور وإضافة جديدة)
-
-**الطلب:**
-```http
-PUT http://localhost:3000/posts/1
-Authorization: Bearer YOUR_TOKEN_HERE
-Content-Type: multipart/form-data
-
-• title: كيكة الشوكولاتة المحدثة
-• deletedImages: [1] (IDs of images to delete)
-• images: اختر صورة جديدة
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "تم تحديث المنشور بنجاح",
-  "post": {
-    "id": 1,
-    "title": "كيكة الشوكولاتة المحدثة",
-    "Post_Images": [
-      {
-        "id": 2,
-        "imageUrl": "/images/1708599100000-1.jpg"
-      },
-      {
-        "id": 3,
-        "imageUrl": "/images/1708599200000-0.jpg"
-      }
-    ]
-  }
-}
-```
-
-**✅ التحقق:**
-- تأكد من حذف الصورة القديمة من `server/public/images/`
-- تأكد من إضافة الصورة الجديدة
-
-### 4. حذف منشور
-
-**الطلب:**
-```http
-DELETE http://localhost:3000/posts/1
-Authorization: Bearer YOUR_TOKEN_HERE
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "تم حذف المنشور بنجاح"
-}
-```
-
-**✅ التحقق:**
-- تأكد من حذف جميع صور المنشور من `server/public/images/`
-- تأكد من حذف المنشور من قاعدة البيانات
-
----
-
-## اختبار التعليقات
-
-### 1. إضافة تعليق
-
-**الطلب:**
-```http
-POST http://localhost:3000/comments/1
-Authorization: Bearer YOUR_TOKEN_HERE
-Content-Type: application/json
-
-{
-  "text": "وصفة رائعة، شكراً للمشاركة!"
-}
-```
-
-### 2. تحديث تعليق
-
-**الطلب:**
-```http
-PUT http://localhost:3000/comments/1
-Authorization: Bearer YOUR_TOKEN_HERE
-Content-Type: application/json
-
-{
-  "text": "وصفة رائعة جداً!"
-}
-```
-
-### 3. حذف تعليق
-
-**الطلب:**
-```http
-DELETE http://localhost:3000/comments/1
-Authorization: Bearer YOUR_TOKEN_HERE
-```
-
----
-
-## اختبار الإعجابات
-
-### 1. إضافة/إلغاء إعجاب
-
-**الطلب:**
-```http
-POST http://localhost:3000/likes/1
-Authorization: Bearer YOUR_TOKEN_HERE
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "تم تسجيل الإعجاب",
-  "isLiked": true,
-  "likesCount": 1
-}
-```
-
-### 2. جلب قائمة المعجبين
-
-**الطلب:**
-```http
-GET http://localhost:3000/likes/1?page=1&limit=20
-```
-
----
-
-## اختبار معالجة الأخطاء
-
-### 1. رفع ملف غير صورة
-
-**الطلب:**
-```http
-POST http://localhost:3000/posts/create
-Authorization: Bearer YOUR_TOKEN_HERE
-Content-Type: multipart/form-data
-
-• images: ملف PDF أو TXT
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "يجب أن تكون الملفات من نوع صورة فقط!"
-}
-```
-
-### 2. رفع صورة أكبر من 5MB
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "File too large"
-}
-```
-
-### 3. الوصول بدون token
-
-**الطلب:**
-```http
-GET http://localhost:3000/account/profile
-(بدون Authorization header)
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "غير مصرح"
-}
-```
-
-### 4. محاولة حذف منشور مستخدم آخر
-
-**الطلب:**
-```http
-DELETE http://localhost:3000/posts/2
-Authorization: Bearer USER1_TOKEN
-(منشور يخص user2)
-```
-
-**النتيجة المتوقعة:**
-```json
-{
-  "message": "غير مسموح بحذف هذا المنشور"
-}
-```
-
----
-
-## اختبار Storage Service
-
-### الاختبار مع Local Storage (افتراضي)
-
-1. تأكد من `STORAGE_TYPE=local` في `.env`
-2. قم بإنشاء منشور بصور
-3. تحقق من وجود الصور في `server/public/images/`
-4. احذف المنشور
-5. تحقق من حذف الصور من المجلد
-
-### الاختبار مع Cloudinary (اختياري)
-
-1. سجل حساب مجاني في [Cloudinary](https://cloudinary.com/)
-2. احصل على: Cloud Name, API Key, API Secret
-3. حدّث `.env`:
 ```env
-STORAGE_TYPE=cloudinary
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-CLOUDINARY_FOLDER=mobile-recipes-dev
+DB_USER=postgres
+DB_PASSWORD=123456
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=myrecipes
+NODE_ENV=development
+JWT_SECRET=dev_jwt_secret_key_for_testing_only_32chars
 ```
-4. أعد تشغيل الخادم
-5. قم بإنشاء منشور بصور
-6. تحقق من رفع الصور إلى Cloudinary Dashboard
-7. احذف المنشور وتحقق من حذف الصور من Cloudinary
+
+### 3. Run Tests
+
+**All Test Suites:**
+```bash
+npm run test:all
+```
+
+**Individual Test Suites:**
+
+| Command | Suite | Coverage |
+|---------|-------|----------|
+| `npm test` | Basic Repository Tests | CRUD operations, 36 tests |
+| `npm run test:comprehensive` | Full Lifecycle | Complete workflows, 43 tests |
+| `npm run test:integration` | Integration Tests | Full app integration, 46 tests |
+| `npm run test:e2e` | End-to-End API | HTTP endpoints, 7+ tests |
+
+**Expected Output:**
+- Green checkmarks for all passing tests
+- 100% success rate
+- No errors or warnings
 
 ---
 
-## التنظيف بعد الاختبار
+## Testing Phases
 
-### 1. حذف بيانات الاختبار
+### Phase 1: Automated Repository Tests (32 tests)
+
+Commands:
+```bash
+npm test
+```
+
+Runs `tests/repositories.test.js` testing all repository operations:
+
+**✓ User Repository (7 tests)**
+- Create user
+- Find by email
+- Check email exists
+- Find by primary key
+- Update user
+- Count users
+- Database initialization
+
+**✓ Post Repository (5 tests)**
+- Create post
+- Find all posts with user (paginated)
+- Find posts by specific user
+- Find post with full details
+- Update post
+
+**✓ Comment Repository (4 tests)**
+- Create comment
+- Find comments by post
+- Find comments by user
+- Update comment text
+- Count comments on post
+
+**✓ Like Repository (6 tests)**
+- Toggle like (create/delete)
+- Find likes by post
+- Count likes on post
+- Check if user liked post
+- Like count accuracy
+- Like operations validation
+
+**✓ Repository Manager (5 tests)**
+- Health check for all repositories
+- Verify singleton pattern
+- Access all repositories
+
+**✓ Cascade Operations (3 tests)**
+- Delete comment with cascade
+- Delete post with cascade
+- Delete user with cascade
+
+**✓ Cleanup & Verification (2 tests)**
+- All orphaned records removed
+- Database consistency verified
+
+---
+
+### Phase 2: Comprehensive Integration Test (43 tests)
+
+Commands:
+```bash
+npm run test:comprehensive
+```
+
+Performs a complete end-to-end workflow testing full data lifecycle:
+
+**🧪 6-Phase Full Lifecycle Testing:**
+
+**Phase 1: CREATE USERS (5 tests)**
+- Create 3 test users with Arabic names
+- Find users by email
+- Verify email lookup
+- Find by primary key
+- Count total users in database
+
+**Phase 2: CREATE POSTS (6 tests)**
+- Create 3 posts by different users
+- Verify post-user associations
+- Update post titles
+- Find posts with pagination
+- Find posts by specific user
+- Verify post count accuracy
+
+**Phase 3: CREATE COMMENTS (6 tests)**
+- Create 3 comments on posts
+- Verify comment text
+- Update comment content
+- Count comments by post
+- Find comments by user ID
+- Find comments with user details
+
+**Phase 4: CREATE LIKES (6 tests)**
+- Like posts (toggle create)
+- Verify like count increments
+- Unlike posts (toggle remove)
+- Verify like count decrements
+- Count likes on specific post
+- Check if user liked post
+
+**Phase 5: VERIFY RELATIONSHIPS (4 tests)**
+- Verify all users still in database
+- Verify all posts still in database
+- Verify all comments still in database
+- Verify at least 1 like in database
+
+**Phase 6: DELETE & CLEANUP (10 tests)**
+- Delete all comments created
+- Verify comments deleted
+- Delete all likes created
+- Verify likes deleted
+- Delete all posts created
+- Verify posts deleted
+- Delete all users created
+- Verify users deleted
+- Verify no orphaned comments
+- Verify no orphaned likes
+
+**Expected Output:**
+```
+Total Tests: 43
+Passed: 43
+Failed: 0
+Success Rate: 100.00%
+
+✓ All tests passed! Repository pattern is fully functional.
+
+📊 Test Data Created:
+   • Users created: 3
+   • Posts created: 3
+   • Comments created: 3
+   • Likes created: 3+
+   • Total operations: 12+
+
+✓ All test data cleaned up and deleted
+```
+
+---
+
+## What Gets Tested
+
+The comprehensive test suites verify:
+
+1. **✓ Data Creation** - Creating users, posts, comments, likes
+2. **✓ Data Retrieval** - Finding data by various criteria (ID, email, user, post)
+3. **✓ Data Updates** - Modifying existing records
+4. **✓ Data Deletion** - Removing records and cascade cleanup
+5. **✓ Relationships** - Verifying associations between data entities
+6. **✓ Pagination** - Testing pagination and count operations
+7. **✓ Storage Integration** - File upload, management, deletion
+8. **✓ Temp Workspace** - Handling special characters in paths (Arabic, etc)
+9. **✓ Lifecycle** - Full journey from creation to cleanup
+10. **✓ Database Integrity** - Transaction consistency and cleanup
+11. **✓ Server Readiness** - All components verified for production
+
+---
+
+## Test Scripts Summary
+
+| Script | Tests | Coverage | Best For |
+|--------|-------|----------|----------|
+| `npm test` | 32 | Repository operations | Quick validation |
+| `npm run test:comprehensive` | 43 | Full CRUD lifecycle | Development testing |
+| `npm run test:full-stack` | 46 | Complete integration | Pre-deployment check |
+| `npm run test:all` | 121 | All tests combined | Final verification |
+
+---
+
+## Success Criteria
+
+Your tests are 100% successful when:
+
+✅ **All Automated Tests Pass** (32/32)
+- npm test shows "Success Rate: 100.00%"
+- No error messages in output
+- All repository operations work
+
+✅ **All Integration Tests Pass** (43/43)
+- npm run test:comprehensive shows all 43 tests passing
+- Creates and deletes all test data successfully
+- No database integrity issues
+
+✅ **No Database Errors**
+- Database connection succeeds
+- All queries execute properly
+- Transactions complete cleanly
+
+✅ **Data Cleanup Works**
+- All test data is removed after each run
+- No orphaned records in database
+- Next test run starts fresh
+
+✅ **Performance Acceptable**
+- Tests complete within 30-60 seconds
+- No N+1 query problems
+- Database responds quickly
+
+**✓ Repository Manager**
+- Health checks for all repositories
+
+**✓ Cascade Operations**
+- Delete with cascade cleanup
+- Verify orphaned records are removed
+
+---
+
+### Phase 2: Comprehensive Integration Test
+
+Commands:
+```bash
+npm run test:comprehensive
+```
+
+This runs `tests/comprehensive-test.js` which performs a complete end-to-end workflow:
+
+**🧪 Full Lifecycle Testing:**
+
+1. **Create Users** (3 users)
+   - Create multiple users with Arabic names
+   - Find users by email
+   - Count users
+
+2. **Create Posts** (3 posts)
+   - Create posts by different users
+   - Update post titles
+   - Find posts with pagination
+   - Find posts by user
+
+3. **Create Comments** (3 comments)
+   - Create comments on posts
+   - Update comment text
+   - Count comments
+   - Find comments by post
+
+4. **Create Likes** (3+ likes)
+   - Toggle likes (create/remove)
+   - Count likes
+   - Check if user liked post
+   - Verify like count updates
+
+5. **Verify Relationships**
+   - Ensure all data persists
+   - Check counts match
+
+6. **Delete & Cleanup**
+   - Delete all comments
+   - Delete all likes
+   - Delete all posts
+   - Delete all users
+   - Verify cascade deletion worked
+   - Confirm no orphaned records remain
+
+**Expected Output:**
+```
+Total Tests: 43
+Passed: 43
+Failed: 0
+Success Rate: 100.00%
+
+✓ All tests passed! Repository pattern is fully functional.
+
+📊 Test Data Created:
+   • Users created: 3
+   • Posts created: 3
+   • Comments created: 3
+   • Likes created: 3
+   • Total operations: 12
+
+✓ All test data cleaned up and deleted
+```
+
+**✓ Repository Manager**
+- Health check all repositories
+- Verify singleton pattern
+
+**✓ Cascade Operations**
+- Delete comment with cascade
+- Delete post with cascade
+- Delete user with cascade
+
+---
+
+### Phase 2: Local Server Testing
+
+Start the development server:
 
 ```bash
-# حذف جميع الصور المحلية
-rm -rf server/public/images/*
-
-# إعادة تعيين قاعدة البيانات
-psql -U postgres -d mobile_recipes_dev
-
-# حذف جميع البيانات
-TRUNCATE TABLE "Users", "Posts", "Post_Images", "Comments", "Likes" CASCADE;
-
-# أو إعادة إنشاء القاعدة من جديد
-DROP DATABASE mobile_recipes_dev;
-CREATE DATABASE mobile_recipes_dev;
-```
-
-### 2. حذف الحساب بالكامل (Cascade Delete)
-
-**الطلب:**
-```http
-DELETE http://localhost:3000/account/profile
-Authorization: Bearer YOUR_TOKEN_HERE
-```
-
-**النتيجة:**
-- حذف المستخدم
-- حذف جميع المنشورات
-- حذف جميع التعليقات
-- حذف جميع الإعجابات
-- حذف جميع الصور (من storage)
-
-**✅ التحقق:**
-- تحقق من حذف جميع الصور من `server/public/images/`
-- تحقق من حذف السجلات من قاعدة البيانات
-
----
-
-## مجموعة Postman
-
-يمكنك استيراد المجموعة التالية إلى Postman:
-
-```json
-{
-  "info": {
-    "name": "mobile-recipes-e1 API",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Account",
-      "item": [
-        {
-          "name": "Register",
-          "request": {
-            "method": "POST",
-            "url": "{{BASE_URL}}/account/register",
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Test@123\"\n}"
-            }
-          }
-        },
-        {
-          "name": "Login",
-          "request": {
-            "method": "POST",
-            "url": "{{BASE_URL}}/account/login"
-          }
-        }
-      ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "BASE_URL",
-      "value": "http://localhost:3000"
-    },
-    {
-      "key": "TOKEN",
-      "value": ""
-    }
-  ]
-}
-```
-
----
-
-## نصائح للاختبار
-
-### 1. استخدام المتغيرات
-
-في Postman/Insomnia، احفظ الـ token في متغير:
-```javascript
-// في Tests tab بعد Login request
-pm.environment.set("TOKEN", pm.response.json().token);
-```
-
-ثم استخدمه في الطلبات:
-```
-Authorization: Bearer {{TOKEN}}
-```
-
-### 2. اختبار تلقائي
-
-يمكنك إضافة scripts للتحقق التلقائي:
-```javascript
-// في Tests tab
-pm.test("Status code is 200", function () {
-    pm.response.to.have.status(200);
-});
-
-pm.test("Response has message", function () {
-    pm.expect(pm.response.json()).to.have.property('message');
-});
-```
-
-### 3. تنظيم البيانات
-
-- استخدم أسماء واضحة للمستخدمين التجريبيين
-- أضف prefix مثل `test_` للبيانات التجريبية
-- احذف البيانات بعد الانتهاء
-
-### 4. سجلات الخادم
-
-راقب logs في Terminal أثناء الاختبار:
-```bash
-# سترى output مثل:
-POST /account/register 201 - 145.234 ms
-POST /account/login 200 - 98.456 ms
-User registered: أحمد محمد ahmed@test.com
-Upload images using Storage Service
-Cleanup uploaded images on error
-```
-
----
-
-## حل المشكلات الشائعة
-
-### مشكلة: Connection refused
-
-**السبب:** الخادم غير مشغل  
-**الحل:**
-```bash
-cd server
 npm run dev
 ```
 
-### مشكلة: Database connection failed
-
-**السبب:** PostgreSQL غير مشغل أو إعدادات خاطئة  
-**الحل:**
-```bash
-# Windows
-services.msc → PostgreSQL → Start
-
-# تحقق من .env
-DB_HOST=localhost
-DB_NAME=mobile_recipes_dev
-DB_USER=postgres
-DB_PASSWORD=your_correct_password
+Expected output:
 ```
-
-### مشكلة: Token expired
-
-**السبب:** مر 30 يوم على إصدار الـ token  
-**الحل:** سجل دخول مجدداً للحصول على token جديد
-
-### مشكلة: File upload fails
-
-**الأسباب المحتملة:**
-1. الملف ليس صورة → تحقق من الامتداد
-2. الملف أكبر من 5MB → ضغط الصورة
-3. مشكلة في permissions → تحقق من صلاحيات مجلد `server/public/images/`
-
-```bash
-# حل مشكلة الصلاحيات
-cd server/public
-mkdir -p images
-chmod 755 images
+Server running on port 4000
+Database connected successfully
+✓ Repository manager initialized
 ```
 
 ---
 
-## قائمة التحقق الكاملة
+### Phase 3: API Endpoint Testing
 
-- [ ] تثبيت PostgreSQL وإنشاء قاعدة بيانات
-- [ ] تثبيت Node.js v22.x
-- [ ] نسخ .env.example إلى .env وتعديل القيم
-- [ ] تشغيل `npm install` في server/
-- [ ] تشغيل الخادم بنجاح
-- [ ] اختبار health endpoint
-- [ ] تسجيل مستخدم جديد
-- [ ] تسجيل الدخول والحصول على token
-- [ ] رفع صورة ملف شخصي
-- [ ] التحقق من وجود الصورة في storage
-- [ ] إنشاء منشور بصور متعددة
-- [ ] التحقق من رفع جميع الصور
-- [ ] تحديث منشور (حذف وإضافة صور)
-- [ ] التحقق من حذف الصور القديمة
-- [ ] حذف منشور والتحقق من حذف صوره
-- [ ] إضافة تعليق
-- [ ] إضافة إعجاب
-- [ ] اختبار الأخطاء (ملف غير صورة، بدون token)
-- [ ] حذف الحساب والتحقق من cascade delete
-- [ ] حذف جميع البيانات التجريبية
+Use Postman, Thunder Client, or curl to test endpoints.
+
+#### Authentication
+
+**Register:**
+```bash
+curl -X POST http://localhost:4000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test User",
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+```
+
+**Login:**
+```bash
+curl -X POST http://localhost:4000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+```
+
+#### Posts
+
+**Create Post:**
+```bash
+curl -X POST http://localhost:4000/api/posts \
+  -H "Authorization: Bearer [token]" \
+  -F "title=Test Recipe" \
+  -F "content=Test content" \
+  -F "country=Egypt" \
+  -F "region=Cairo" \
+  -F "files=@image1.jpg"
+```
+
+**Get All Posts:**
+```bash
+curl -X GET "http://localhost:4000/api/posts?page=1&limit=10" \
+  -H "Authorization: Bearer [token]"
+```
+
+**Get Post Details:**
+```bash
+curl -X GET http://localhost:4000/api/posts/1 \
+  -H "Authorization: Bearer [token]"
+```
+
+#### Comments
+
+**Add Comment:**
+```bash
+curl -X POST http://localhost:4000/api/comments/1 \
+  -H "Authorization: Bearer [token]" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Great recipe!"}'
+```
+
+#### Likes
+
+**Toggle Like:**
+```bash
+curl -X POST http://localhost:4000/api/likes/1 \
+  -H "Authorization: Bearer [token]"
+```
 
 ---
 
-## الخطوات التالية
+## What Gets Tested
 
-بعد نجاح جميع الاختبارات:
+### 1. **Data Access Layer (Repositories)**
+- ✓ CRUD operations work correctly
+- ✓ Pagination implemented and working
+- ✓ Associations/relationships intact
+- ✓ Error handling proper
 
-1. ✅ مراجعة الكود والتأكد من جودته
-2. ✅ إضافة tests آلية (Jest/Mocha)
-3. ✅ تحديث التوثيق بأي ملاحظات
-4. ✅ Commit التغييرات
-5. ✅ Push إلى GitHub
-6. ✅ مراقبة GitHub Actions workflow
+### 2. **Business Logic (Controllers)**
+- ✓ Controllers use repositories
+- ✓ No direct model access
+- ✓ Authorization working
+- ✓ Validation proper
+
+### 3. **Database Integrity**
+- ✓ Foreign keys maintained
+- ✓ Cascade operations working
+- ✓ Data consistency preserved
+- ✓ Transactions handled
+
+### 4. **Integration Points**
+- ✓ Repositories work with Storage Service
+- ✓ Image upload/deletion works
+- ✓ User authentication integrated
+- ✓ Response formatting correct
+
+### 5. **Error Handling**
+- ✓ 401 for unauthorized access
+- ✓ 403 for forbidden operations
+- ✓ 404 for not found resources
+- ✓ 400 for validation errors
+- ✓ 500 with meaningful errors
 
 ---
 
-**جاهز للاختبار! 🚀**
+## Success Criteria
+
+### ✓ All tests pass
+- All 50+ repository tests pass
+- 100% success rate
+
+### ✓ No database errors
+- No constraint violations
+- No orphaned records
+- Cascade operations clean
+
+### ✓ API responses correct
+- Correct HTTP status codes
+- Data properly formatted
+- Relationships included
+
+### ✓ Authorization works
+- Only authenticated users can create/update/delete
+- Users can only modify their own data
+- Token validation working
+
+### ✓ Performance acceptable
+- Response times < 1 second
+- No N+1 query problems
+- Memory usage stable
+
+---
+
+## Troubleshooting
+
+### "Database connection failed"
+- Check `.env` file
+- Verify PostgreSQL running
+- Verify database exists
+- Check credentials
+
+### "Repository not initialized"
+- Verify `server/repositories/index.js` exists
+- Check imports in controllers
+- Verify `getRepositoryManager()` called
+
+### "Model not found"
+- Check model files in `server/models/`
+- Verify exports correct
+- Check associations defined
+
+### "Test failures"
+- Read error message carefully
+- Check database state
+- Verify clean state between tests
+- Check cascading deletions
+
+---
+
+## File Structure
+
+```
+server/
+├── repositories/
+│   ├── base.repository.js           # Generic CRUD
+│   ├── repository.interface.js      # Contract definition
+│   ├── index.js                     # Repository Manager
+│   ├── user.repository.js           # User-specific operations
+│   ├── post.repository.js           # Post-specific operations
+│   ├── comment.repository.js        # Comment operations
+│   ├── like.repository.js           # Like operations
+│   └── post-image.repository.js     # Image operations
+│
+├── controllers/
+│   ├── user.controller.js           # Updated with repositories
+│   ├── post.controller.js           # Updated with repositories
+│   ├── comment.controller.js        # Updated with repositories
+│   └── like.controller.js           # Updated with repositories
+│
+├── tests/
+│   ├── repositories.test.js         # Automated repository tests
+│   └── integration-guide.js         # Manual integration steps
+│
+└── models/                          # No changes needed
+```
+
+---
+
+## Next Steps
+
+After all tests pass:
+
+1. **Review Code Quality**
+   - Check for console.logs
+   - Verify error messages
+   - Review performance
+
+2. **Create Production Build**
+   - Run full test suite
+   - Check for deprecations
+   - Verify dependencies
+
+3. **Deploy**
+   - Tag release
+   - Push to GitHub
+   - Deploy to production
+   - Verify in production
+
+---
+
+## Support
+
+For issues or questions:
+1. Check error messages carefully
+2. Review test output
+3. Check database state
+4. Verify environment setup
+5. Review documentation
+
+---
+
+## License
+
+MIT License - See LICENSE file
+
+---
+
+**Last Updated:** February 22, 2026  
+**Repository Pattern Version:** 1.0.0  
+**App Version:** My Recipes (منٌ رسمي)

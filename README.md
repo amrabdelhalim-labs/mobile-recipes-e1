@@ -1,6 +1,8 @@
-# mobile-recipes-e1
+# My Recipes - من رسمي
 
 A **production-ready** full-stack mobile-first social recipe sharing application. Users can post recipes with photos, comment, and like each other's posts. Built with **Ionic/React + TypeScript** for the front-end and **Node.js/Express/PostgreSQL** for the back-end, with **flexible file storage** architecture supporting local, Cloudinary, and AWS S3.
+
+> **الاسم العربي:** منٌ رسمي | **الاسم الإنجليزي:** My Recipes | **الترخيص:** MIT
 
 ---
 
@@ -427,7 +429,19 @@ Contributions are welcome! Please:
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
+## 📚 License
 
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+You are free to:
+- ✅ Use commercially
+- ✅ Modify and distribute
+- ✅ Use for private purposes
+
+You must:
+- ℹ️ Include license and copyright notice
+
+---
 ## 🙏 Acknowledgments
 
 - [Ionic Framework](https://ionicframework.com/) - Mobile UI components

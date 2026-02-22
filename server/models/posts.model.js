@@ -31,7 +31,10 @@ const Post = db.define('Post', {
 
 Post.associate = models => {
     Post.belongsTo(models.User, { onDelete: 'CASCADE' });
-    Post.hasMany(models.Post_Image, { onDelete: 'CASCADE' });
+    Post.hasMany(models.Post_Image, { 
+        onDelete: 'CASCADE',
+        as: 'images'
+    });
     Post.hasMany(models.Comment, { onDelete: 'CASCADE' });
 };
 
