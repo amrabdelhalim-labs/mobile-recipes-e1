@@ -1,5 +1,5 @@
 /**
- * مكوّن إضافة تعليق (CreateComment)
+ * مكوّن إضافة تعليق (CommentForm)
  * ─────────────────────────────────
  * حقل إدخال نص + زر إرسال لإضافة تعليق جديد على منشور.
  *
@@ -21,12 +21,12 @@ import { ADD_COMMENT } from '../../config/urls';
 import type { PostComment } from '../../types/post.types';
 import './Comment.css';
 
-interface CreateCommentProps {
+interface CommentFormProps {
     postId: number;
     onAdded: (comment: PostComment) => void;
 }
 
-const CreateComment: React.FC<CreateCommentProps> = ({ postId, onAdded }) => {
+const CommentForm: React.FC<CommentFormProps> = ({ postId, onAdded }) => {
     const [text, setText] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [presentToast] = useIonToast();
@@ -95,4 +95,4 @@ const CreateComment: React.FC<CreateCommentProps> = ({ postId, onAdded }) => {
     );
 };
 
-export default CreateComment;
+export default CommentForm;

@@ -1,6 +1,6 @@
 /**
- * صفحة عرض المنشور (GetPost)
- * ────────────────────────────
+ * صفحة عرض المنشور (PostDetail)
+ * ──────────────────────────────
  * تعرض تفاصيل منشور واحد:
  *  • سلايدر صور (Swiper)
  *  • معلومات المؤلف والوقت
@@ -46,7 +46,7 @@ import Like from '../components/Like/Like';
 import CommentList from '../components/Comment/CommentList';
 import CommentForm from '../components/Comment/CommentForm';
 import { emitPostsChanged } from '../utils/postsEvents';
-import './GetPost.css';
+import './PostDetail.css';
 
 type RouteParams = { id: string };
 
@@ -64,7 +64,7 @@ const isDraftContentState = (steps: PostSteps): steps is RawDraftContentState =>
 	);
 };
 
-const GetPost: React.FC = () => {
+const PostDetailPage: React.FC = () => {
 	const { id } = useParams<RouteParams>();
 	const { user, getProfileImageUrl } = useContext(AuthContext);
 	const [presentToast] = useIonToast();
@@ -345,4 +345,4 @@ const GetPost: React.FC = () => {
 	);
 };
 
-export default GetPost;
+export default PostDetailPage;

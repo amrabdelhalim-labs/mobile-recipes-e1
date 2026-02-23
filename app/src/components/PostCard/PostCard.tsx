@@ -11,7 +11,7 @@
  * ─ routerLink:  الرابط الذي ينتقل إليه عند الضغط على البطاقة
  *
  * المكوّن يعرض أيضًا عدد التعليقات والإعجابات بدون تفاعل مباشر،
- * لأن التفاعل يتم داخل صفحة المنشور المفرد (GetPost).
+ * لأن التفاعل يتم داخل صفحة المنشور المفرد (PostDetail).
  */
 import {
     IonAvatar,
@@ -59,8 +59,8 @@ const PostCard: React.FC<PostCardProps> = ({
     const { getProfileImageUrl } = useContext(AuthContext);
 
     // أول صورة للمنشور (إن وُجدت) أو صورة افتراضية
-    const coverImage = post.Post_Images?.[0]?.imageUrl
-        ? getProfileImageUrl(post.Post_Images[0].imageUrl)
+    const coverImage = post.images?.[0]?.imageUrl
+        ? getProfileImageUrl(post.images[0].imageUrl)
         : 'https://ionicframework.com/docs/img/demos/card-media.png';
 
     // عدد التعليقات والإعجابات

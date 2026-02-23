@@ -1,5 +1,5 @@
 /**
- * مكون الموقع الجغرافي (GetLocation)
+ * مكون الموقع الجغرافي (LocationPicker)
  * ────────────────────────────────────
  * يستخدم Capacitor Geolocation API لجلب إحداثيات المستخدم الحالية،
  * ثم يستعلم من OpenStreetMap Nominatim API لتحويل الإحداثيات لأسماء
@@ -25,7 +25,7 @@ export interface LocationData {
     region: string;
 }
 
-interface GetLocationProps {
+interface LocationPickerProps {
     /** دالة تُستدعى عند تحديد الموقع بنجاح */
     onLocationChange: (location: LocationData) => void;
 }
@@ -35,7 +35,7 @@ type LocationStatus = 'loading' | 'success' | 'error';
 
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/reverse';
 
-const GetLocation: FC<GetLocationProps> = ({ onLocationChange }) => {
+const LocationPicker: FC<LocationPickerProps> = ({ onLocationChange }) => {
     const [country, setCountry] = useState('جاري جلب الدولة ...');
     const [region, setRegion] = useState('جاري جلب المنطقة ...');
     const [status, setStatus] = useState<LocationStatus>('loading');
@@ -119,4 +119,4 @@ const GetLocation: FC<GetLocationProps> = ({ onLocationChange }) => {
     );
 };
 
-export default GetLocation;
+export default LocationPicker;

@@ -14,7 +14,7 @@ import { AuthContext } from './context/AuthContext';
 import AllPosts from './pages/AllPosts';
 import MyPosts from './pages/MyPosts';
 import CreatePost from './pages/CreatePost';
-import GetPost from './pages/GetPost';
+import PostDetailPage from './pages/PostDetail';
 import UpdatePost from './pages/UpdatePost';
 import Profile from './pages/Profile';
 
@@ -64,7 +64,7 @@ const AppTabs: React.FC = () => {
                     <UpdatePost />
                 </Route>
                 <Route exact path="/tabs/posts/:id(\d+)">
-                    <GetPost />
+                    <PostDetailPage />
                 </Route>
                 <Route exact path="/tabs">
                     <Redirect to="/tabs/home" />

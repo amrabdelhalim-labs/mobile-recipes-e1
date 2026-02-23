@@ -39,6 +39,7 @@
 5. [نظام رفع الملفات](./server/05-file-upload-system.md) - شرح `files.js`
 6. [استراتيجية التخزين المحلي](./server/06-storage-strategy.md) - شرح `local.strategy.js`
 7. [خدمة التخزين](./server/07-storage-service.md) - شرح `storage.service.js`
+8. [اختبارات الخادم](./server/08-testing.md) - E2E والمستودعات والاختبار الشامل
 
 ---
 
@@ -46,12 +47,17 @@
 
 #### **البنية الأساسية**
 1. [هيكل التطبيق الرئيسي](./client/01-app-structure.md) - شرح `App.tsx`
+2. [التكامل مع الخادم](./client/02-api-integration.md) - شرح `axios.ts` و `urls.ts` و `post.types.ts`
 
 #### **إدارة الحالة والسياق**
-2. [سياق المصادقة](./client/03-auth-context.md) - شرح `AuthContext.tsx`
+3. [سياق المصادقة](./client/03-auth-context.md) - شرح `AuthContext.tsx`
 
 #### **الهوكس المخصصة (Custom Hooks)**
-3. [هوك معرض الصور](./client/04-photo-gallery-hook.md) - شرح `usePhotoGallery.ts`
+4. [هوك معرض الصور](./client/04-photo-gallery-hook.md) - شرح `usePhotoGallery.ts`
+
+#### **هندسة المكونات والاختبارات**
+5. [هندسة المكونات وتسمية الملفات](./client/05-component-naming.md) - أفضل الممارسات
+6. [اختبارات العميل](./client/06-client-testing.md) - شرح Vitest والاختبارات
 
 ---
 
@@ -92,6 +98,9 @@
 - ✅ التعامل مع **الكاميرا** ومعرض الصور في Capacitor
 - ✅ **React Hooks** و Custom Hooks
 - ✅ **التوجيه** (Routing) في React
+- ✅ **التكامل مع الخادم** (Axios, URL Constants, TypeScript Types)
+- ✅ **هندسة المكونات** وأفضل ممارسات تسمية الملفات
+- ✅ **الاختبارات** بـ Vitest (37 اختبار وحدة + E2E)
 
 ---
 
@@ -137,7 +146,10 @@
    رفع الملفات → التخزين المحلي → خدمة التخزين
    ↓
 4. التطبيق (Client):
-   هيكل التطبيق → سياق المصادقة → هوك الصور
+   هيكل التطبيق → التكامل مع الخادم → سياق المصادقة → هوك الصور
+   ↓
+5. الهندسة والاختبارات:
+   هندسة المكونات → اختبارات العميل
    ↓
 5. 🎉 الآن أنت مستعد للبناء!
 ```

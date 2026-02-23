@@ -4,7 +4,7 @@
  *
  * السيرفر يُرجع:
  * - getAllPosts / getMyPosts → { posts: Post[], pagination: Pagination }
- * - كل منشور يحتوي على: User, Post_Images[], Comments[] (ids فقط), likesCount, isLiked
+ * - كل منشور يحتوي على: User, images[], Comments[] (ids فقط), likesCount, isLiked
  *
  * ملاحظة عن steps:
  * - المنشورات القديمة: steps = string[] (مصفوفة نصوص)
@@ -58,7 +58,7 @@ export interface Post {
     updatedAt: string;
     UserId: number;
     User: PostUser;
-    Post_Images: PostImage[];
+    images: PostImage[];
     Comments: PostCommentRef[];
     likesCount: number;
     isLiked: boolean;

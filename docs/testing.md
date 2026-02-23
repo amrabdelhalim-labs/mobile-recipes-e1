@@ -1,4 +1,4 @@
-# Testing Guide - My Recipes (منٌ رسمي)
+# Testing Guide - وصفاتي
 
 ## Repository Pattern Testing Suite
 
@@ -580,6 +580,57 @@ MIT License - See LICENSE file
 
 ---
 
-**Last Updated:** February 22, 2026  
+## Client-Side Testing (Vitest)
+
+The client app uses **Vitest** with **jsdom** for unit testing and **Cypress** for E2E testing.
+
+### Quick Start
+
+```bash
+cd app
+npm install
+npm test          # Run all unit tests once
+npm run test:watch    # Watch mode (re-runs on changes)
+npm run test:coverage # Generate coverage report
+npm run test:e2e      # Run Cypress E2E tests
+```
+
+### Test Files
+
+| File | Tests | Purpose |
+|------|-------|---------|
+| `__tests__/types.test.ts` | 8 | Verify TypeScript types match server API responses |
+| `__tests__/urls.test.ts` | 14 | Verify URL constants match server routes |
+| `__tests__/postsEvents.test.ts` | 5 | Custom event bus (emit, subscribe, cleanup) |
+| `__tests__/usePhotoGallery.test.ts` | 4 | Camera hook (capture, clear, error handling) |
+| `__tests__/axios.test.ts` | 5 | API client config (baseURL, headers, interceptors) |
+| `App.test.tsx` | 1 | Smoke test — app renders without errors |
+| **Total** | **37** | |
+
+### Setup
+
+The `setupTests.ts` file configures:
+- `@testing-library/jest-dom` matchers
+- `window.matchMedia` mock (required by Ionic)
+- Capacitor mocks: `Preferences`, `Camera`, `Geolocation`
+
+### Expected Output
+
+```
+ ✓ src/__tests__/types.test.ts (8)
+ ✓ src/__tests__/urls.test.ts (14)
+ ✓ src/__tests__/postsEvents.test.ts (5)
+ ✓ src/__tests__/usePhotoGallery.test.ts (4)
+ ✓ src/__tests__/axios.test.ts (5)
+ ✓ src/App.test.tsx (1)
+
+ Test Files  6 passed (6)
+      Tests  37 passed (37)
+```
+
+---
+
+**Last Updated:** February 23, 2026  
 **Repository Pattern Version:** 1.0.0  
-**App Version:** My Recipes (منٌ رسمي)
+**Client Tests:** 37 unit tests (Vitest) + E2E (Cypress)  
+**App Version:** وصفاتي

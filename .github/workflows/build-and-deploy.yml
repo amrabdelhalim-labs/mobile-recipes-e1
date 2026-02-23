@@ -3,9 +3,7 @@ name: Build & Deploy
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-  # Manual run button in GitHub Actions
+  # ✅ Manual run button in GitHub Actions
   workflow_dispatch:
     inputs:
       target:
@@ -18,20 +16,21 @@ on:
           - server
           - app
 
-# Allow pushing to deployment branches (server/web)
+# Allow pushing to branches (server/web)
 permissions:
   contents: write
 
-# Avoid concurrent deployments stomping each other
+# Cancel previous runs if a new one is triggered
 concurrency:
   group: build-and-deploy-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
-  # JOB 1: Deploy Server
-  # Pure JavaScript server - no build step required
-  # Copies the entire server/ folder directly to the server branch
+  # JOB 1: Test & Deploy Server
+  # - Runs on:
+  #   - push to main
+  #   - manual dispatch when target is server or both
   # ─────────────────────────────────────────────────────────────────────────────
   deploy-server:
     name: Deploy Server
@@ -40,9 +39,50 @@ jobs:
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_dispatch' && (inputs.target == 'server' || inputs.target == 'both'))
 
+    # Add PostgreSQL service for tests
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: "123456"
+          POSTGRES_DB: myrecipes_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Run server tests
+        working-directory: server
+        run: npm run test:all
+        env:
+          # Test database credentials (strings must be quoted!)
+          # ⚠️ IMPORTANT: database.js expects DB_PASS, not DB_PASSWORD!
+          DB_USER: postgres
+          DB_PASS: "123456"
+          DB_HOST: localhost
+          DB_PORT: "5432"
+          DB_NAME: myrecipes_test
+          NODE_ENV: test
+          JWT_SECRET: test_jwt_secret_key_for_ci_testing_only_32chars
 
       - name: Push to server branch
         run: |
@@ -50,9 +90,15 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name  "github-actions[bot]"
 
-          # 1️⃣ Save server files to temp (no build step - pure JS runs directly)
+          # 1️⃣ Save production files to temp
+          # ⚠️ Server is JavaScript (no build needed), deploy source directly
           mkdir -p /tmp/server-deploy
-          cp -r server/. /tmp/server-deploy/
+          cp -r server/* /tmp/server-deploy/
+          cp server/.env* /tmp/server-deploy/ 2>/dev/null || true
+          printf 'web: node app.js\n' > /tmp/server-deploy/Procfile
+
+          # Remove "test" scripts from production
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('/tmp/server-deploy/package.json'));delete p.scripts['test:all'];delete p.scripts['test'];delete p.scripts['test:comprehensive'];delete p.scripts['test:integration'];delete p.scripts['test:e2e'];delete p.devDependencies;delete p.scripts.dev;fs.writeFileSync('/tmp/server-deploy/package.json',JSON.stringify(p,null,2))"
 
           # 2️⃣ Create clean orphan branch
           git checkout --orphan server-new-clean
@@ -61,10 +107,10 @@ jobs:
           # 3️⃣ DELETE everything from disk (BUT KEEP .git)
           find . -maxdepth 1 ! -name '.' ! -name '.git' -exec rm -rf {} + 2>/dev/null || true
 
-          # 4️⃣ Restore ONLY server files
-          cp -r /tmp/server-deploy/. .
+          # 4️⃣ Restore ONLY production files
+          cp -r /tmp/server-deploy/* .
 
-          # 5️⃣ Commit and push
+          # 5️⃣ Commit and merge
           git add -A
           if [ -z "$(git diff --cached --name-only)" ]; then
             echo "⏭️  No changes to deploy (server)"
@@ -76,8 +122,11 @@ jobs:
           git push origin server --force
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # JOB 2: Deploy App
-  # Ionic/React app - builds with Vite then deploys dist/ to web branch
+  # JOB 2: Test & Deploy App (Ionic React)
+  # - Runs on:
+  #   - push to main
+  #   - manual dispatch when target is app or both
+  # - Deploys to 'web' branch for web deployment (GitHub Pages, Netlify, Vercel)
   # ─────────────────────────────────────────────────────────────────────────────
   deploy-app:
     name: Deploy App
@@ -101,15 +150,20 @@ jobs:
         working-directory: app
         run: npm ci
 
+      - name: Run app tests
+        working-directory: app
+        run: npm test
+
       - name: Build app
         working-directory: app
         run: npm run build
         env:
-          # Add these secrets in: GitHub repo → Settings → Secrets → Actions
-          VITE_API_URL:  ${{ secrets.VITE_API_URL }}
-          # Base path: /mobile-recipes-e1/ for GitHub Pages, / for other platforms
-          # Auto-detected via GITHUB_ACTIONS env var if not set (see vite.config.ts)
-          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+          # ⚠️ CRITICAL: These must be set in GitHub repo → Settings → Secrets and variables → Actions → Variables tab
+          # If empty, app will fail to load on GitHub Pages (404 errors on assets)
+          # VITE_API_URL: Your production API URL (e.g., https://api.herokuapp.com)
+          # VITE_BASE_URL: /mobile-recipes-e1/ for GitHub Pages (MUST include trailing slash!)
+          VITE_API_URL: ${{ vars.VITE_API_URL != '' && vars.VITE_API_URL || 'http://localhost:3000' }}
+          VITE_BASE_URL: ${{ vars.VITE_BASE_URL != '' && vars.VITE_BASE_URL || '/mobile-recipes-e1/' }}
 
       - name: Verify dist folder
         run: |
@@ -122,16 +176,17 @@ jobs:
           du -sh app/dist
           find app/dist -type f | wc -l
 
-      - name: Publish to web branch (clean orphan)
+      - name: Publish to web branch (for GitHub Pages / Netlify / Vercel)
         run: |
           set -euo pipefail
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name  "github-actions[bot]"
 
-          # 1️⃣ Save dist files to temp + add .nojekyll for GitHub Pages
-          mkdir -p /tmp/app-deploy
-          cp -r app/dist/. /tmp/app-deploy/
-          touch /tmp/app-deploy/.nojekyll
+          # 1️⃣ Save dist files to temp
+          mkdir -p /tmp/web-deploy
+          cp -r app/dist/* /tmp/web-deploy/
+          # Add .nojekyll to prevent GitHub Pages from ignoring underscore folders
+          touch /tmp/web-deploy/.nojekyll
 
           # 2️⃣ Create clean orphan branch
           git checkout --orphan web-new-clean
@@ -140,17 +195,16 @@ jobs:
           # 3️⃣ DELETE everything from disk (BUT KEEP .git)
           find . -maxdepth 1 ! -name '.' ! -name '.git' -exec rm -rf {} + 2>/dev/null || true
 
-          # 4️⃣ Restore ONLY dist files (cp -r src/. copies hidden files too)
-          cp -r /tmp/app-deploy/. .
+          # 4️⃣ Restore ONLY dist files
+          cp -r /tmp/web-deploy/* .
 
-          # 5️⃣ Commit and push
+          # 5️⃣ Commit and merge
           git add -A
           if [ -z "$(git diff --cached --name-only)" ]; then
-            echo "⏭️  No changes to deploy (app)"
+            echo "⏭️  No changes to deploy (web)"
             exit 0
           fi
 
-          git commit -m "deploy(app): $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
+          git commit -m "deploy(web): $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
           git branch -M web-new-clean web
           git push origin web --force
-

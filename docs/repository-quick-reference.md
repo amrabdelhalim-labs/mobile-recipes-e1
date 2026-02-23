@@ -113,8 +113,8 @@ await repositories.comment.countByPost(postId)
 
 ```javascript
 // البحث
-await repositories.like.findByPost(postId, 1, 20)    // من يحب?
-await repositories.like.findByUser(userId, 1, 20)   // ماذا يحب?
+await repositories.like.findByPost(postId, 1, 20)    // من يحب؟
+await repositories.like.findByUser(userId, 1, 20)   // ماذا يحب؟
 await repositories.like.findUserLike(userId, postId)
 
 // إدارة الإعجاب

@@ -1,6 +1,6 @@
 /**
- * مكوّن عرض التعليقات (GetComment)
- * ─────────────────────────────────
+ * مكوّن عرض التعليقات (CommentList)
+ * ─────────────────────────────────────
  * يعرض قائمة التعليقات الخاصة بمنشور معيّن.
  *
  * يستقبل:
@@ -28,7 +28,7 @@ import { AuthContext } from '../../context/AuthContext';
 import type { PostComment } from '../../types/post.types';
 import './Comment.css';
 
-interface GetCommentProps {
+interface CommentListProps {
     comments: PostComment[];
     currentUserId: number | null;
     onDelete: (commentId: number) => void;
@@ -49,7 +49,7 @@ const CommentSkeleton: React.FC = () => (
     </IonItem>
 );
 
-const GetComment: React.FC<GetCommentProps> = ({
+const CommentList: React.FC<CommentListProps> = ({
     comments,
     currentUserId,
     onDelete,
@@ -139,4 +139,4 @@ const GetComment: React.FC<GetCommentProps> = ({
     );
 };
 
-export default GetComment;
+export default CommentList;

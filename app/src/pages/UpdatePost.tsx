@@ -52,7 +52,7 @@ import { useParams, useHistory } from 'react-router-dom';
 
 import Header from '../components/Header/Header';
 import TextEditor from '../components/TextEditor/TextEditor';
-import GetLocation, { type LocationData } from '../components/Location/GetLocation';
+import LocationPicker, { type LocationData } from '../components/Location/LocationPicker';
 import { usePhotoGallery } from '../hooks/usePhotoGallery';
 import { AuthContext } from '../context/AuthContext';
 import api from '../config/axios';
@@ -195,7 +195,7 @@ const UpdatePost: FC = () => {
 			// تعبئة الحقول
 			setTitle(post.title);
 			setContent(post.content);
-			setExistingImages(post.Post_Images ?? []);
+			setExistingImages(post.images ?? []);
 			setLocation({
 				country: post.country ?? '',
 				region: post.region ?? '',
@@ -634,7 +634,7 @@ const UpdatePost: FC = () => {
 										<IonLabel color="primary" className="update-post-section-label">
 											الموقع الجغرافي
 										</IonLabel>
-										<GetLocation onLocationChange={handleLocationChange} />
+										<LocationPicker onLocationChange={handleLocationChange} />
 									</div>
 
 									{/* ═══ زر حفظ التعديلات ═══ */}

@@ -52,7 +52,7 @@ import { useHistory } from 'react-router-dom';
 
 import Header from '../components/Header/Header';
 import TextEditor from '../components/TextEditor/TextEditor';
-import GetLocation, { type LocationData } from '../components/Location/GetLocation';
+import LocationPicker, { type LocationData } from '../components/Location/LocationPicker';
 import { usePhotoGallery } from '../hooks/usePhotoGallery';
 import api from '../config/axios';
 import { CREATE_POST } from '../config/urls';
@@ -382,7 +382,7 @@ const CreatePost: FC = () => {
                                     <IonLabel color="primary" className="create-post-section-label">
                                         الموقع الجغرافي
                                     </IonLabel>
-                                    <GetLocation onLocationChange={handleLocationChange} />
+                                    <LocationPicker onLocationChange={handleLocationChange} />
                                 </div>
 
                                 {/* ═══ زر النشر ═══ */}
