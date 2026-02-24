@@ -505,6 +505,24 @@ git add server/ && git commit -m "feat(server): add rating entity with repositor
 git add app/ && git commit -m "feat(client): add rating UI components + hooks"
 ```
 
+### Tagging (when applicable)
+
+Create an annotated tag only if this commit represents a **significant milestone** — a new feature
+complete with tests, or a notable improvement. Patch-level fixes (docs, renames) use `vX.Y.Z`;
+new features use `vX.(Y+1).0`.
+
+```bash
+git tag -a v1.6.0 -m "v1.6.0 - Add Rating System
+
+- Rating model with Sequelize association on Recipe
+- RatingRepository + cascade delete
+- express-validator rules for score (1-5)
+- Client: RatingBar + SubmitRating hook
+- 37 → 52 tests passing"
+```
+
+See workspace tagging rules: `docs/ai-improvement-guide.md § Tagging Strategy`.
+
 ---
 
 *Companion document: [`architecture.md`](./architecture.md)*  
