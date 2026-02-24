@@ -371,11 +371,11 @@ npm run test:e2e
 ### النتيجة المتوقعة:
 
 ```
- ✓ src/__tests__/types.test.ts (8 tests)
- ✓ src/__tests__/urls.test.ts (14 tests)
- ✓ src/__tests__/postsEvents.test.ts (5 tests)
- ✓ src/__tests__/usePhotoGallery.test.ts (4 tests)
- ✓ src/__tests__/axios.test.ts (5 tests)
+ ✓ src/tests/types.test.ts (8 tests)
+ ✓ src/tests/urls.test.ts (14 tests)
+ ✓ src/tests/postsEvents.test.ts (5 tests)
+ ✓ src/tests/usePhotoGallery.test.ts (4 tests)
+ ✓ src/tests/axios.test.ts (5 tests)
  ✓ src/App.test.tsx (1 test)
 
  Test Files  6 passed (6)
@@ -388,7 +388,7 @@ npm run test:e2e
 
 ```
 app/src/
-├── __tests__/                 ← مجلد الاختبارات
+├── tests/                     ← مجلد الاختبارات
 │   ├── types.test.ts          ← اختبارات الأنواع (8 اختبارات)
 │   ├── urls.test.ts           ← اختبارات الروابط (14 اختبار)
 │   ├── postsEvents.test.ts    ← اختبارات الأحداث (5 اختبارات)

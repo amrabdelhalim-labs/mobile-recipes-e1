@@ -8,7 +8,7 @@
  *  3. عدم وجود شرطة مائلة بداية (/) — Axios يضيفها تلقائياً مع baseURL
  *  4. تغطية جميع نقاط النهاية المُعرَّفة في السيرفر
  *
- * الملف: app/src/__tests__/urls.test.ts
+ * الملف: app/src/tests/urls.test.ts
  */
 import { describe, it, expect } from 'vitest';
 import {

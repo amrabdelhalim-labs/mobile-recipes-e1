@@ -8,7 +8,7 @@
  *  3. clearPhoto يمسح blobUrl ويعيده لـ undefined
  *  4. معالجة أخطاء الكاميرا (إغلاق بدون اختيار)
  *
- * الملف: app/src/__tests__/usePhotoGallery.test.ts
+ * الملف: app/src/tests/usePhotoGallery.test.ts
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';

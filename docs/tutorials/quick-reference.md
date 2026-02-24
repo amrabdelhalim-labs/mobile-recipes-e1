@@ -228,7 +228,7 @@
 ---
 
 ### 5️⃣ [اختبارات العميل](./client/06-client-testing.md)
-**الملفات**: `app/src/setupTests.ts` و `app/src/__tests__/`
+**الملفات**: `app/src/setupTests.ts` و `app/src/tests/`
 
 **ما ستتعلمه**:
 - إعداد بيئة Vitest ومحاكاة Capacitor

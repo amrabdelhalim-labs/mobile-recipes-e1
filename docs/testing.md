@@ -599,11 +599,11 @@ npm run test:e2e      # Run Cypress E2E tests
 
 | File | Tests | Purpose |
 |------|-------|---------|
-| `__tests__/types.test.ts` | 8 | Verify TypeScript types match server API responses |
-| `__tests__/urls.test.ts` | 14 | Verify URL constants match server routes |
-| `__tests__/postsEvents.test.ts` | 5 | Custom event bus (emit, subscribe, cleanup) |
-| `__tests__/usePhotoGallery.test.ts` | 4 | Camera hook (capture, clear, error handling) |
-| `__tests__/axios.test.ts` | 5 | API client config (baseURL, headers, interceptors) |
+| `tests/types.test.ts` | 8 | Verify TypeScript types match server API responses |
+| `tests/urls.test.ts` | 14 | Verify URL constants match server routes |
+| `tests/postsEvents.test.ts` | 5 | Custom event bus (emit, subscribe, cleanup) |
+| `tests/usePhotoGallery.test.ts` | 4 | Camera hook (capture, clear, error handling) |
+| `tests/axios.test.ts` | 5 | API client config (baseURL, headers, interceptors) |
 | `App.test.tsx` | 1 | Smoke test — app renders without errors |
 | **Total** | **37** | |
 
@@ -617,11 +617,11 @@ The `setupTests.ts` file configures:
 ### Expected Output
 
 ```
- ✓ src/__tests__/types.test.ts (8)
- ✓ src/__tests__/urls.test.ts (14)
- ✓ src/__tests__/postsEvents.test.ts (5)
- ✓ src/__tests__/usePhotoGallery.test.ts (4)
- ✓ src/__tests__/axios.test.ts (5)
+ ✓ src/tests/types.test.ts (8)
+ ✓ src/tests/urls.test.ts (14)
+ ✓ src/tests/postsEvents.test.ts (5)
+ ✓ src/tests/usePhotoGallery.test.ts (4)
+ ✓ src/tests/axios.test.ts (5)
  ✓ src/App.test.tsx (1)
 
  Test Files  6 passed (6)

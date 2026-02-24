@@ -8,7 +8,7 @@
  *  3. التعامل مع حالة عدم وجود token مُخزّن
  *  4. التعامل مع أخطاء قراءة Preferences
  *
- * الملف: app/src/__tests__/axios.test.ts
+ * الملف: app/src/tests/axios.test.ts
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Preferences } from '@capacitor/preferences';

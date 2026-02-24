@@ -8,7 +8,7 @@
  *  3. إلغاء الاشتراك عند استدعاء الدالة المُرجعة (cleanup)
  *  4. عدم تنفيذ المعالج بعد إلغاء الاشتراك
  *
- * الملف: app/src/__tests__/postsEvents.test.ts
+ * الملف: app/src/tests/postsEvents.test.ts
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { emitPostsChanged, onPostsChanged, POSTS_CHANGED_EVENT } from '../utils/postsEvents';

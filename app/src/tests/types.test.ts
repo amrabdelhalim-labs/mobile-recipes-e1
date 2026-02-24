@@ -9,7 +9,7 @@
  *  4. واجهة UserProfile تطابق بيانات المستخدم من السيرفر
  *  5. PostSteps تدعم كلاً من التنسيق القديم (string[]) والجديد (Draft.js)
  *
- * الملف: app/src/__tests__/types.test.ts
+ * الملف: app/src/tests/types.test.ts
  */
 import { describe, it, expect } from 'vitest';
 import type { Post, PostDetail, PostImage, PostComment, PostCommentRef, Pagination, PostsResponse, PostSteps } from '../types/post.types';
