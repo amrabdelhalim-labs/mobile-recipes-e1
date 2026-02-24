@@ -39,7 +39,8 @@
 5. [نظام رفع الملفات](./server/05-file-upload-system.md) - شرح `files.js`
 6. [استراتيجية التخزين المحلي](./server/06-storage-strategy.md) - شرح `local.strategy.js`
 7. [خدمة التخزين](./server/07-storage-service.md) - شرح `storage.service.js`
-8. [اختبارات الخادم](./server/08-testing.md) - E2E والمستودعات والاختبار الشامل
+8. [نمط المستودع](./server/08-repository-pattern.md) - شرح Repository Pattern كامل
+9. [اختبارات الخادم](./server/09-testing.md) - E2E والمستودعات والاختبار الشامل
 
 ---
 
