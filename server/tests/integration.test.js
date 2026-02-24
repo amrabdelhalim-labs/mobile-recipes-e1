@@ -6,13 +6,13 @@
  * - Database transactions and relationships
  * - Cascade operations
  * - Error handling and validation
- * 
+ *
  * Features:
  * - Creates temporary workspace to handle special characters in paths
  * - Tests in isolated environment
  * - Performs cleanup after testing
  * - Server-ready production testing
- * 
+ *
  * Usage: node tests/integration.test.js
  */
 
@@ -43,7 +43,7 @@ let testData = {
 async function createTestImage(filename) {
   try {
     const testImagePath = path.join(tempDir, 'test-images', filename);
-    
+
     // Create directory if not exists
     if (!fs.existsSync(path.dirname(testImagePath))) {
       fs.mkdirSync(path.dirname(testImagePath), { recursive: true });
@@ -51,15 +51,11 @@ async function createTestImage(filename) {
 
     // Create a simple test image (1x1 pixel PNG)
     const pngBuffer = Buffer.from([
-      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
-      0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
-      0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-      0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4,
-      0x89, 0x00, 0x00, 0x00, 0x0a, 0x49, 0x44, 0x41,
-      0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
-      0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00,
-      0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae,
-      0x42, 0x60, 0x82,
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44,
+      0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1f,
+      0x15, 0xc4, 0x89, 0x00, 0x00, 0x00, 0x0a, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00,
+      0x01, 0x00, 0x00, 0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+      0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
     ]);
 
     fs.writeFileSync(testImagePath, pngBuffer);
@@ -97,7 +93,10 @@ async function cleanupTempWorkspace() {
     }
     return false;
   } catch (error) {
-    console.error(`${colors.yellow}⚠${colors.reset} Warning: Could not fully clean temp workspace:`, error.message);
+    console.error(
+      `${colors.yellow}⚠${colors.reset} Warning: Could not fully clean temp workspace:`,
+      error.message
+    );
     return false;
   }
 }
@@ -108,7 +107,9 @@ async function cleanupTempWorkspace() {
 async function runFullStackTests() {
   console.log(`${'┌' + '─'.repeat(53) + '┐'}`);
   console.log(`│${' '.repeat(53)}│`);
-  console.log(`│  ${colors.magenta}🧪 FULL-STACK INTEGRATION TEST${colors.reset}${' '.repeat(21)}│`);
+  console.log(
+    `│  ${colors.magenta}🧪 FULL-STACK INTEGRATION TEST${colors.reset}${' '.repeat(21)}│`
+  );
   console.log(`│  ${colors.cyan}Repository + Storage + Database${colors.reset}${' '.repeat(22)}│`);
   console.log(`│${' '.repeat(53)}│`);
   console.log(`${'└' + '─'.repeat(53) + '┘'}`);
@@ -168,9 +169,9 @@ async function runFullStackTests() {
     assert(foundUser && foundUser.id === user1.id, 'User found by email with correct ID');
 
     logStep(5, 'Update user profile');
-    await userRepo.update(user1.id, { 
+    await userRepo.update(user1.id, {
       name: 'محمد أحمد محمود',
-      ImageUrl: 'https://example.com/user1-updated.jpg' 
+      ImageUrl: 'https://example.com/user1-updated.jpg',
     });
     const updatedUser = await userRepo.findByPk(user1.id);
     assert(updatedUser.name === 'محمد أحمد محمود', 'User name updated');
@@ -208,9 +209,9 @@ async function runFullStackTests() {
     assert(post2.id && post2.UserId === user2.id, 'Post 2 created with user relationship');
 
     logStep(8, 'Update post and verify');
-    await postRepo.update(post1.id, { 
+    await postRepo.update(post1.id, {
       title: 'وصفة الفطائر السوداني الأصلية',
-      region: 'الجيزة' 
+      region: 'الجيزة',
     });
     const updatedPost = await postRepo.findByPk(post1.id);
     assert(updatedPost.title.includes('السوداني الأصلية'), 'Post title updated');
@@ -218,8 +219,14 @@ async function runFullStackTests() {
 
     logStep(9, 'Find posts with pagination');
     const postsPage = await postRepo.findPaginated(1, 10);
-    assert(postsPage.rows && postsPage.rows.length > 0, `Found ${postsPage.rows?.length || 0} posts`);
-    assert(typeof postsPage.count === 'number' && postsPage.count > 0, 'Post count is numeric and positive');
+    assert(
+      postsPage.rows && postsPage.rows.length > 0,
+      `Found ${postsPage.rows?.length || 0} posts`
+    );
+    assert(
+      typeof postsPage.count === 'number' && postsPage.count > 0,
+      'Post count is numeric and positive'
+    );
 
     logStep(10, 'Find posts by specific user');
     const user1Posts = await postRepo.findByUser(user1.id, 1, 10);
@@ -248,8 +255,8 @@ async function runFullStackTests() {
     assert(comment2.id, 'Comment 2 created');
 
     logStep(12, 'Update comment and verify');
-    await commentRepo.update(comment1.id, { 
-      text: 'وصفة رائعة جداً جداً سأجربها قريباً' 
+    await commentRepo.update(comment1.id, {
+      text: 'وصفة رائعة جداً جداً سأجربها قريباً',
     });
     const updatedComment = await commentRepo.findByPk(comment1.id);
     assert(updatedComment.text.includes('جداً'), 'Comment text updated');
@@ -288,7 +295,7 @@ async function runFullStackTests() {
     logStep(18, 'Unlike and verify');
     const unlike = await likeRepo.toggleLike(user2.id, post1.id);
     assert(unlike.isLiked === false, 'Unlike toggles to false');
-    
+
     const afterUnlike = await likeRepo.isLikedByUser(user2.id, post1.id);
     assert(afterUnlike === false, 'User no longer liked post after unlike');
 
@@ -430,12 +437,8 @@ async function runFullStackTests() {
     console.log(`   ✓ Database operations verified`);
     console.log(`   ✓ Storage service validated`);
     console.log(`   ✓ Ready for production deployment\n`);
-
   } catch (error) {
-    console.error(
-      `\n${colors.red}Fatal error during testing:${colors.reset}`,
-      error.message
-    );
+    console.error(`\n${colors.red}Fatal error during testing:${colors.reset}`, error.message);
     console.error(error);
     process.exit(1);
   } finally {

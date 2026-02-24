@@ -20,23 +20,23 @@ export type PostUser = UserBasic;
 
 /** صورة مرفقة بالمنشور */
 export interface PostImage {
-    id: number;
-    imageUrl: string;
+  id: number;
+  imageUrl: string;
 }
 
 /** تعليق مختصر (id فقط — يُستخدم لحساب العدد في القوائم) */
 export interface PostCommentRef {
-    id: number;
+  id: number;
 }
 
 /** تعليق كامل كما يرجعه السيرفر في getPostById */
 export interface PostComment {
-    id: number;
-    text: string;
-    createdAt: string;
-    UserId: number;
-    PostId: number;
-    User: PostUser;
+  id: number;
+  text: string;
+  createdAt: string;
+  UserId: number;
+  PostId: number;
+  User: PostUser;
 }
 
 /**
@@ -48,37 +48,37 @@ export type PostSteps = string[] | RawDraftContentState;
 
 /** المنشور كما يرجعه السيرفر في قوائم getAllPosts / getMyPosts */
 export interface Post {
-    id: number;
-    title: string;
-    content: string;
-    steps: PostSteps | null;
-    country: string | null;
-    region: string | null;
-    createdAt: string;
-    updatedAt: string;
-    UserId: number;
-    User: PostUser;
-    images: PostImage[];
-    Comments: PostCommentRef[];
-    likesCount: number;
-    isLiked: boolean;
+  id: number;
+  title: string;
+  content: string;
+  steps: PostSteps | null;
+  country: string | null;
+  region: string | null;
+  createdAt: string;
+  updatedAt: string;
+  UserId: number;
+  User: PostUser;
+  images: PostImage[];
+  Comments: PostCommentRef[];
+  likesCount: number;
+  isLiked: boolean;
 }
 
 /** المنشور الكامل كما يرجعه السيرفر في getPostById (التعليقات كاملة) */
 export interface PostDetail extends Omit<Post, 'Comments'> {
-    Comments: PostComment[];
+  Comments: PostComment[];
 }
 
 /** بيانات التصفّح (Pagination) المرجعة من السيرفر */
 export interface Pagination {
-    currentPage: number;
-    totalPages: number;
-    totalPosts: number;
-    limit: number;
+  currentPage: number;
+  totalPages: number;
+  totalPosts: number;
+  limit: number;
 }
 
 /** الاستجابة الكاملة لـ getAllPosts / getMyPosts */
 export interface PostsResponse {
-    posts: Post[];
-    pagination: Pagination;
+  posts: Post[];
+  pagination: Pagination;
 }

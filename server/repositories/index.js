@@ -11,7 +11,7 @@ import PostImageRepository, { getPostImageRepository } from './post-image.reposi
 
 /**
  * Repository Manager - provides access to all repositories
- * 
+ *
  * Usage:
  *   const repos = RepositoryManager.getInstance();
  *   const users = await repos.user.findAll();

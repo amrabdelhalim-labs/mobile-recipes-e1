@@ -6,28 +6,24 @@ import { validateRequest } from '../middlewares/validator.middleware.js';
 
 const router = express.Router();
 
-router.get('/me',
-    middleware.isAuthenticated,
-    controller.getMyComments
+router.get('/me', middleware.isAuthenticated, controller.getMyComments);
+
+router.post(
+  '/:postId',
+  middleware.isAuthenticated,
+  validator.addComment,
+  validateRequest,
+  controller.addComment
 );
 
-router.post('/:postId',
-    middleware.isAuthenticated,
-    validator.addComment,
-    validateRequest,
-    controller.addComment
+router.put(
+  '/:id',
+  middleware.isAuthenticated,
+  validator.updateComment,
+  validateRequest,
+  controller.updateComment
 );
 
-router.put('/:id',
-    middleware.isAuthenticated,
-    validator.updateComment,
-    validateRequest,
-    controller.updateComment
-);
-
-router.delete('/:id',
-    middleware.isAuthenticated,
-    controller.deleteComment
-);
+router.delete('/:id', middleware.isAuthenticated, controller.deleteComment);
 
 export default router;

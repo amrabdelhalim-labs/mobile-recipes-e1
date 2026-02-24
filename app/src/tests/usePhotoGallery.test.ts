@@ -18,65 +18,65 @@ import { Camera } from '@capacitor/camera';
 // Camera مُحاكاة (mock) في setupTests.ts
 
 describe('هوك الكاميرا (usePhotoGallery)', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('يجب أن يبدأ بـ blobUrl = undefined', () => {
+    const { result } = renderHook(() => usePhotoGallery());
+    expect(result.current.blobUrl).toBeUndefined();
+  });
+
+  it('يجب أن يُحدّث blobUrl بعد التقاط صورة بنجاح', async () => {
+    const mockWebPath = 'blob:http://localhost/test-photo';
+    vi.mocked(Camera.getPhoto).mockResolvedValueOnce({
+      webPath: mockWebPath,
+      format: 'jpeg',
+      saved: false,
     });
 
-    it('يجب أن يبدأ بـ blobUrl = undefined', () => {
-        const { result } = renderHook(() => usePhotoGallery());
-        expect(result.current.blobUrl).toBeUndefined();
+    const { result } = renderHook(() => usePhotoGallery());
+
+    await act(async () => {
+      await result.current.takePhoto('CAMERA' as never);
     });
 
-    it('يجب أن يُحدّث blobUrl بعد التقاط صورة بنجاح', async () => {
-        const mockWebPath = 'blob:http://localhost/test-photo';
-        vi.mocked(Camera.getPhoto).mockResolvedValueOnce({
-            webPath: mockWebPath,
-            format: 'jpeg',
-            saved: false,
-        });
+    expect(result.current.blobUrl).toBe(mockWebPath);
+  });
 
-        const { result } = renderHook(() => usePhotoGallery());
-
-        await act(async () => {
-            await result.current.takePhoto('CAMERA' as never);
-        });
-
-        expect(result.current.blobUrl).toBe(mockWebPath);
+  it('يجب أن يمسح clearPhoto الـ blobUrl', async () => {
+    const mockWebPath = 'blob:http://localhost/test-photo';
+    vi.mocked(Camera.getPhoto).mockResolvedValueOnce({
+      webPath: mockWebPath,
+      format: 'jpeg',
+      saved: false,
     });
 
-    it('يجب أن يمسح clearPhoto الـ blobUrl', async () => {
-        const mockWebPath = 'blob:http://localhost/test-photo';
-        vi.mocked(Camera.getPhoto).mockResolvedValueOnce({
-            webPath: mockWebPath,
-            format: 'jpeg',
-            saved: false,
-        });
+    const { result } = renderHook(() => usePhotoGallery());
 
-        const { result } = renderHook(() => usePhotoGallery());
+    // التقاط صورة أولاً
+    await act(async () => {
+      await result.current.takePhoto('CAMERA' as never);
+    });
+    expect(result.current.blobUrl).toBe(mockWebPath);
 
-        // التقاط صورة أولاً
-        await act(async () => {
-            await result.current.takePhoto('CAMERA' as never);
-        });
-        expect(result.current.blobUrl).toBe(mockWebPath);
+    // مسح الصورة
+    act(() => {
+      result.current.clearPhoto();
+    });
+    expect(result.current.blobUrl).toBeUndefined();
+  });
 
-        // مسح الصورة
-        act(() => {
-            result.current.clearPhoto();
-        });
-        expect(result.current.blobUrl).toBeUndefined();
+  it('يجب ألا يُعطّل التطبيق عند إغلاق الكاميرا بدون اختيار', async () => {
+    vi.mocked(Camera.getPhoto).mockRejectedValueOnce(new Error('User cancelled'));
+
+    const { result } = renderHook(() => usePhotoGallery());
+
+    await act(async () => {
+      await result.current.takePhoto('CAMERA' as never);
     });
 
-    it('يجب ألا يُعطّل التطبيق عند إغلاق الكاميرا بدون اختيار', async () => {
-        vi.mocked(Camera.getPhoto).mockRejectedValueOnce(new Error('User cancelled'));
-
-        const { result } = renderHook(() => usePhotoGallery());
-
-        await act(async () => {
-            await result.current.takePhoto('CAMERA' as never);
-        });
-
-        // يجب أن يبقى blobUrl = undefined
-        expect(result.current.blobUrl).toBeUndefined();
-    });
+    // يجب أن يبقى blobUrl = undefined
+    expect(result.current.blobUrl).toBeUndefined();
+  });
 });

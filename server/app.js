@@ -16,14 +16,14 @@ const PORT = process.env.PORT || 3000;
 // CORS Configuration
 // ============================================================
 const allowedOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim())
   : ['http://localhost:5173', 'http://localhost:8100']; // Default for development
 
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -48,28 +48,28 @@ app.use('/images', express.static(imagesRoot));
 
 // Health check route
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
+  res.status(200).json({
+    status: 'OK',
     message: 'Server is running',
     environment: process.env.NODE_ENV || 'production',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
-    console.error('Error:', err.message);
-    console.error('Stack:', err.stack);
+  console.error('Error:', err.message);
+  console.error('Stack:', err.stack);
 
-    if (err.name === 'MulterError') {
-        return res.status(400).json({ message: err.message });
-    }
+  if (err.name === 'MulterError') {
+    return res.status(400).json({ message: err.message });
+  }
 
-    if (err.message === 'يجب أن تكون الملفات من نوع صورة فقط!') {
-        return res.status(400).json({ message: err.message });
-    }
+  if (err.message === 'يجب أن تكون الملفات من نوع صورة فقط!') {
+    return res.status(400).json({ message: err.message });
+  }
 
-    return res.status(500).json({ message: 'خطأ غير متوقع في الخادم' });
+  return res.status(500).json({ message: 'خطأ غير متوقع في الخادم' });
 });
 
 // Initialize database and start server
@@ -77,13 +77,13 @@ const initializeServer = async () => {
   try {
     await db.authenticate();
     console.log('✅ Database connection established successfully');
-    
+
     await db.sync({ alter: true });
     console.log('✅ Database synced successfully');
-    
+
     // Log CORS configuration
     console.log(`🌐 CORS allowed origins: ${allowedOrigins.join(', ')}`);
-    
+
     const httpsKeyPath = process.env.HTTPS_KEY_PATH;
     const httpsCertPath = process.env.HTTPS_CERT_PATH;
     const httpsCaPath = process.env.HTTPS_CA_PATH;

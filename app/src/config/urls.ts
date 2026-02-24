@@ -2,9 +2,7 @@
 // IMPORTANT: VITE_API_URL must be set in GitHub Actions Variables (NOT Secrets)
 // Example: https://my-server.herokuapp.com or https://api.myapp.com
 const envApiUrl = import.meta.env.VITE_API_URL;
-export const API_URL = (envApiUrl && envApiUrl.trim() !== '') 
-  ? envApiUrl 
-  : 'http://localhost:3000';
+export const API_URL = envApiUrl && envApiUrl.trim() !== '' ? envApiUrl : 'http://localhost:3000';
 
 // Account routes (/account)
 export const REGISTER_URL = 'account/register';

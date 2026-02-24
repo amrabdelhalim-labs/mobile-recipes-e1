@@ -1,41 +1,41 @@
 .editable-field {
-    --padding-start: 0;
-    margin-bottom: 4px;
+  --padding-start: 0;
+  margin-bottom: 4px;
 }
 
 .editable-field-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .editable-field-btn {
-    font-size: 22px;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: 50%;
-    transition: opacity 0.2s;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: opacity 0.2s;
 }
 
 .editable-field-btn:active {
-    opacity: 0.6;
+  opacity: 0.6;
 }
 
 .edit-btn {
-    color: var(--ion-color-primary);
+  color: var(--ion-color-primary);
 }
 
 .save-btn {
-    color: var(--ion-color-success);
+  color: var(--ion-color-success);
 }
 
 .cancel-btn {
-    color: var(--ion-color-danger);
+  color: var(--ion-color-danger);
 }
 
 .editable-field-error {
-    color: var(--ion-color-danger);
-    font-size: 12px;
-    margin: 0 16px 8px;
-    padding: 0;
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  margin: 0 16px 8px;
+  padding: 0;
 }

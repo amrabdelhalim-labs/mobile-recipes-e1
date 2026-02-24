@@ -2,7 +2,7 @@
  * Comprehensive Integration Test Suite
  * Full end-to-end testing of the Repository Pattern implementation
  * Creates, updates, and deletes all data types in a single workflow
- * 
+ *
  * Usage: node tests/comprehensive.test.js
  */
 
@@ -25,8 +25,12 @@ let testData = {
 async function runComprehensiveTests() {
   console.log(`${'┌' + '─'.repeat(48) + '┐'}`);
   console.log(`│${' '.repeat(48)}│`);
-  console.log(`│  ${colors.magenta}🧪 COMPREHENSIVE INTEGRATION TEST${colors.reset}${' '.repeat(13)}│`);
-  console.log(`│  ${colors.cyan}Full Workflow: Create → Update → Delete${colors.reset}${' '.repeat(10)}│`);
+  console.log(
+    `│  ${colors.magenta}🧪 COMPREHENSIVE INTEGRATION TEST${colors.reset}${' '.repeat(13)}│`
+  );
+  console.log(
+    `│  ${colors.cyan}Full Workflow: Create → Update → Delete${colors.reset}${' '.repeat(10)}│`
+  );
   console.log(`│${' '.repeat(48)}│`);
   console.log(`${'└' + '─'.repeat(48) + '┘'}`);
 
@@ -137,10 +141,7 @@ async function runComprehensiveTests() {
     logStep(9, 'Update post title');
     await postRepo.update(post1.id, { title: 'المكرونة الإيطالية الأصلية' });
     const updatedPost = await postRepo.findByPk(post1.id);
-    assert(
-      updatedPost.title === 'المكرونة الإيطالية الأصلية',
-      'Post title updated correctly'
-    );
+    assert(updatedPost.title === 'المكرونة الإيطالية الأصلية', 'Post title updated correctly');
 
     logStep(10, 'Find posts with pagination');
     const postsPage = await postRepo.findPaginated(1, 10);
@@ -187,10 +188,7 @@ async function runComprehensiveTests() {
     logStep(15, 'Update comment text');
     await commentRepo.update(comment1.id, { text: 'وصفة رائعة جداً يا إلهي' });
     const updatedComment = await commentRepo.findByPk(comment1.id);
-    assert(
-      updatedComment.text === 'وصفة رائعة جداً يا إلهي',
-      'Comment text updated correctly'
-    );
+    assert(updatedComment.text === 'وصفة رائعة جداً يا إلهي', 'Comment text updated correctly');
 
     logStep(16, 'Count comments on post');
     const commentCount = await commentRepo.countByPost(post1.id);
@@ -310,7 +308,9 @@ async function runComprehensiveTests() {
     console.log(`${colors.cyan}Success Rate:${colors.reset} ${successRate}%\n`);
 
     if (state.failed === 0) {
-      console.log(`${colors.green}✓ All tests passed! Repository pattern is fully functional.${colors.reset}`);
+      console.log(
+        `${colors.green}✓ All tests passed! Repository pattern is fully functional.${colors.reset}`
+      );
       console.log(`${'━'.repeat(50)}\n`);
     } else {
       console.log(
@@ -325,10 +325,11 @@ async function runComprehensiveTests() {
     console.log(`   • Posts created: ${testData.posts.length}`);
     console.log(`   • Comments created: ${testData.comments.length}`);
     console.log(`   • Likes created: ${testData.likes.length}`);
-    console.log(`   • Total operations: ${testData.users.length + testData.posts.length + testData.comments.length + testData.likes.length}\n`);
+    console.log(
+      `   • Total operations: ${testData.users.length + testData.posts.length + testData.comments.length + testData.likes.length}\n`
+    );
 
     console.log(`${colors.cyan}✓ All test data cleaned up and deleted${colors.reset}\n`);
-
   } catch (error) {
     console.error(`\n${colors.red}Fatal error during testing:${colors.reset}`, error.message);
     console.error(error);

@@ -7,14 +7,13 @@
 
 /* ─── حاوية المنشورات ─── */
 .posts-container {
-    width: 100%;
-    padding: 0;
+  width: 100%;
+  padding: 0;
 }
 
 /* ─── تحسينات للشاشات الكبيرة ─── */
 @media (min-width: 768px) {
-    .posts-container {
-        padding: 16px 0;
-    }
+  .posts-container {
+    padding: 16px 0;
+  }
 }
-

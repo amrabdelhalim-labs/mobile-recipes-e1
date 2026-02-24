@@ -1,34 +1,34 @@
 @font-face {
-    font-family: "FontAwesome";
-    font-weight: normal;
-    font-style : normal;
-           src : url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/FontAwesome.otf");
-  }
+  font-family: 'FontAwesome';
+  font-weight: normal;
+  font-style: normal;
+  src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/FontAwesome.otf');
+}
 
 .post-icon {
-    font-size: 25px;
-    cursor: pointer;
+  font-size: 25px;
+  cursor: pointer;
 }
 
 .card {
-    background-color: #fff;
+  background-color: #fff;
 }
 
 .post-image {
-    height: 240px;
-    width: 100%;
-    object-fit: cover;
+  height: 240px;
+  width: 100%;
+  object-fit: cover;
 }
 
 /* ─── حاوية المنشورات ─── */
 .posts-container {
-    width: 100%;
-    padding: 0;
+  width: 100%;
+  padding: 0;
 }
 
 /* ─── تحسينات للشاشات الكبيرة ─── */
 @media (min-width: 768px) {
-    .posts-container {
-        padding: 16px 0;
-    }
+  .posts-container {
+    padding: 16px 0;
+  }
 }

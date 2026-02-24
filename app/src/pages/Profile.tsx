@@ -37,7 +37,7 @@ const Profile: React.FC = () => {
    */
   const handleUpdateField = async (
     field: 'name' | 'password',
-    newValue: string,
+    newValue: string
   ): Promise<boolean> => {
     try {
       await api.put(PROFILE_UPDATE_INFO_URL, { [field]: newValue });
@@ -97,7 +97,6 @@ const Profile: React.FC = () => {
         <IonGrid>
           <IonRow className="ion-justify-content-center">
             <IonCol size="12" sizeMd="6" sizeLg="4">
-
               {/* ─── القسم العلوي: الصورة + الاسم + الإيميل ─── */}
               <div className="profile-hero ion-text-center">
                 <UserAvatar />
@@ -158,7 +157,6 @@ const Profile: React.FC = () => {
                   حذف الحساب
                 </IonButton>
               </div>
-
             </IonCol>
           </IonRow>
         </IonGrid>

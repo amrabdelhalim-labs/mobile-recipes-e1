@@ -1,6 +1,6 @@
 /**
  * Storage Service Interface
- * 
+ *
  * Defines the contract for all storage strategies.
  * Any storage implementation (local, S3, Cloudinary, etc.) must implement these methods.
  */

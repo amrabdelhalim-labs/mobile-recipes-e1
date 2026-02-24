@@ -1,35 +1,35 @@
 .profile-hero {
-    padding-top: 24px;
-    padding-bottom: 8px;
+  padding-top: 24px;
+  padding-bottom: 8px;
 }
 
 .profile-user-info {
-    margin-top: 16px;
+  margin-top: 16px;
 }
 
 .profile-user-info h2 {
-    margin: 0;
-    font-weight: 700;
-    font-size: 1.25rem;
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.25rem;
 }
 
 .profile-user-info p {
-    margin: 4px 0 0;
-    font-size: 0.85rem;
-    color: var(--ion-color-medium);
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
 }
 
 .profile-fields {
-    margin-top: 24px;
+  margin-top: 24px;
 }
 
 .profile-fields-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin: 0 0 8px 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 8px 4px;
 }
 
 .profile-delete-section {
-    margin-top: 32px;
-    padding: 0 4px;
+  margin-top: 32px;
+  padding: 0 4px;
 }

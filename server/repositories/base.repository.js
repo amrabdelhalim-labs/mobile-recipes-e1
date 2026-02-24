@@ -1,7 +1,7 @@
 /**
  * Base Repository Class
  * Implements generic database operations using Sequelize ORM
- * 
+ *
  * Usage:
  *   const userRepo = new BaseRepository(User);
  *   const users = await userRepo.findAll({ limit: 10 });

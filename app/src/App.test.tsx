@@ -10,8 +10,8 @@ import { describe, it, expect } from 'vitest';
 import App from './App';
 
 describe('مكوّن التطبيق الرئيسي (App)', () => {
-    it('يجب أن يتحمّل بدون أخطاء', () => {
-        const { baseElement } = render(<App />);
-        expect(baseElement).toBeDefined();
-    });
+  it('يجب أن يتحمّل بدون أخطاء', () => {
+    const { baseElement } = render(<App />);
+    expect(baseElement).toBeDefined();
+  });
 });

@@ -4,89 +4,89 @@
  */
 
 .RichEditor-root {
-    background: var(--ion-background-color, #fff);
-    border: 1px solid var(--ion-border-color, #ddd);
-    border-radius: 8px;
-    font-size: 14px;
-    padding: 12px;
-    width: 100%;
-    cursor: text;
-    direction: rtl;
+  background: var(--ion-background-color, #fff);
+  border: 1px solid var(--ion-border-color, #ddd);
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 12px;
+  width: 100%;
+  cursor: text;
+  direction: rtl;
 }
 
 /* ─── شريط الأدوات ─── */
 .RichEditor-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--ion-border-color, #ddd);
-    user-select: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ion-border-color, #ddd);
+  user-select: none;
 }
 
 .RichEditor-controls-group {
-    display: flex;
-    gap: 4px;
+  display: flex;
+  gap: 4px;
 }
 
 /* ─── أزرار التنسيق ─── */
 .RichEditor-styleButton {
-    color: var(--ion-color-medium, #999);
-    cursor: pointer;
-    padding: 4px 10px;
-    border-radius: 4px;
-    display: inline-block;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
+  color: var(--ion-color-medium, #999);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
 .RichEditor-styleButton:hover {
-    background: var(--ion-color-light, #f0f0f0);
-    color: var(--ion-color-dark, #333);
+  background: var(--ion-color-light, #f0f0f0);
+  color: var(--ion-color-dark, #333);
 }
 
 .RichEditor-activeButton {
-    color: var(--ion-color-primary, #3880ff);
-    background: rgba(var(--ion-color-primary-rgb, 56, 128, 255), 0.1);
-    border-color: var(--ion-color-primary, #3880ff);
+  color: var(--ion-color-primary, #3880ff);
+  background: rgba(var(--ion-color-primary-rgb, 56, 128, 255), 0.1);
+  border-color: var(--ion-color-primary, #3880ff);
 }
 
 /* ─── منطقة التحرير ─── */
 .RichEditor-editor {
-    cursor: text;
-    font-size: 15px;
-    min-height: 120px;
-    line-height: 1.6;
+  cursor: text;
+  font-size: 15px;
+  min-height: 120px;
+  line-height: 1.6;
 }
 
 .RichEditor-editor .public-DraftEditorPlaceholder-root {
-    color: var(--ion-color-medium, #999);
-    font-size: 14px;
+  color: var(--ion-color-medium, #999);
+  font-size: 14px;
 }
 
 .RichEditor-editor .public-DraftEditor-content {
-    min-height: 100px;
+  min-height: 100px;
 }
 
 .RichEditor-editor .public-DraftStyleDefault-pre {
-    background-color: rgba(0, 0, 0, 0.05);
-    font-family: 'Inconsolata', 'Menlo', 'Consolas', monospace;
-    font-size: 15px;
-    padding: 16px;
-    border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.05);
+  font-family: 'Inconsolata', 'Menlo', 'Consolas', monospace;
+  font-size: 15px;
+  padding: 16px;
+  border-radius: 4px;
 }
 
 /* ─── قوائم Draft.js ─── */
 .RichEditor-editor ul,
 .RichEditor-editor ol {
-    padding-right: 20px;
-    padding-left: 0;
-    margin: 8px 0;
+  padding-right: 20px;
+  padding-left: 0;
+  margin: 8px 0;
 }
 
 .RichEditor-editor li {
-    margin-bottom: 4px;
+  margin-bottom: 4px;
 }

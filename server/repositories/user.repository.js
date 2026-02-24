@@ -1,7 +1,7 @@
 /**
  * User Repository
  * Specialized repository for User model with domain-specific operations
- * 
+ *
  * Usage:
  *   const userRepo = UserRepository.getInstance();
  *   const user = await userRepo.findByEmail('user@example.com');
@@ -132,9 +132,7 @@ class UserRepository extends BaseRepository {
   async updateImage(id, imageUrl) {
     return this.update(id, { ImageUrl: imageUrl });
   }
-
 }
-
 
 // Singleton pattern
 let instance = null;

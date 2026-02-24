@@ -1,7 +1,7 @@
 /**
  * Repository Pattern Testing Suite
  * Tests all repository operations and database abstraction layer
- * 
+ *
  * Usage: node tests/repositories.test.js
  */
 
@@ -134,7 +134,9 @@ async function runTests() {
         const post = await repositories.post.findWithDetails(testPostId);
         assert(post && post.id === testPostId, 'Find post with details');
       } catch (error) {
-        console.log(`${colors.red}Error finding post with details: ${error.message}${colors.reset}`);
+        console.log(
+          `${colors.red}Error finding post with details: ${error.message}${colors.reset}`
+        );
       }
     }
 
@@ -318,13 +320,16 @@ async function runTests() {
     console.log(`Success Rate: ${successRate}%`);
 
     if (state.failed === 0) {
-      console.log(`\n${colors.green}✓ All tests passed! Repository pattern is working correctly.${colors.reset}`);
+      console.log(
+        `\n${colors.green}✓ All tests passed! Repository pattern is working correctly.${colors.reset}`
+      );
     } else {
-      console.log(`\n${colors.red}✗ Some tests failed. Please review the errors above.${colors.reset}`);
+      console.log(
+        `\n${colors.red}✗ Some tests failed. Please review the errors above.${colors.reset}`
+      );
     }
 
     console.log(`${colors.cyan}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${colors.reset}\n`);
-
   } catch (error) {
     console.error(`${colors.red}Fatal error during testing: ${error.message}${colors.reset}`);
     console.error(error);
@@ -343,7 +348,7 @@ async function runTests() {
 }
 
 // Run tests
-runTests().catch(error => {
+runTests().catch((error) => {
   console.error(`${colors.red}Unhandled error: ${error.message}${colors.reset}`);
   process.exit(1);
 });

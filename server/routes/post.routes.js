@@ -7,40 +7,30 @@ import { upload } from '../utilities/files.js';
 
 const router = express.Router();
 
-router.post('/create',
-    middleware.isAuthenticated,
-    upload.array('postImages', 10),
-    validator.newPost,
-    validateRequest,
-    controller.newPost
+router.post(
+  '/create',
+  middleware.isAuthenticated,
+  upload.array('postImages', 10),
+  validator.newPost,
+  validateRequest,
+  controller.newPost
 );
 
-router.get('/',
-    middleware.isAuthenticated,
-    controller.getAllPosts
+router.get('/', middleware.isAuthenticated, controller.getAllPosts);
+
+router.get('/me', middleware.isAuthenticated, controller.getMyPosts);
+
+router.get('/:id', middleware.isAuthenticated, controller.getPostById);
+
+router.put(
+  '/:id',
+  middleware.isAuthenticated,
+  upload.array('postImages', 10),
+  validator.updatePost,
+  validateRequest,
+  controller.updatePost
 );
 
-router.get('/me',
-    middleware.isAuthenticated,
-    controller.getMyPosts
-);
-
-router.get('/:id',
-    middleware.isAuthenticated,
-    controller.getPostById
-);
-
-router.put('/:id',
-    middleware.isAuthenticated,
-    upload.array('postImages', 10),
-    validator.updatePost,
-    validateRequest,
-    controller.updatePost
-);
-
-router.delete('/:id',
-    middleware.isAuthenticated,
-    controller.deletePost
-);
+router.delete('/:id', middleware.isAuthenticated, controller.deletePost);
 
 export default router;

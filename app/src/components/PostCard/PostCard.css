@@ -5,112 +5,112 @@
 
 /* ─── صورة الغلاف ─── */
 .post-card-image {
-    height: 220px;
-    width: 100%;
-    object-fit: cover;
+  height: 220px;
+  width: 100%;
+  object-fit: cover;
 }
 
 /* ─── صف الرأس (المؤلف/التاريخ + الإحصائيات + الخيارات) ─── */
 .post-card-header {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 /* ─── بيانات المؤلف ─── */
 .post-card-author {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .post-card-avatar {
-    width: 40px;
-    height: 40px;
+  width: 40px;
+  height: 40px;
 }
 
 .post-card-author-info {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .post-card-author-name {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .post-card-time {
-    font-size: 0.75rem;
+  font-size: 0.75rem;
 }
 
 /* ─── الإجراءات (الإحصائيات + الخيارات) ─── */
 .post-card-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* ─── زر الخيارات ─── */
 .post-card-options-btn {
-    --padding-start: 4px;
-    --padding-end: 4px;
-    margin: 0;
-    margin-inline-start: 4px;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  margin: 0;
+  margin-inline-start: 4px;
 }
 
 /* ─── العنوان والوصف ─── */
 .post-card-title {
-    font-size: 1.15rem;
-    margin-top: 10px;
+  font-size: 1.15rem;
+  margin-top: 10px;
 }
 
 .post-card-content {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-clamp: 2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-top: 6px;
-    font-size: 0.85rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 6px;
+  font-size: 0.85rem;
 }
 
 /* ─── شريط الإحصائيات ─── */
 .post-card-stats {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .post-card-stat {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
 }
 
 .post-card-stat ion-icon {
-    font-size: 1.1rem;
+  font-size: 1.1rem;
 }
 
 /* ─── تحسينات للشاشات الكبيرة ─── */
 @media (min-width: 768px) {
-    .post-card {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
+  .post-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
 
-    .post-card ion-card-content {
-        flex: 1;
-    }
+  .post-card ion-card-content {
+    flex: 1;
+  }
 
-    .post-card-image {
-        height: 250px;
-    }
+  .post-card-image {
+    height: 250px;
+  }
 }
 
 @media (min-width: 1200px) {
-    .post-card-image {
-        height: 280px;
-    }
+  .post-card-image {
+    height: 280px;
+  }
 }

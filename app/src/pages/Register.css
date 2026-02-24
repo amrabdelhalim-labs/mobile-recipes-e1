@@ -1,39 +1,39 @@
 .register-hero {
-    padding-top: 32px;
-    padding-bottom: 16px;
+  padding-top: 32px;
+  padding-bottom: 16px;
 }
 
 .register-avatar {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--ion-color-primary-tint);
-    border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ion-color-primary-tint);
+  border-radius: 50%;
 }
 
 .register-icon {
-    font-size: 56px;
-    color: var(--ion-color-primary-contrast);
+  font-size: 56px;
+  color: var(--ion-color-primary-contrast);
 }
 
 .register-hero h2 {
-    margin: 8px 0 0;
-    font-weight: 700;
+  margin: 8px 0 0;
+  font-weight: 700;
 }
 
 .register-field {
-    margin-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 .field-error {
-    display: block;
-    padding: 4px 16px 8px;
-    font-size: 12px;
+  display: block;
+  padding: 4px 16px 8px;
+  font-size: 12px;
 }
 
 .register-actions {
-    margin-top: 8px;
+  margin-top: 8px;
 }

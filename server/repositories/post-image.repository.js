@@ -30,7 +30,7 @@ class PostImageRepository extends BaseRepository {
    */
   async createBulk(postId, imageUrls) {
     try {
-      const images = imageUrls.map(url => ({
+      const images = imageUrls.map((url) => ({
         imageUrl: url,
         PostId: postId,
       }));
@@ -49,7 +49,7 @@ class PostImageRepository extends BaseRepository {
    */
   async getImageUrlsByPost(postId) {
     const images = await this.findByPost(postId);
-    return images.map(img => img.imageUrl);
+    return images.map((img) => img.imageUrl);
   }
 
   /**

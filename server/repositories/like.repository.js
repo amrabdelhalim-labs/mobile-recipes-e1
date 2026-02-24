@@ -158,10 +158,7 @@ class LikeRepository extends BaseRepository {
    */
   async getTopPosts(limit = 10) {
     return this.getModel().findAll({
-      attributes: [
-        'PostId',
-        [fn('COUNT', col('PostId')), 'likeCount'],
-      ],
+      attributes: ['PostId', [fn('COUNT', col('PostId')), 'likeCount']],
       group: ['PostId'],
       order: [[literal('likeCount'), 'DESC']],
       limit,

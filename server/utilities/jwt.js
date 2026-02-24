@@ -10,16 +10,16 @@ if (!JWT_SECRET) {
 
 const SECRET = JWT_SECRET || 'dev_jwt_secret';
 
-const generate = payload => {
+const generate = (payload) => {
   return jwt.sign(payload, SECRET, { expiresIn: '30d' });
 };
 
-const verify = token => {
+const verify = (token) => {
   try {
     return jwt.verify(token, SECRET);
   } catch (error) {
     return null;
-  };
+  }
 };
 
 export { generate, verify };

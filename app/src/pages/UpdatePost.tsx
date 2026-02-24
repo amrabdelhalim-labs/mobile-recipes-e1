@@ -20,26 +20,32 @@
  *  - التحقق: مجموع (الصور الحالية غير المحذوفة + الصور الجديدة) >= 1
  */
 import {
-	IonAlert,
-	IonButton,
-	IonCol,
-	IonContent,
-	IonGrid,
-	IonIcon,
-	IonImg,
-	IonInput,
-	IonItem,
-	IonLabel,
-	IonList,
-	IonLoading,
-	IonPage,
-	IonRow,
-	IonSkeletonText,
-	IonText,
-	IonTextarea,
-	useIonToast,
+  IonAlert,
+  IonButton,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonIcon,
+  IonImg,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonLoading,
+  IonPage,
+  IonRow,
+  IonSkeletonText,
+  IonText,
+  IonTextarea,
+  useIonToast,
 } from '@ionic/react';
-import { imagesOutline, cameraOutline, closeCircle, trashOutline, arrowUndoCircle } from 'ionicons/icons';
+import {
+  imagesOutline,
+  cameraOutline,
+  closeCircle,
+  trashOutline,
+  arrowUndoCircle,
+} from 'ionicons/icons';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -74,13 +80,13 @@ type RouteParams = { id: string };
  * يتحقق من وجود خاصية 'blocks' كمصفوفة
  */
 const isDraftContentState = (steps: PostSteps): steps is RawDraftContentState => {
-	return (
-		typeof steps === 'object' &&
-		!Array.isArray(steps) &&
-		steps !== null &&
-		'blocks' in steps &&
-		Array.isArray((steps as RawDraftContentState).blocks)
-	);
+  return (
+    typeof steps === 'object' &&
+    !Array.isArray(steps) &&
+    steps !== null &&
+    'blocks' in steps &&
+    Array.isArray((steps as RawDraftContentState).blocks)
+  );
 };
 
 /**
@@ -90,573 +96,587 @@ const isDraftContentState = (steps: PostSteps): steps is RawDraftContentState =>
  * - أي شيء آخر: إرجاع محرر فارغ
  */
 const stepsToEditorState = (steps: PostSteps | null): EditorState => {
-	if (!steps) return EditorState.createEmpty();
+  if (!steps) return EditorState.createEmpty();
 
-	// كائن Draft.js
-	if (isDraftContentState(steps)) {
-		try {
-			const contentState = convertFromRaw(steps);
-			return EditorState.createWithContent(contentState);
-		} catch {
-			return EditorState.createEmpty();
-		}
-	}
+  // كائن Draft.js
+  if (isDraftContentState(steps)) {
+    try {
+      const contentState = convertFromRaw(steps);
+      return EditorState.createWithContent(contentState);
+    } catch {
+      return EditorState.createEmpty();
+    }
+  }
 
-	// مصفوفة نصوص (منشورات قديمة) → تحويل إلى Draft.js blocks
-	if (Array.isArray(steps) && steps.length > 0) {
-		try {
-			const rawContent: RawDraftContentState = {
-				blocks: steps.map((text, i) => ({
-					key: `step-${i}`,
-					text: String(text),
-					type: 'ordered-list-item',
-					depth: 0,
-					inlineStyleRanges: [],
-					entityRanges: [],
-					data: {},
-				})),
-				entityMap: {},
-			};
-			const contentState = convertFromRaw(rawContent);
-			return EditorState.createWithContent(contentState);
-		} catch {
-			return EditorState.createEmpty();
-		}
-	}
+  // مصفوفة نصوص (منشورات قديمة) → تحويل إلى Draft.js blocks
+  if (Array.isArray(steps) && steps.length > 0) {
+    try {
+      const rawContent: RawDraftContentState = {
+        blocks: steps.map((text, i) => ({
+          key: `step-${i}`,
+          text: String(text),
+          type: 'ordered-list-item',
+          depth: 0,
+          inlineStyleRanges: [],
+          entityRanges: [],
+          data: {},
+        })),
+        entityMap: {},
+      };
+      const contentState = convertFromRaw(rawContent);
+      return EditorState.createWithContent(contentState);
+    } catch {
+      return EditorState.createEmpty();
+    }
+  }
 
-	return EditorState.createEmpty();
+  return EditorState.createEmpty();
 };
 
 /** بناء رابط صورة كامل من imageUrl النسبي */
 const buildImageUrl = (imageUrl: string): string => {
-	if (imageUrl.startsWith('http')) return imageUrl;
-	return `${API_URL}${imageUrl}`;
+  if (imageUrl.startsWith('http')) return imageUrl;
+  return `${API_URL}${imageUrl}`;
 };
 
 const UpdatePost: FC = () => {
-	const { id } = useParams<RouteParams>();
-	const history = useHistory();
-	const { user } = useContext(AuthContext);
-	const [presentToast] = useIonToast();
-	const { takePhoto, blobUrl, clearPhoto } = usePhotoGallery();
+  const { id } = useParams<RouteParams>();
+  const history = useHistory();
+  const { user } = useContext(AuthContext);
+  const [presentToast] = useIonToast();
+  const { takePhoto, blobUrl, clearPhoto } = usePhotoGallery();
 
-	// ─── حالة التحميل ───
-	const [isLoading, setIsLoading] = useState(true);
-	const [loadError, setLoadError] = useState(false);
+  // ─── حالة التحميل ───
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
-	// ─── حالات النموذج ───
-	const [title, setTitle] = useState('');
-	const [content, setContent] = useState('');
-	const [stepsJson, setStepsJson] = useState('');
-	const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
-	const [location, setLocation] = useState<LocationData>({ country: '', region: '' });
+  // ─── حالات النموذج ───
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [stepsJson, setStepsJson] = useState('');
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+  const [location, setLocation] = useState<LocationData>({ country: '', region: '' });
 
-	// ─── إدارة الصور ───
-	// الصور الحالية من السيرفر
-	const [existingImages, setExistingImages] = useState<PostImage[]>([]);
-	// IDs الصور التي يريد المستخدم حذفها
-	const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
-	// الصور الجديدة (blob URLs من الكاميرا/المعرض)
-	const [newPhotos, setNewPhotos] = useState<string[]>([]);
+  // ─── إدارة الصور ───
+  // الصور الحالية من السيرفر
+  const [existingImages, setExistingImages] = useState<PostImage[]>([]);
+  // IDs الصور التي يريد المستخدم حذفها
+  const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
+  // الصور الجديدة (blob URLs من الكاميرا/المعرض)
+  const [newPhotos, setNewPhotos] = useState<string[]>([]);
 
-	// ─── حالات واجهة المستخدم ───
-	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [showConfirmAlert, setShowConfirmAlert] = useState(false);
+  // ─── حالات واجهة المستخدم ───
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmAlert, setShowConfirmAlert] = useState(false);
 
-	// ─── الصور الحالية المتبقية (بعد استثناء المحذوفة) ───
-	const remainingExistingImages = existingImages.filter(
-		(img) => !deletedImageIds.includes(img.id),
-	);
+  // ─── الصور الحالية المتبقية (بعد استثناء المحذوفة) ───
+  const remainingExistingImages = existingImages.filter((img) => !deletedImageIds.includes(img.id));
 
-	// العدد الكلي للصور (حالية متبقية + جديدة)
-	const totalImagesCount = remainingExistingImages.length + newPhotos.length;
+  // العدد الكلي للصور (حالية متبقية + جديدة)
+  const totalImagesCount = remainingExistingImages.length + newPhotos.length;
 
-	// ─── جلب بيانات المنشور الحالي ───
-	const fetchPost = useCallback(async () => {
-		try {
-			setIsLoading(true);
-			setLoadError(false);
+  // ─── جلب بيانات المنشور الحالي ───
+  const fetchPost = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setLoadError(false);
 
-			const { data } = await api.get(GET_POST_BY_ID(id));
-			const post: PostDetail = data.post;
+      const { data } = await api.get(GET_POST_BY_ID(id));
+      const post: PostDetail = data.post;
 
-			// التحقق من ملكية المنشور
-			if (user && post.UserId !== user.id) {
-				presentToast({
-					message: 'لا يمكنك تعديل هذا المنشور',
-					duration: 3000,
-					color: 'danger',
-					position: 'bottom',
-				});
-				history.replace('/tabs/home');
-				return;
-			}
+      // التحقق من ملكية المنشور
+      if (user && post.UserId !== user.id) {
+        presentToast({
+          message: 'لا يمكنك تعديل هذا المنشور',
+          duration: 3000,
+          color: 'danger',
+          position: 'bottom',
+        });
+        history.replace('/tabs/home');
+        return;
+      }
 
-			// تعبئة الحقول
-			setTitle(post.title);
-			setContent(post.content);
-			setExistingImages(post.images ?? []);
-			setLocation({
-				country: post.country ?? '',
-				region: post.region ?? '',
-			});
+      // تعبئة الحقول
+      setTitle(post.title);
+      setContent(post.content);
+      setExistingImages(post.images ?? []);
+      setLocation({
+        country: post.country ?? '',
+        region: post.region ?? '',
+      });
 
-			// تحويل steps إلى EditorState لمحرر Draft.js
-			const initialEditorState = stepsToEditorState(post.steps);
-			setEditorState(initialEditorState);
-		} catch {
-			setLoadError(true);
-			presentToast({
-				message: 'فشل تحميل بيانات المنشور',
-				duration: 3000,
-				color: 'danger',
-				position: 'bottom',
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	}, [id, user, history, presentToast]);
+      // تحويل steps إلى EditorState لمحرر Draft.js
+      const initialEditorState = stepsToEditorState(post.steps);
+      setEditorState(initialEditorState);
+    } catch {
+      setLoadError(true);
+      presentToast({
+        message: 'فشل تحميل بيانات المنشور',
+        duration: 3000,
+        color: 'danger',
+        position: 'bottom',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id, user, history, presentToast]);
 
-	useEffect(() => {
-		fetchPost();
-	}, [fetchPost]);
+  useEffect(() => {
+    fetchPost();
+  }, [fetchPost]);
 
-	// ─── إضافة صور جديدة عبر الكاميرا/المعرض ───
-	const handleTakePhoto = useCallback(
-		async (source: CameraSource) => {
-			if (totalImagesCount >= MAX_IMAGES) {
-				presentToast({
-					message: `الحد الأقصى ${MAX_IMAGES} صور`,
-					duration: 3000,
-					color: 'warning',
-					position: 'bottom',
-				});
-				return;
-			}
-			await takePhoto(source);
-		},
-		[totalImagesCount, takePhoto, presentToast],
-	);
+  // ─── إضافة صور جديدة عبر الكاميرا/المعرض ───
+  const handleTakePhoto = useCallback(
+    async (source: CameraSource) => {
+      if (totalImagesCount >= MAX_IMAGES) {
+        presentToast({
+          message: `الحد الأقصى ${MAX_IMAGES} صور`,
+          duration: 3000,
+          color: 'warning',
+          position: 'bottom',
+        });
+        return;
+      }
+      await takePhoto(source);
+    },
+    [totalImagesCount, takePhoto, presentToast]
+  );
 
-	// إضافة الصورة الملتقطة تلقائياً
-	if (blobUrl && !newPhotos.includes(blobUrl)) {
-		setNewPhotos((prev) => [blobUrl, ...prev]);
-		clearPhoto();
-	}
+  // إضافة الصورة الملتقطة تلقائياً
+  if (blobUrl && !newPhotos.includes(blobUrl)) {
+    setNewPhotos((prev) => [blobUrl, ...prev]);
+    clearPhoto();
+  }
 
-	// ─── حذف صورة حالية (من السيرفر) ───
-	const markImageForDeletion = useCallback((imageId: number) => {
-		setDeletedImageIds((prev) => [...prev, imageId]);
-	}, []);
+  // ─── حذف صورة حالية (من السيرفر) ───
+  const markImageForDeletion = useCallback((imageId: number) => {
+    setDeletedImageIds((prev) => [...prev, imageId]);
+  }, []);
 
-	// ─── إلغاء حذف صورة حالية ───
-	const unmarkImageForDeletion = useCallback((imageId: number) => {
-		setDeletedImageIds((prev) => prev.filter((id) => id !== imageId));
-	}, []);
+  // ─── إلغاء حذف صورة حالية ───
+  const unmarkImageForDeletion = useCallback((imageId: number) => {
+    setDeletedImageIds((prev) => prev.filter((id) => id !== imageId));
+  }, []);
 
-	// ─── حذف صورة جديدة (blob) ───
-	const removeNewPhoto = useCallback((index: number) => {
-		setNewPhotos((prev) => prev.filter((_, i) => i !== index));
-	}, []);
+  // ─── حذف صورة جديدة (blob) ───
+  const removeNewPhoto = useCallback((index: number) => {
+    setNewPhotos((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
-	// ─── التحقق من صحة البيانات ───
-	const validate = useCallback((): string | null => {
-		if (!title.trim() || title.trim().length < TITLE_MIN) {
-			return `العنوان يجب أن يكون ${TITLE_MIN} أحرف على الأقل`;
-		}
+  // ─── التحقق من صحة البيانات ───
+  const validate = useCallback((): string | null => {
+    if (!title.trim() || title.trim().length < TITLE_MIN) {
+      return `العنوان يجب أن يكون ${TITLE_MIN} أحرف على الأقل`;
+    }
 
-		if (title.trim().length > TITLE_MAX) {
-			return `العنوان يجب ألا يتجاوز ${TITLE_MAX} حرف`;
-		}
+    if (title.trim().length > TITLE_MAX) {
+      return `العنوان يجب ألا يتجاوز ${TITLE_MAX} حرف`;
+    }
 
-		if (!content.trim() || content.trim().length < CONTENT_MIN) {
-			return `المحتوى يجب أن يكون ${CONTENT_MIN} أحرف على الأقل`;
-		}
+    if (!content.trim() || content.trim().length < CONTENT_MIN) {
+      return `المحتوى يجب أن يكون ${CONTENT_MIN} أحرف على الأقل`;
+    }
 
-		if (totalImagesCount === 0) {
-			return 'يجب بقاء صورة واحدة على الأقل';
-		}
+    if (totalImagesCount === 0) {
+      return 'يجب بقاء صورة واحدة على الأقل';
+    }
 
-		return null;
-	}, [title, content, totalImagesCount]);
+    return null;
+  }, [title, content, totalImagesCount]);
 
-	// ─── إرسال التعديل ───
-	const handleSubmit = useCallback(async () => {
-		const error = validate();
-		if (error) {
-			presentToast({
-				message: error,
-				duration: 3000,
-				color: 'danger',
-				position: 'bottom',
-			});
+  // ─── إرسال التعديل ───
+  const handleSubmit = useCallback(async () => {
+    const error = validate();
+    if (error) {
+      presentToast({
+        message: error,
+        duration: 3000,
+        color: 'danger',
+        position: 'bottom',
+      });
 
-			return;
-		}
+      return;
+    }
 
-		setIsSubmitting(true);
+    setIsSubmitting(true);
 
-		try {
-			const formData = new FormData();
-			formData.append('title', title.trim());
-			formData.append('content', content.trim());
+    try {
+      const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('content', content.trim());
 
-			// خطوات التحضير كـ JSON string
-			if (stepsJson) {
-				formData.append('steps', stepsJson);
-			}
+      // خطوات التحضير كـ JSON string
+      if (stepsJson) {
+        formData.append('steps', stepsJson);
+      }
 
-			// الموقع الجغرافي
-			if (location.country) {
-				formData.append('country', location.country);
-			}
+      // الموقع الجغرافي
+      if (location.country) {
+        formData.append('country', location.country);
+      }
 
-			if (location.region) {
-				formData.append('region', location.region);
-			}
+      if (location.region) {
+        formData.append('region', location.region);
+      }
 
-			// الصور المحذوفة — السيرفر يتوقع deletedImages كـ JSON string من IDs
-			if (deletedImageIds.length > 0) {
-				formData.append('deletedImages', JSON.stringify(deletedImageIds));
-			}
+      // الصور المحذوفة — السيرفر يتوقع deletedImages كـ JSON string من IDs
+      if (deletedImageIds.length > 0) {
+        formData.append('deletedImages', JSON.stringify(deletedImageIds));
+      }
 
-			// الصور الجديدة — تحويل blob URLs إلى ملفات
-			for (const photoUrl of newPhotos) {
-				const response = await fetch(photoUrl);
-				const blob = await response.blob();
-				const extension = blob.type.split('/')[1] || 'jpeg';
-				formData.append('postImages', blob, `photo.${extension}`);
-			}
+      // الصور الجديدة — تحويل blob URLs إلى ملفات
+      for (const photoUrl of newPhotos) {
+        const response = await fetch(photoUrl);
+        const blob = await response.blob();
+        const extension = blob.type.split('/')[1] || 'jpeg';
+        formData.append('postImages', blob, `photo.${extension}`);
+      }
 
-			await api.put(UPDATE_POST(id), formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-				},
-			});
+      await api.put(UPDATE_POST(id), formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-			// إشعار باقي الصفحات بالتغيير
-			emitPostsChanged();
+      // إشعار باقي الصفحات بالتغيير
+      emitPostsChanged();
 
-			presentToast({
-				message: 'تم تحديث المنشور بنجاح',
-				duration: 3000,
-				color: 'success',
-				position: 'bottom',
-			});
+      presentToast({
+        message: 'تم تحديث المنشور بنجاح',
+        duration: 3000,
+        color: 'success',
+        position: 'bottom',
+      });
 
-			// العودة لصفحة المنشور
-			history.replace(`/tabs/posts/${id}`);
-		} catch (err: unknown) {
-			console.error('فشل تعديل المنشور:', err);
+      // العودة لصفحة المنشور
+      history.replace(`/tabs/posts/${id}`);
+    } catch (err: unknown) {
+      console.error('فشل تعديل المنشور:', err);
 
-			let errorMessage = 'فشل في تعديل المنشور، حاول مرة أخرى';
-			if (err && typeof err === 'object' && 'response' in err) {
-				const axiosError = err as {
-					response?: { data?: { message?: string; errors?: { msg: string }[] } };
-				};
-				if (axiosError.response?.data?.message) {
-					errorMessage = axiosError.response.data.message;
-				} else if (axiosError.response?.data?.errors?.[0]?.msg) {
-					errorMessage = axiosError.response.data.errors[0].msg;
-				}
-			}
+      let errorMessage = 'فشل في تعديل المنشور، حاول مرة أخرى';
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axiosError = err as {
+          response?: { data?: { message?: string; errors?: { msg: string }[] } };
+        };
+        if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message;
+        } else if (axiosError.response?.data?.errors?.[0]?.msg) {
+          errorMessage = axiosError.response.data.errors[0].msg;
+        }
+      }
 
-			presentToast({
-				message: errorMessage,
-				duration: 3000,
-				color: 'danger',
-				position: 'bottom',
-			});
-		} finally {
-			setIsSubmitting(false);
-		}
-	}, [validate, title, content, stepsJson, location, deletedImageIds, newPhotos, id, history, presentToast]);
+      presentToast({
+        message: errorMessage,
+        duration: 3000,
+        color: 'danger',
+        position: 'bottom',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [
+    validate,
+    title,
+    content,
+    stepsJson,
+    location,
+    deletedImageIds,
+    newPhotos,
+    id,
+    history,
+    presentToast,
+  ]);
 
-	// ─── معالج تغيير الموقع ───
-	const handleLocationChange = useCallback((loc: LocationData) => {
-		setLocation(loc);
-	}, []);
+  // ─── معالج تغيير الموقع ───
+  const handleLocationChange = useCallback((loc: LocationData) => {
+    setLocation(loc);
+  }, []);
 
-	// ─── عرض تأكيد التعديل ───
-	const confirmSubmit = useCallback(() => {
-		const error = validate();
-		if (error) {
-			presentToast({
-				message: error,
-				duration: 3000,
-				color: 'danger',
-				position: 'bottom',
-			});
-			return;
-		}
+  // ─── عرض تأكيد التعديل ───
+  const confirmSubmit = useCallback(() => {
+    const error = validate();
+    if (error) {
+      presentToast({
+        message: error,
+        duration: 3000,
+        color: 'danger',
+        position: 'bottom',
+      });
+      return;
+    }
 
-		setShowConfirmAlert(true);
-	}, [validate, presentToast]);
+    setShowConfirmAlert(true);
+  }, [validate, presentToast]);
 
-	// ═══════════════════════════════════════════════
-	// ─── واجهة المستخدم ───
-	// ═══════════════════════════════════════════════
+  // ═══════════════════════════════════════════════
+  // ─── واجهة المستخدم ───
+  // ═══════════════════════════════════════════════
 
-	return (
-		<IonPage>
-			{/* ─── تأكيد التعديل ─── */}
-			<IonAlert
-				isOpen={showConfirmAlert}
-				onDidDismiss={() => setShowConfirmAlert(false)}
-				header="تأكيد التعديل"
-				message="أنت على وشك تعديل المنشور، هل تريد المتابعة؟"
-				buttons={[
-					{
-						text: 'إلغاء',
-						role: 'cancel',
-					},
-					{
-						text: 'تعديل',
-						handler: handleSubmit,
-					},
-				]}
-			/>
+  return (
+    <IonPage>
+      {/* ─── تأكيد التعديل ─── */}
+      <IonAlert
+        isOpen={showConfirmAlert}
+        onDidDismiss={() => setShowConfirmAlert(false)}
+        header="تأكيد التعديل"
+        message="أنت على وشك تعديل المنشور، هل تريد المتابعة؟"
+        buttons={[
+          {
+            text: 'إلغاء',
+            role: 'cancel',
+          },
+          {
+            text: 'تعديل',
+            handler: handleSubmit,
+          },
+        ]}
+      />
 
-			{/* ─── مؤشر الإرسال ─── */}
-			<IonLoading isOpen={isSubmitting} message="جاري حفظ التعديلات..." />
+      {/* ─── مؤشر الإرسال ─── */}
+      <IonLoading isOpen={isSubmitting} message="جاري حفظ التعديلات..." />
 
-			<Header title="تعديل منشور" />
+      <Header title="تعديل منشور" />
 
-			<IonContent className="ion-padding update-post-content">
-				{/* ═══ حالة التحميل ═══ */}
-				{isLoading && (
-					<div className="update-post-skeleton">
-						<IonSkeletonText animated style={{ width: '100%', height: '48px', marginBottom: '16px' }} />
-						<IonSkeletonText animated style={{ width: '100%', height: '96px', marginBottom: '16px' }} />
-						<IonSkeletonText animated style={{ width: '100%', height: '150px', marginBottom: '16px' }} />
-						<IonSkeletonText animated style={{ width: '100%', height: '200px' }} />
-					</div>
-				)}
+      <IonContent className="ion-padding update-post-content">
+        {/* ═══ حالة التحميل ═══ */}
+        {isLoading && (
+          <div className="update-post-skeleton">
+            <IonSkeletonText
+              animated
+              style={{ width: '100%', height: '48px', marginBottom: '16px' }}
+            />
+            <IonSkeletonText
+              animated
+              style={{ width: '100%', height: '96px', marginBottom: '16px' }}
+            />
+            <IonSkeletonText
+              animated
+              style={{ width: '100%', height: '150px', marginBottom: '16px' }}
+            />
+            <IonSkeletonText animated style={{ width: '100%', height: '200px' }} />
+          </div>
+        )}
 
-				{/* ═══ حالة خطأ التحميل ═══ */}
-				{!isLoading && loadError && (
-					<div className="update-post-error ion-text-center ion-padding">
-						<IonText color="danger">
-							<h3>فشل تحميل بيانات المنشور</h3>
-							<p>تأكد من الاتصال بالإنترنت وحاول مرة أخرى</p>
-						</IonText>
-						<IonButton onClick={fetchPost} color="primary">
-							إعادة المحاولة
-						</IonButton>
-					</div>
-				)}
+        {/* ═══ حالة خطأ التحميل ═══ */}
+        {!isLoading && loadError && (
+          <div className="update-post-error ion-text-center ion-padding">
+            <IonText color="danger">
+              <h3>فشل تحميل بيانات المنشور</h3>
+              <p>تأكد من الاتصال بالإنترنت وحاول مرة أخرى</p>
+            </IonText>
+            <IonButton onClick={fetchPost} color="primary">
+              إعادة المحاولة
+            </IonButton>
+          </div>
+        )}
 
-				{/* ═══ نموذج التعديل ═══ */}
-				{!isLoading && !loadError && (
-					<IonGrid className="form-container">
-						<IonRow className="ion-justify-content-center">
-							<IonCol size="12" sizeMd="10" sizeLg="8" sizeXl="6">
-								<IonList className="update-post-list">
-									{/* ═══ العنوان ═══ */}
-									<IonItem>
-										<IonLabel position="stacked" color="primary">
-											العنوان *
-										</IonLabel>
-										<IonInput
-											value={title}
-											onIonInput={(e) => setTitle(e.detail.value ?? '')}
-											placeholder="عنوان المنشور (3-200 حرف)"
-											maxlength={TITLE_MAX}
-											counter
-										/>
-									</IonItem>
+        {/* ═══ نموذج التعديل ═══ */}
+        {!isLoading && !loadError && (
+          <IonGrid className="form-container">
+            <IonRow className="ion-justify-content-center">
+              <IonCol size="12" sizeMd="10" sizeLg="8" sizeXl="6">
+                <IonList className="update-post-list">
+                  {/* ═══ العنوان ═══ */}
+                  <IonItem>
+                    <IonLabel position="stacked" color="primary">
+                      العنوان *
+                    </IonLabel>
+                    <IonInput
+                      value={title}
+                      onIonInput={(e) => setTitle(e.detail.value ?? '')}
+                      placeholder="عنوان المنشور (3-200 حرف)"
+                      maxlength={TITLE_MAX}
+                      counter
+                    />
+                  </IonItem>
 
-									{/* ═══ المحتوى / المكوّنات ═══ */}
-									<IonItem>
-										<IonLabel position="stacked" color="primary">
-											المكوّنات *
-										</IonLabel>
-										<IonTextarea
-											value={content}
-											onIonInput={(e) => setContent(e.detail.value ?? '')}
-											placeholder="اكتب المكوّنات (10 أحرف على الأقل)"
-											autoGrow
-											rows={4}
-										/>
-									</IonItem>
+                  {/* ═══ المحتوى / المكوّنات ═══ */}
+                  <IonItem>
+                    <IonLabel position="stacked" color="primary">
+                      المكوّنات *
+                    </IonLabel>
+                    <IonTextarea
+                      value={content}
+                      onIonInput={(e) => setContent(e.detail.value ?? '')}
+                      placeholder="اكتب المكوّنات (10 أحرف على الأقل)"
+                      autoGrow
+                      rows={4}
+                    />
+                  </IonItem>
 
-									{/* ═══ خطوات التحضير (Draft.js) ═══ */}
-									<div className="update-post-section">
-										<IonLabel color="primary" className="update-post-section-label">
-											خطوات التحضير
-										</IonLabel>
-										<TextEditor
-											onChange={setStepsJson}
-											editorState={editorState}
-											onEditorStateChange={setEditorState}
-										/>
-									</div>
+                  {/* ═══ خطوات التحضير (Draft.js) ═══ */}
+                  <div className="update-post-section">
+                    <IonLabel color="primary" className="update-post-section-label">
+                      خطوات التحضير
+                    </IonLabel>
+                    <TextEditor
+                      onChange={setStepsJson}
+                      editorState={editorState}
+                      onEditorStateChange={setEditorState}
+                    />
+                  </div>
 
-									{/* ═══ إدارة الصور ═══ */}
-									<div className="update-post-section">
-										<IonLabel color="primary" className="update-post-section-label">
-											الصور * (يجب بقاء صورة واحدة على الأقل)
-										</IonLabel>
+                  {/* ═══ إدارة الصور ═══ */}
+                  <div className="update-post-section">
+                    <IonLabel color="primary" className="update-post-section-label">
+                      الصور * (يجب بقاء صورة واحدة على الأقل)
+                    </IonLabel>
 
-										{/* ── الصور الحالية من السيرفر ── */}
-										{existingImages.length > 0 && (
-											<div className="update-post-existing-images">
-												<IonText color="medium" className="update-post-images-subtitle">
-													الصور الحالية
-												</IonText>
-												<div className="update-post-thumbnails">
-													{existingImages.map((img) => {
-														const isDeleted = deletedImageIds.includes(img.id);
-														return (
-															<div
-																key={img.id}
-																className={`update-post-thumbnail ${isDeleted ? 'update-post-thumbnail--deleted' : ''}`}
-															>
-																<IonImg
-																	src={buildImageUrl(img.imageUrl)}
-																	alt={`صورة ${img.id}`}
-																/>
-																{isDeleted ? (
-																	<IonButton
-																		fill="clear"
-																		className="update-post-thumbnail-action"
-																		onClick={() => unmarkImageForDeletion(img.id)}
-																		title="إلغاء الحذف"
-																	>
-																		<IonIcon icon={arrowUndoCircle} color="light" />
-																	</IonButton>
-																) : (
-																	<IonButton
-																		fill="clear"
-																		className="update-post-thumbnail-action"
-																		onClick={() => markImageForDeletion(img.id)}
-																		title="حذف الصورة"
-																	>
-																		<IonIcon icon={closeCircle} color="light" />
-																	</IonButton>
-																)}
-																{isDeleted && (
-																	<div className="update-post-thumbnail-overlay">
-																		<IonText color="light">محذوفة</IonText>
-																	</div>
-																)}
-															</div>
-														);
-													})}
-												</div>
-											</div>
-										)}
+                    {/* ── الصور الحالية من السيرفر ── */}
+                    {existingImages.length > 0 && (
+                      <div className="update-post-existing-images">
+                        <IonText color="medium" className="update-post-images-subtitle">
+                          الصور الحالية
+                        </IonText>
+                        <div className="update-post-thumbnails">
+                          {existingImages.map((img) => {
+                            const isDeleted = deletedImageIds.includes(img.id);
+                            return (
+                              <div
+                                key={img.id}
+                                className={`update-post-thumbnail ${isDeleted ? 'update-post-thumbnail--deleted' : ''}`}
+                              >
+                                <IonImg src={buildImageUrl(img.imageUrl)} alt={`صورة ${img.id}`} />
+                                {isDeleted ? (
+                                  <IonButton
+                                    fill="clear"
+                                    className="update-post-thumbnail-action"
+                                    onClick={() => unmarkImageForDeletion(img.id)}
+                                    title="إلغاء الحذف"
+                                  >
+                                    <IonIcon icon={arrowUndoCircle} color="light" />
+                                  </IonButton>
+                                ) : (
+                                  <IonButton
+                                    fill="clear"
+                                    className="update-post-thumbnail-action"
+                                    onClick={() => markImageForDeletion(img.id)}
+                                    title="حذف الصورة"
+                                  >
+                                    <IonIcon icon={closeCircle} color="light" />
+                                  </IonButton>
+                                )}
+                                {isDeleted && (
+                                  <div className="update-post-thumbnail-overlay">
+                                    <IonText color="light">محذوفة</IonText>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
 
-										{/* ── أزرار إضافة صورة جديدة ── */}
-										<div className="update-post-photo-buttons">
-											<IonButton
-												fill="outline"
-												size="small"
-												onClick={() => handleTakePhoto(CameraSource.Camera)}
-											>
-												<IonIcon icon={cameraOutline} slot="start" />
-												التقاط صورة
-											</IonButton>
-											<IonButton
-												fill="outline"
-												size="small"
-												onClick={() => handleTakePhoto(CameraSource.Photos)}
-											>
-												<IonIcon icon={imagesOutline} slot="start" />
-												من المعرض
-											</IonButton>
-										</div>
+                    {/* ── أزرار إضافة صورة جديدة ── */}
+                    <div className="update-post-photo-buttons">
+                      <IonButton
+                        fill="outline"
+                        size="small"
+                        onClick={() => handleTakePhoto(CameraSource.Camera)}
+                      >
+                        <IonIcon icon={cameraOutline} slot="start" />
+                        التقاط صورة
+                      </IonButton>
+                      <IonButton
+                        fill="outline"
+                        size="small"
+                        onClick={() => handleTakePhoto(CameraSource.Photos)}
+                      >
+                        <IonIcon icon={imagesOutline} slot="start" />
+                        من المعرض
+                      </IonButton>
+                    </div>
 
-										{/* ── الصور الجديدة المضافة ── */}
-										{newPhotos.length > 0 && (
-											<div className="update-post-new-images">
-												<IonText color="medium" className="update-post-images-subtitle">
-													صور جديدة
-												</IonText>
-												<Swiper
-													className="update-post-swiper"
-													modules={[Pagination, Navigation]}
-													pagination={{ clickable: true }}
-													navigation
-													spaceBetween={10}
-													loop={newPhotos.length > 1}
-												>
-													{newPhotos.map((imgUrl, index) => (
-														<SwiperSlide key={`new-${imgUrl}-${index}`}>
-															<div className="update-post-slide">
-																<IonImg src={imgUrl} alt={`صورة جديدة ${index + 1}`} />
-																<IonButton
-																	fill="clear"
-																	className="update-post-remove-photo"
-																	onClick={() => removeNewPhoto(index)}
-																>
-																	<IonIcon icon={closeCircle} color="light" />
-																</IonButton>
-																<span className="update-post-photo-counter">
-																	{index + 1} / {newPhotos.length}
-																</span>
-															</div>
-														</SwiperSlide>
-													))}
-												</Swiper>
-											</div>
-										)}
+                    {/* ── الصور الجديدة المضافة ── */}
+                    {newPhotos.length > 0 && (
+                      <div className="update-post-new-images">
+                        <IonText color="medium" className="update-post-images-subtitle">
+                          صور جديدة
+                        </IonText>
+                        <Swiper
+                          className="update-post-swiper"
+                          modules={[Pagination, Navigation]}
+                          pagination={{ clickable: true }}
+                          navigation
+                          spaceBetween={10}
+                          loop={newPhotos.length > 1}
+                        >
+                          {newPhotos.map((imgUrl, index) => (
+                            <SwiperSlide key={`new-${imgUrl}-${index}`}>
+                              <div className="update-post-slide">
+                                <IonImg src={imgUrl} alt={`صورة جديدة ${index + 1}`} />
+                                <IonButton
+                                  fill="clear"
+                                  className="update-post-remove-photo"
+                                  onClick={() => removeNewPhoto(index)}
+                                >
+                                  <IonIcon icon={closeCircle} color="light" />
+                                </IonButton>
+                                <span className="update-post-photo-counter">
+                                  {index + 1} / {newPhotos.length}
+                                </span>
+                              </div>
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
+                      </div>
+                    )}
 
-										{/* ── زر مسح جميع الصور الجديدة ── */}
-										{newPhotos.length > 0 && (
-											<IonButton
-												fill="clear"
-												color="danger"
-												size="small"
-												className="update-post-clear-photos"
-												onClick={() => setNewPhotos([])}
-											>
-												<IonIcon icon={trashOutline} slot="start" />
-												مسح الصور الجديدة ({newPhotos.length})
-											</IonButton>
-										)}
+                    {/* ── زر مسح جميع الصور الجديدة ── */}
+                    {newPhotos.length > 0 && (
+                      <IonButton
+                        fill="clear"
+                        color="danger"
+                        size="small"
+                        className="update-post-clear-photos"
+                        onClick={() => setNewPhotos([])}
+                      >
+                        <IonIcon icon={trashOutline} slot="start" />
+                        مسح الصور الجديدة ({newPhotos.length})
+                      </IonButton>
+                    )}
 
-										{/* ── ملخص الصور ── */}
-										<IonText
-											color={totalImagesCount === 0 ? 'danger' : 'medium'}
-											className="update-post-images-summary"
-										>
-											<p>
-												إجمالي الصور بعد التعديل: {totalImagesCount}
-												{deletedImageIds.length > 0 &&
-													` (سيتم حذف ${deletedImageIds.length} صورة)`}
-											</p>
-										</IonText>
-									</div>
+                    {/* ── ملخص الصور ── */}
+                    <IonText
+                      color={totalImagesCount === 0 ? 'danger' : 'medium'}
+                      className="update-post-images-summary"
+                    >
+                      <p>
+                        إجمالي الصور بعد التعديل: {totalImagesCount}
+                        {deletedImageIds.length > 0 && ` (سيتم حذف ${deletedImageIds.length} صورة)`}
+                      </p>
+                    </IonText>
+                  </div>
 
-									{/* ═══ الموقع الجغرافي ═══ */}
-									<div className="update-post-section">
-										<IonLabel color="primary" className="update-post-section-label">
-											الموقع الجغرافي
-										</IonLabel>
-										<LocationPicker onLocationChange={handleLocationChange} />
-									</div>
+                  {/* ═══ الموقع الجغرافي ═══ */}
+                  <div className="update-post-section">
+                    <IonLabel color="primary" className="update-post-section-label">
+                      الموقع الجغرافي
+                    </IonLabel>
+                    <LocationPicker onLocationChange={handleLocationChange} />
+                  </div>
 
-									{/* ═══ زر حفظ التعديلات ═══ */}
-									<div className="update-post-submit">
-										<IonButton
-											expand="block"
-											color="primary"
-											onClick={confirmSubmit}
-											disabled={isSubmitting}
-											strong
-										>
-											حفظ التعديلات
-										</IonButton>
-									</div>
-								</IonList>
-							</IonCol>
-						</IonRow>
-					</IonGrid>
-				)}
-			</IonContent>
-		</IonPage>
-	);
+                  {/* ═══ زر حفظ التعديلات ═══ */}
+                  <div className="update-post-submit">
+                    <IonButton
+                      expand="block"
+                      color="primary"
+                      onClick={confirmSubmit}
+                      disabled={isSubmitting}
+                      strong
+                    >
+                      حفظ التعديلات
+                    </IonButton>
+                  </div>
+                </IonList>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        )}
+      </IonContent>
+    </IonPage>
+  );
 };
 
 export default UpdatePost;

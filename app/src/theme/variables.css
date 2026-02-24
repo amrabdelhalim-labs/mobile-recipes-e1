@@ -8,53 +8,55 @@ http://ionicframework.com/docs/theming/ */
 
 /* تحسين المظهر العام على الشاشات الكبيرة */
 @media (min-width: 768px) {
-    /* تحسين الحواف والظلال للبطاقات */
-    ion-card {
-        --border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+  /* تحسين الحواف والظلال للبطاقات */
+  ion-card {
+    --border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
 
-    ion-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
+  ion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 
-    /* تحسين الأزرار */
-    ion-button {
-        --border-radius: 8px;
-    }
+  /* تحسين الأزرار */
+  ion-button {
+    --border-radius: 8px;
+  }
 
-    /* تحسين الحقول */
-    ion-item {
-        --border-radius: 8px;
-        --padding-start: 16px;
-        --padding-end: 16px;
-    }
+  /* تحسين الحقول */
+  ion-item {
+    --border-radius: 8px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+  }
 }
 
 /* تحسينات للشاشات الكبيرة جداً */
 @media (min-width: 1200px) {
-    /* تحديد عرض أقصى للمحتوى لتحسين القراءة */
-    ion-content {
-        --ion-font-size: 16px;
-    }
+  /* تحديد عرض أقصى للمحتوى لتحسين القراءة */
+  ion-content {
+    --ion-font-size: 16px;
+  }
 
-    /* تحسين تباعد العناصر */
-    .ion-padding {
-        --ion-padding: 24px;
-    }
+  /* تحسين تباعد العناصر */
+  .ion-padding {
+    --ion-padding: 24px;
+  }
 }
 
 /* تحسينات للتصميم المظلم */
 @media (prefers-color-scheme: dark) {
-    @media (min-width: 768px) {
-        ion-card {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        ion-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        }
+  @media (min-width: 768px) {
+    ion-card {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
+
+    ion-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+  }
 }

@@ -5,99 +5,99 @@
 
 /* ─── قائمة التعليقات ─── */
 .comments-list {
-    padding: 0;
-    background: transparent;
+  padding: 0;
+  background: transparent;
 }
 
 .comment-item {
-    --padding-start: 0;
-    --padding-end: 0;
-    --inner-padding-end: 0;
-    --background: transparent;
-    margin-bottom: 8px;
+  --padding-start: 0;
+  --padding-end: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
+  margin-bottom: 8px;
 }
 
 .comment-item::part(native) {
-    align-items: flex-start;
+  align-items: flex-start;
 }
 
 /* ─── صورة المعلق ─── */
 .comment-avatar {
-    width: 36px;
-    height: 36px;
-    margin-top: 4px;
+  width: 36px;
+  height: 36px;
+  margin-top: 4px;
 }
 
 /* ─── جسم التعليق ─── */
 .comment-body {
-    white-space: normal !important;
+  white-space: normal !important;
 }
 
 .comment-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
 }
 
 .comment-author {
-    font-size: 0.85rem;
-    font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .comment-time {
-    font-size: 0.7rem;
+  font-size: 0.7rem;
 }
 
 .comment-text {
-    font-size: 0.88rem;
-    line-height: 1.4;
-    display: block;
-    margin-top: 2px;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  display: block;
+  margin-top: 2px;
 }
 
 /* ─── زر حذف التعليق ─── */
 .comment-delete-btn {
-    --padding-start: 4px;
-    --padding-end: 4px;
-    margin: 0;
-    align-self: flex-start;
-    margin-top: 4px;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  margin: 0;
+  align-self: flex-start;
+  margin-top: 4px;
 }
 
 /* ─── لا توجد تعليقات ─── */
 .comments-empty {
-    text-align: center;
-    padding: 32px 16px;
+  text-align: center;
+  padding: 32px 16px;
 }
 
 .comments-empty p {
-    margin: 0;
-    font-size: 0.9rem;
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 /* ─── نموذج إضافة تعليق ─── */
 .create-comment {
-    display: flex;
-    align-items: flex-end;
-    gap: 4px;
-    padding: 8px 0;
-    border-top: 1px solid var(--ion-border-color, #e0e0e0);
-    margin-top: 8px;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  padding: 8px 0;
+  border-top: 1px solid var(--ion-border-color, #e0e0e0);
+  margin-top: 8px;
 }
 
 .create-comment-input {
-    flex: 1;
-    --padding-start: 12px;
-    --padding-end: 8px;
-    --background: var(--ion-color-light, #f4f5f8);
-    border-radius: 18px;
-    font-size: 0.88rem;
-    min-height: 40px;
+  flex: 1;
+  --padding-start: 12px;
+  --padding-end: 8px;
+  --background: var(--ion-color-light, #f4f5f8);
+  border-radius: 18px;
+  font-size: 0.88rem;
+  min-height: 40px;
 }
 
 .create-comment-btn {
-    --padding-start: 8px;
-    --padding-end: 8px;
-    margin: 0 0 4px 0;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  margin: 0 0 4px 0;
 }

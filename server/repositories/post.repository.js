@@ -160,7 +160,7 @@ class PostRepository extends BaseRepository {
 
       if (images.length > 0) {
         await Promise.all(
-          images.map(img =>
+          images.map((img) =>
             Post_Image.create({
               imageUrl: img.imageUrl,
               PostId: post.id,
@@ -184,9 +184,7 @@ class PostRepository extends BaseRepository {
   async findTrending(limit = 10) {
     return this.findAll({
       attributes: {
-        include: [
-          [fn('COUNT', col('Users.Like.id')), 'likesCount'],
-        ],
+        include: [[fn('COUNT', col('Users.Like.id')), 'likesCount']],
       },
       include: [
         {
@@ -245,7 +243,6 @@ class PostRepository extends BaseRepository {
     });
     return post?.images?.length ?? 0;
   }
-
 }
 
 // Singleton pattern

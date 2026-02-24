@@ -2,7 +2,7 @@
  * End-to-End (E2E) API Integration Tests
  * Tests complete API workflows with actual HTTP requests
  * Verifies controllers, middleware, and entire request/response cycle
- * 
+ *
  * Usage: node tests/api.test.js
  */
 
@@ -19,7 +19,7 @@ let authToken = null;
 const testUser = {
   name: 'اختبار المستخدم',
   email: `test-${Date.now()}@test.com`,
-  password: 'TestPassword123!'
+  password: 'TestPassword123!',
 };
 
 function assertEqual(actual, expected, message) {
@@ -191,7 +191,10 @@ async function runE2ETests() {
           Authorization: `Bearer ${authToken}`,
         });
         assertTrue(res.body?.posts !== undefined, 'Response has posts field');
-        assertTrue(res.headers['content-type']?.includes('application/json'), 'Content-Type is JSON');
+        assertTrue(
+          res.headers['content-type']?.includes('application/json'),
+          'Content-Type is JSON'
+        );
 
         // ============================================================
         // TEST SUMMARY
@@ -221,7 +224,6 @@ async function runE2ETests() {
         console.log(`   ✓ Error handling implemented`);
         console.log(`   ✓ Response structure correct`);
         console.log(`   ✓ Controllers integrated and responsive\n`);
-
       } catch (error) {
         console.error(`${colors.red}Error during testing:${colors.reset}`, error.message);
         state.failed++;

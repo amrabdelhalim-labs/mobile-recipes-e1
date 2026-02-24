@@ -11,7 +11,9 @@
     "test:watch": "vitest",
     "test:e2e": "cypress run",
     "test:all": "npm run test",
-    "lint": "eslint"
+    "lint": "eslint",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
     "@capacitor/android": "8.0.2",
@@ -61,6 +63,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
     "jsdom": "^22.1.0",
+    "prettier": "^3.8.1",
     "terser": "^5.4.0",
     "typescript": "~5.9.0",
     "typescript-eslint": "^8.24.0",

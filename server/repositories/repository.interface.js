@@ -12,7 +12,7 @@
 /**
  * Generic Repository Interface
  * All concrete repositories must implement these methods
- * 
+ *
  * @interface IRepository
  */
 export const IRepository = {

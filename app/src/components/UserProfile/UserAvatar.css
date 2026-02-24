@@ -1,52 +1,52 @@
 .user-avatar-container {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto;
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
 }
 
 .user-avatar {
-    width: 120px;
-    height: 120px;
-    cursor: pointer;
-    border: 3px solid var(--ion-color-primary);
+  width: 120px;
+  height: 120px;
+  cursor: pointer;
+  border: 3px solid var(--ion-color-primary);
 }
 
 .user-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .user-avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    background: var(--ion-color-light-shade);
-    border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  background: var(--ion-color-light-shade);
+  border-radius: 50%;
 }
 
 .user-avatar-badge {
-    position: absolute;
-    bottom: 4px;
-    right: 4px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--ion-color-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .user-avatar-icon {
-    font-size: 20px;
-    color: var(--ion-color-primary-contrast);
+  font-size: 20px;
+  color: var(--ion-color-primary-contrast);
 }
 
 .user-avatar-spinner {
-    width: 20px;
-    height: 20px;
-    color: var(--ion-color-primary-contrast);
+  width: 20px;
+  height: 20px;
+  color: var(--ion-color-primary-contrast);
 }
