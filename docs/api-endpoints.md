@@ -1,19 +1,35 @@
-# API Endpoints Documentation
+# واجهة API للخادم — وصفاتي
 
-## Authentication Endpoints
+## نظرة عامة
 
-### Register User
+خادم Express 5 يوفر واجهة REST API للتواصل مع تطبيق الموبايل.
+
+**عنوان القاعدة:** `http://localhost:4000`
+
+---
+
+## المصادقة (`/account`)
+
+### تسجيل مستخدم جديد
+
 ```
 POST /account/register
 Content-Type: application/json
+```
 
+**الجسم:**
+
+```json
 {
   "name": "اسم المستخدم",
   "email": "user@example.com",
   "password": "SecurePassword123!"
 }
+```
 
-Response: 201 Created
+**الاستجابة (201):**
+
+```json
 {
   "data": {
     "id": 1,
@@ -23,39 +39,53 @@ Response: 201 Created
 }
 ```
 
-### Login User
+---
+
+### تسجيل الدخول
+
 ```
 POST /account/login
 Content-Type: application/json
+```
 
+**الجسم:**
+
+```json
 {
   "email": "user@example.com",
   "password": "SecurePassword123!"
 }
+```
 
-Response: 200 OK
+**الاستجابة (200):**
+
+```json
 {
   "data": {
-    "token": "JWT_TOKEN_HERE"
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
 }
 ```
 
 ---
 
-## Posts Endpoints
+## المنشورات (`/posts`)
 
-### Get All Posts (Public)
+### عرض جميع المنشورات (عام)
+
 ```
 GET /posts
+```
 
-Response: 200 OK
+**الاستجابة (200):**
+
+```json
 {
   "data": [
     {
       "id": 1,
-      "title": "Recipe Title",
-      "content": "Recipe content",
+      "title": "وصفة الكبسة",
+      "content": "تفاصيل الوصفة...",
       "userId": 1,
       "User": { "id": 1, "name": "اسم المستخدم" }
     }
@@ -63,56 +93,78 @@ Response: 200 OK
 }
 ```
 
-### Create Post (Protected)
+---
+
+### إنشاء منشور 🔒
+
 ```
 POST /posts
 Authorization: Bearer JWT_TOKEN
-Content-Type: application/json
-
-{
-  "title": "My Favorite Recipe",
-  "content": "Detailed recipe instructions..."
-}
-
-Response: 201 Created
+Content-Type: multipart/form-data
 ```
 
-### Update Post (Protected)
+**الحقول:**
+
+| الحقل | النوع | الوصف |
+|-------|-------|-------|
+| `title` | نص | عنوان الوصفة |
+| `content` | نص | محتوى الوصفة |
+| `country` | نص | البلد |
+| `region` | نص | المنطقة |
+| `files` | ملفات | صور الوصفة (اختياري) |
+
+**الاستجابة (201):** المنشور المنشأ
+
+---
+
+### تحديث منشور 🔒 (المالك فقط)
+
 ```
 PUT /posts/:id
 Authorization: Bearer JWT_TOKEN
 Content-Type: application/json
+```
 
+**الجسم:**
+
+```json
 {
-  "title": "Updated Title",
-  "content": "Updated content"
+  "title": "عنوان محدّث",
+  "content": "محتوى محدّث"
 }
-
-Response: 200 OK
 ```
 
-### Delete Post (Protected)
-```
-DELETE /posts/:id
-Authorization: Bearer JWT_TOKEN
-
-Response: 204 No Content
-```
+**الاستجابة (200):** المنشور المحدَّث
 
 ---
 
-## Comments Endpoints
+### حذف منشور 🔒 (المالك فقط)
 
-### Get Comments for Post
+```
+DELETE /posts/:id
+Authorization: Bearer JWT_TOKEN
+```
+
+**الاستجابة (204):** بدون محتوى
+
+---
+
+## التعليقات (`/posts/:postId/comments`)
+
+### عرض تعليقات منشور
+
 ```
 GET /posts/:postId/comments
+```
 
-Response: 200 OK
+**الاستجابة (200):**
+
+```json
 {
   "data": [
     {
       "id": 1,
-      "text": "Great recipe!",
+      "text": "وصفة رائعة!",
       "userId": 2,
       "postId": 1,
       "User": { "name": "المستخدم" }
@@ -121,49 +173,70 @@ Response: 200 OK
 }
 ```
 
-### Create Comment (Protected)
+---
+
+### إضافة تعليق 🔒
+
 ```
 POST /posts/:postId/comments
 Authorization: Bearer JWT_TOKEN
 Content-Type: application/json
-
-{
-  "text": "This recipe is amazing!"
-}
-
-Response: 201 Created
 ```
 
-### Update Comment (Protected)
+**الجسم:**
+
+```json
+{
+  "text": "هذه الوصفة مذهلة!"
+}
+```
+
+**الاستجابة (201):** التعليق المنشأ
+
+---
+
+### تحديث تعليق 🔒 (المالك فقط)
+
 ```
 PUT /comments/:id
 Authorization: Bearer JWT_TOKEN
 Content-Type: application/json
+```
 
+**الجسم:**
+
+```json
 {
-  "text": "Updated comment text"
+  "text": "نص التعليق المحدَّث"
 }
-
-Response: 200 OK
 ```
 
-### Delete Comment (Protected)
-```
-DELETE /comments/:id
-Authorization: Bearer JWT_TOKEN
-
-Response: 204 No Content
-```
+**الاستجابة (200):** التعليق المحدَّث
 
 ---
 
-## Likes Endpoints
+### حذف تعليق 🔒 (المالك فقط)
 
-### Get Likes Count
+```
+DELETE /comments/:id
+Authorization: Bearer JWT_TOKEN
+```
+
+**الاستجابة (204):** بدون محتوى
+
+---
+
+## الإعجابات (`/posts/:postId/likes`)
+
+### عدد الإعجابات
+
 ```
 GET /posts/:postId/likes
+```
 
-Response: 200 OK
+**الاستجابة (200):**
+
+```json
 {
   "data": {
     "count": 5
@@ -171,12 +244,18 @@ Response: 200 OK
 }
 ```
 
-### Toggle Like on Post (Protected)
+---
+
+### تبديل الإعجاب 🔒
+
 ```
 POST /posts/:postId/like
 Authorization: Bearer JWT_TOKEN
+```
 
-Response: 200 OK
+**الاستجابة (200):**
+
+```json
 {
   "data": {
     "action": "liked",
@@ -185,107 +264,81 @@ Response: 200 OK
 }
 ```
 
+> القيمة `action` تكون إما `"liked"` أو `"unliked"`.
+
 ---
 
-## Error Responses
+## أكواد الأخطاء
 
-### Unauthorized (401)
+| الكود | الوصف | متى يحدث |
+|-------|-------|-----------|
+| 200 | ناجح | GET/PUT ناجح |
+| 201 | تم الإنشاء | POST لمورد جديد |
+| 204 | بدون محتوى | DELETE ناجح |
+| 400 | خطأ في المدخلات | فشل التحقق |
+| 401 | غير مصرح | token مفقود أو غير صالح |
+| 403 | محظور | لا تملك صلاحية |
+| 404 | غير موجود | المورد غير موجود |
+| 500 | خطأ الخادم | خطأ داخلي |
+
+### هيكل رسائل الخطأ
+
+**غير مصرح (401):**
 ```json
 {
   "message": "No token provided or invalid token"
 }
 ```
 
-### Not Found (404)
-```json
-{
-  "message": "Resource not found"
-}
-```
-
-### Validation Error (400)
+**خطأ في المدخلات (400):**
 ```json
 {
   "message": "Validation error",
   "errors": [
-    {
-      "field": "email",
-      "message": "Invalid email format"
-    }
+    { "field": "email", "message": "Invalid email format" }
   ]
-}
-```
-
-### Server Error (500)
-```json
-{
-  "message": "Internal server error"
 }
 ```
 
 ---
 
-## Testing All Endpoints
+## الاختبار اليدوي
 
-### Manual Testing with cURL
+### بـ cURL
 
-**1. Register**
+**1. تسجيل:**
 ```bash
 curl -X POST http://localhost:4000/account/register \
   -H "Content-Type: application/json" \
   -d '{"name":"Test User","email":"test@example.com","password":"TestPass123!"}'
 ```
 
-**2. Login**
+**2. دخول:**
 ```bash
 curl -X POST http://localhost:4000/account/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"TestPass123!"}'
 ```
 
-**3. Create Post**
+**3. إنشاء منشور:**
 ```bash
 curl -X POST http://localhost:4000/posts \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"title":"My Recipe","content":"Instructions here"}'
+  -d '{"title":"وصفتي","content":"تعليمات الوصفة"}'
 ```
 
-**4. Get Posts**
+**4. عرض المنشورات:**
 ```bash
 curl http://localhost:4000/posts
 ```
 
-### Automated Testing
-
-```bash
-# Run E2E API tests
-npm run test:e2e
-
-# Run all test suites (Repository + Comprehensive + Integration + E2E)
-npm run test:all
-```
-
 ---
 
-## Response Status Codes
+## ملاحظات التنفيذ
 
-| Code | Meaning | When Used |
-|------|---------|-----------|
-| 200 | OK | Successful GET, PUT, DELETE |
-| 201 | Created | Successful POST (new resource) |
-| 204 | No Content | Successful DELETE |
-| 400 | Bad Request | Validation error |
-| 401 | Unauthorized | Missing/invalid token |
-| 404 | Not Found | Resource not found |
-| 500 | Server Error | Unexpected error |
-
----
-
-## Implementation Notes
-
-- All requests/responses use **JSON** format
-- Authentication uses **JWT Bearer tokens**
-- Protected endpoints require `Authorization: Bearer TOKEN` header
-- All repository operations use **Repository Pattern** for data abstraction
-- Complete **HTTP integration tests** verify all endpoints in `api.test.js`
+- جميع البيانات بصيغة **JSON**
+- المصادقة تستخدم **JWT Bearer tokens**
+- المسارات المحمية 🔒 تتطلب `Authorization: Bearer TOKEN`
+- جميع عمليات البيانات تستخدم **Repository Pattern** للتجريد
+- الاختبارات الشاملة تغطي جميع نقاط النهاية في `tests/integration.test.js`
