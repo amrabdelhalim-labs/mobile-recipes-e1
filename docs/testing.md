@@ -199,6 +199,77 @@ function printSummary() { ... }
 
 ---
 
+## قائمة فحص ما قبل التضمين (Pre-Commit)
+
+```bash
+# 1. اختبارات الخادم
+cd server && npm run test:all
+
+# 2. اختبارات التطبيق
+cd app && npm test
+
+# 3. فحص التنسيق
+node format.mjs --check
+
+# 4. فحص الورك فلو (يكتشف أخطاء النشر قبل الرفع)
+node validate-workflow.mjs
+```
+
+جميع الخطوات الأربع يجب أن تنجح قبل التضمين. راجع `CONTRIBUTING.md` للمعايير الكاملة.
+
+---
+
+## التحقق المحلي من الورك فلو
+
+يوفّر `validate-workflow.mjs` فحصاً آلياً كاملاً لملف GitHub Actions قبل الدفع إلى GitHub،
+على غرار `format.mjs` تماماً:
+
+```bash
+node validate-workflow.mjs
+```
+
+### ما يفحصه السكريبت
+
+| القسم | الفحص | النتيجة المتوقعة |
+|-------|-------|----------------|
+| هيكل YAML | لا توجد tab chars، المفاتيح الأساسية موجودة | ✅ |
+| `[skip ci]` | commits النشر تحمل اللاحقة | ✅ |
+| rsync excludes | `node_modules`, `tests`, `coverage` مُستثناة | ✅ |
+| cp ممنوع | لا يوجد نسخ مباشر لـ `prettier` أو `node_modules` | ✅ |
+| محاكاة `package.json` | يحاكي تنفيذ سكريبت التنظيف على `server/package.json` الحقيقي | ✅ |
+| scripts المحذوفة | `dev`, `test*`, `format*` محذوفة | ✅ |
+| `devDependencies` | محذوفة كاملاً | ✅ |
+| script `start` | موجود بعد التنظيف (الخادم يشتغل على Heroku) | ✅ |
+
+### ناتج ناجح مثال
+
+```
+── 1. YAML structure
+  ✅ No hard tab characters
+  ✅ Required key present: "name:"
+  ✅ Required key present: "on:"
+  ✅ Deploy commits use [skip ci] to prevent recursive triggers
+  …
+
+── 2. rsync excludes (server deploy)
+  ✅ Server deploy uses rsync
+  ✅ rsync excludes "node_modules"
+  ✅ rsync excludes "tests"
+  ✅ rsync excludes "coverage"
+
+── 3. package.json stripping simulation
+  ✅ "start" script preserved: "node server.js"
+  ✅ devDependencies removed
+  …
+
+────────────────────────────────────────────────────────────
+  Passed: 14   Failed: 0
+
+[OK] Workflow is valid and ready to push.
+```
+
+---
+
 ## استكشاف الأخطاء
 
 ### "فشل الاتصال بقاعدة البيانات"

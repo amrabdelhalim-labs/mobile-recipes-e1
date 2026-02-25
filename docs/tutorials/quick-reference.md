@@ -293,11 +293,12 @@
 4. تدفق تسجيل الدخول الكامل
 ```
 
-### 🎯 مسار 4: الجودة والاختبارات (1.5 ساعة)
+### 🎯 مسار 4: الجودة والاختبارات (2 ساعة)
 ```
 1. هندسة المكونات وتسمية الملفات
 2. التكامل مع الخادم (Axios, URLs, Types)
 3. اختبارات العميل (Vitest)
+4. فحص الورك فلو قبل الرفع (validate-workflow.mjs)
 ```
 
 ---
@@ -345,6 +346,10 @@
 | 🖥️ الخادم | [server/](./server/) |
 | 📱 التطبيق | [client/](./client/) |
 | 📖 الفهرس الرئيسي | [README.md](./README.md) |
+| ⚙️ المساهمة | [CONTRIBUTING.md](../../CONTRIBUTING.md) |
+| 🎨 التنسيق | `node format.mjs` — `node format.mjs --check` |
+| 🔍 فحص الورك فلو | `node validate-workflow.mjs` |
+| 📚 دليل الاختبارات | [docs/testing.md](../testing.md) |
 
 ---
 
