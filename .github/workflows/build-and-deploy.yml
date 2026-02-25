@@ -93,8 +93,17 @@ jobs:
           # 1️⃣ Save production files to temp
           # ⚠️ Server is JavaScript (no build needed), deploy source directly
           mkdir -p /tmp/server-deploy
-          cp -r server/* /tmp/server-deploy/
-          cp server/.env* /tmp/server-deploy/ 2>/dev/null || true
+          # Copy server files using rsync (excludes test files, dev tools, and build artifacts)
+          rsync -r \
+            --exclude=node_modules \
+            --exclude=.git \
+            --exclude=tests \
+            --exclude=coverage \
+            --exclude=.eslintcache \
+            --exclude='*.log' \
+            --exclude='.prettierrc*' \
+            --exclude='.prettierignore' \
+            server/ /tmp/server-deploy/
           printf 'web: node app.js\n' > /tmp/server-deploy/Procfile
 
           # Remove "test" scripts from production
