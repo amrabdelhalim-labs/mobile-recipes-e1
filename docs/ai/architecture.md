@@ -421,5 +421,49 @@ assert(!!post.id, "يجب أن يكون للمنشور معرّف");
 
 ---
 
+## 7. CI/CD Workflow
+
+### GitHub Actions (`.github/workflows/build-and-deploy.yml`)
+
+مهمتان متوازيتان تعملان عند Push إلى `main` أو `workflow_dispatch`:
+
+| المهمة | الخدمات | الخطوات | هدف النشر |
+|--------|---------|---------|----------|
+| **deploy-server** | PostgreSQL 15 | `npm ci` → `npm run test:all` → نشر على فرع `server` | Heroku / Render |
+| **deploy-app** | — | `npm ci` → `npm test` → `npm run build` → نشر على فرع `web` | GitHub Pages / Netlify |
+
+### آلية نشر الخادم
+
+الخادم JavaScript خالص — لا توجد خطوة بناء. يُنسخ الكود المصدري مباشرة مع استبعاد ملفات التطوير:
+
+```bash
+rsync -r \
+  --exclude=node_modules \
+  --exclude=tests \
+  --exclude=coverage \
+  --exclude=.eslintcache \
+  --exclude='*.log' \
+  --exclude='.prettierrc*' \
+  --exclude='.prettierignore' \
+  server/ /tmp/server-deploy/
+```
+
+ثم يُعدَّل `package.json` بحذف `devDependencies` و scripts التطوير والاختبار قبل النشر.
+
+### فروع النشر
+
+- **`server`** — فرع يتيم يحتوي فقط على: الكود المصدري بدون مجلد `tests/`، `package.json` بدون devDependencies، `Procfile`
+- **`web`** — فرع يتيم يحتوي فقط على محتويات `app/dist/` + `.nojekyll`
+- جميع commits النشر تحمل لاحقة `[skip ci]` لمنع الحلقات اللانهائية
+
+### القرارات التصميمية
+
+1. **لا خطوة بناء للخادم** — JavaScript ESM ينفذ مباشرة
+2. **استبعاد `tests/` صريح** — ملفات الاختبار لا تُنشر في الإنتاج
+3. **استبعاد `node_modules/`** — يُعيد Heroku تثبيتها من `package.json` (dependencies فقط)
+4. **`cancel-in-progress: true`** — يلغي الـ run القديم عند push جديد
+
+---
+
 *This document is the single authoritative reference for وصفاتي architecture.*  
 *See [`feature-guide.md`](./feature-guide.md) for how to add a new feature using these patterns.*
