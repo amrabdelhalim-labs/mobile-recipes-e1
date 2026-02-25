@@ -106,8 +106,21 @@ jobs:
             server/ /tmp/server-deploy/
           printf 'web: node app.js\n' > /tmp/server-deploy/Procfile
 
-          # Remove "test" scripts from production
-          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('/tmp/server-deploy/package.json'));delete p.scripts['test:all'];delete p.scripts['test'];delete p.scripts['test:comprehensive'];delete p.scripts['test:integration'];delete p.scripts['test:e2e'];delete p.devDependencies;delete p.scripts.dev;fs.writeFileSync('/tmp/server-deploy/package.json',JSON.stringify(p,null,2))"
+          # Remove test/dev/format scripts and devDependencies for production
+          node -e "
+            const fs = require('fs');
+            const p = JSON.parse(fs.readFileSync('/tmp/server-deploy/package.json'));
+            delete p.scripts.dev;
+            delete p.scripts['test'];
+            delete p.scripts['test:all'];
+            delete p.scripts['test:comprehensive'];
+            delete p.scripts['test:integration'];
+            delete p.scripts['test:e2e'];
+            delete p.scripts['format'];
+            delete p.scripts['format:check'];
+            delete p.devDependencies;
+            fs.writeFileSync('/tmp/server-deploy/package.json', JSON.stringify(p, null, 2));
+          "
 
           # 2️⃣ Create clean orphan branch
           git checkout --orphan server-new-clean
