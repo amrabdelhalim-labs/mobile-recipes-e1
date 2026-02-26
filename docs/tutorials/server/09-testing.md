@@ -6,13 +6,14 @@
 
 ## 1. نظرة عامة على ملفات الاختبار
 
-يحتوي خادم المشروع على ثلاثة ملفات اختبار في `server/tests/`:
+يحتوي خادم المشروع على أربعة ملفات اختبار في `server/tests/`:
 
 | الملف | النوع | ما يختبر |
-|-------|-------|---------|
+|-------|-------|-------|
 | `api.test.js` | E2E عبر HTTP | طلبات REST الفعلية من البداية للنهاية |
 | `repositories.test.js` | وحدة (Unit) | طبقة Repository مع قاعدة البيانات |
 | `comprehensive.test.js` | تكامل (Integration) | سيناريو كامل متعدد المراحل |
+| `storage.test.js` | وحدة + تكامل | طبقة التخزين بدون شبكة في 4 مراحل |
 
 ---
 
@@ -20,12 +21,16 @@
 
 ```bash
 # من مجلد server/
-node tests/api.test.js          # اختبارات E2E فقط
-node tests/repositories.test.js  # اختبارات المستودعات فقط
-node tests/comprehensive.test.js # الاختبار الشامل فقط
+node tests/api.test.js            # اختبارات E2E فقط
+node tests/repositories.test.js   # اختبارات المستودعات فقط
+node tests/comprehensive.test.js  # الاختبار الشامل فقط
+node tests/storage.test.js        # طبقة التخزين فقط (بدون شبكة)
+npm run test:all                  # جميع الملفات
 ```
 
 > **مهم:** تأكد من أن قاعدة بيانات PostgreSQL تعمل وأن `.env` يحتوي على بيانات الاتصال الصحيحة. الاختبارات تُنشئ بيانات تجريبية وتحذفها في النهاية.
+
+> **ملاحظة:** `storage.test.js` لا يحتاج لقاعدة بيانات أو شبكة — يعمل بشكل مستقل تماماً.
 
 ---
 
@@ -397,7 +402,7 @@ Success Rate: 100.00%
 
 ---
 
-## 7. الفرق بين الاختبارات الثلاثة
+## 7. الفرق بين الاختبارات
 
 ```
 api.test.js
@@ -414,6 +419,11 @@ comprehensive.test.js
   ↑ المستوى الأشمل: محاكاة سيناريو واقعي كامل
   ↑ يختبر تسلسل العمليات والعلاقات بين الكيانات
   ↑ يتضمن اختبار الحذف التتالي والتكامل
+
+storage.test.js
+  ↑ طبقة التخزين: اختبر النهج وخدمة التخزين مباشرة
+  ↑ لا يحتاج قاعدة بيانات أو شبكة — مستقل تماماً
+  ↑ تدعم وضعين: محلي (unit) + حي مع Cloudinary (integration)
 ```
 
 ---
@@ -421,9 +431,11 @@ comprehensive.test.js
 ## 8. خلاصة
 
 ```
-لاختبار الـ API من الخارج    → api.test.js
-لاختبار قاعدة البيانات      → repositories.test.js
-لاختبار سيناريو كامل        → comprehensive.test.js
+لاختبار الـ API من الخارج          → api.test.js
+لاختبار قاعدة البيانات            → repositories.test.js
+لاختبار سيناريو كامل            → comprehensive.test.js
+لاختبار طبقة التخزين (unit)      → storage.test.js
+لاختبار Cloudinary حيّاً           → storage.test.js --CLOUDINARY_URL=...
 ```
 
 ---

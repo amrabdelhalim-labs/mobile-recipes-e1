@@ -488,6 +488,7 @@ function PostDetailPage({ postId }: { postId: number }) {
 - [ ] Router mounted in `routes/index.js`
 - [ ] Cascade deletes handled in parent entity's delete controller
 - [ ] Tests updated + `npm run test:all` passes
+- [ ] If storage layer was modified: `npm run test:storage` passes (no network required)
 
 ### Client
 - [ ] URL constants added to `config/urls.ts` (static string or function for dynamic)
