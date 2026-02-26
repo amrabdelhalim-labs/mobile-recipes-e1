@@ -151,8 +151,7 @@ const resetImage = async (req, res) => {
     // Use an externally configured default URL when a cloud storage provider is active,
     // so the stored value is a valid absolute URL rather than a local /images/ path.
     // Set DEFAULT_PROFILE_IMAGE_URL on Heroku to the Cloudinary URL of the default avatar.
-    const newImageUrl =
-      process.env.DEFAULT_PROFILE_IMAGE_URL || `/images/${DEFAULT_PROFILE_IMAGE}`;
+    const newImageUrl = process.env.DEFAULT_PROFILE_IMAGE_URL || `/images/${DEFAULT_PROFILE_IMAGE}`;
 
     await repositories.user.update(userId, { ImageUrl: newImageUrl });
 
