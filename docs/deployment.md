@@ -31,9 +31,15 @@ CORS_ORIGINS=https://yourdomain.com,https://app.yourdomain.com
 
 # اختر نوع تخزين واحد
 STORAGE_TYPE=cloudinary  # أو 's3'
+
+# Cloudinary - الخيار أ: Heroku Addon (يُضبط CLOUDINARY_URL تلقائياً)
+# CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+
+# Cloudinary - الخيار ب: يدوياً (إذا لم تستخدم Addon)
 CLOUDINARY_CLOUD_NAME=xxx
 CLOUDINARY_API_KEY=xxx
 CLOUDINARY_API_SECRET=xxx
+CLOUDINARY_FOLDER=mobile-recipes  # اختياري
 ```
 
 ### 2. توليد JWT Secret قوي
@@ -119,13 +125,19 @@ heroku config:set JWT_SECRET=$(openssl rand -base64 32)
 # CORS (استبدل برابط موقعك الفعلي)
 heroku config:set CORS_ORIGINS=https://yourapp.com
 
-# التخزين - الخيار 1: Cloudinary (موصى به)
+# التخزين - الخيار 1: Cloudinary Addon (موصى به على Heroku — CLOUDINARY_URL يُضبط تلقائياً)
+heroku addons:create cloudinary:starter
 heroku config:set STORAGE_TYPE=cloudinary
-heroku config:set CLOUDINARY_CLOUD_NAME=your_cloud_name
-heroku config:set CLOUDINARY_API_KEY=your_api_key
-heroku config:set CLOUDINARY_API_SECRET=your_api_secret
+# CLOUDINARY_FOLDER اختياري (default: mobile-recipes)
+heroku config:set CLOUDINARY_FOLDER=mobile-recipes
 
-# التخزين - الخيار 2: AWS S3
+# التخزين - الخيار 2: Cloudinary يدوياً (إذا لم تستخدم Addon)
+# heroku config:set STORAGE_TYPE=cloudinary
+# heroku config:set CLOUDINARY_CLOUD_NAME=your_cloud_name
+# heroku config:set CLOUDINARY_API_KEY=your_api_key
+# heroku config:set CLOUDINARY_API_SECRET=your_api_secret
+
+# التخزين - الخيار 3: AWS S3
 heroku config:set STORAGE_TYPE=s3
 heroku config:set AWS_S3_BUCKET=your-bucket-name
 heroku config:set AWS_REGION=us-east-1

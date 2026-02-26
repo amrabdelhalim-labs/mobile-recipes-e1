@@ -341,8 +341,7 @@ await api.get(GET_POST_BY_ID(postId));
 | `repositories.test.js` | Unit — per repository method | Real PostgreSQL (test DB) |
 | `comprehensive.test.js` | Integration — full multi-entity workflow | Real PostgreSQL (test DB) |
 | `integration.test.js` | REST API integration tests | Running server |
-| `api.test.js` | E2E — real HTTP requests | Server started on test port |
-
+| `api.test.js` | E2E — real HTTP requests | Server started on test port || `storage.test.js` | Unit + Integration — storage layer only | No network (local disk only) |
 **Test helper pattern:**
 ```javascript
 import { assert, logSection, logStep, printSummary } from './test.helpers.js';
