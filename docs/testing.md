@@ -3,10 +3,10 @@
 ## نظرة عامة
 
 المشروع يحتوي على مجموعتين من الاختبارات:
-- **اختبارات الخادم:** نظام مخصص بدون مكتبات خارجية — 5 أنواع (169 اختبار)
+- **اختبارات الخادم:** نظام مخصص بدون مكتبات خارجية — 5 أنواع (180 اختبار)
 - **اختبارات التطبيق:** Vitest + Testing Library — 6 ملفات (37 اختبار)
 
-**إجمالي الاختبارات:** 206 اختبار (169 خادم + 37 تطبيق)
+**إجمالي الاختبارات:** 217 اختبار (180 خادم + 37 تطبيق)
 
 ---
 
@@ -23,7 +23,7 @@ npm run test:all
 # أو تشغيل كل مجموعة على حدة
 npm test                     # repositories.test.js (36 اختبار)
 npm run test:comprehensive   # comprehensive-test.js (43 اختبار)
-npm run test:full-stack      # integration.test.js (46 اختبار) — يتطلب خادماً يعمل
+npm run test:integration     # integration.test.js (46 اختبار) — يتطلب خادماً يعمل
 npm run test:e2e             # api.test.js (7+ اختبار)
 npm run test:storage         # storage.test.js (48 اختبار وحدة — بدون شبكة، أو 56 مع Cloudinary)
 ```
@@ -111,7 +111,7 @@ Success Rate: 100.00%
 ### المجموعة 3: Integration Tests (46 اختبار)
 
 ```bash
-npm run test:full-stack
+npm run test:integration
 ```
 
 تختبر تكامل كامل التطبيق مع الخادم قيد التشغيل. تشمل:
@@ -194,10 +194,11 @@ function printSummary() { ... }
 |---------|--------|---------------|
 | خادم: Repositories | مخصص | 36 |
 | خادم: Comprehensive | مخصص | 43 |
-| خادم: Full Stack | مخصص | 46 |
-| خادم: Storage Tests | مخصص | 48 |
+| خادم: Integration (Full Stack) | مخصص | 46 |
+| خادم: E2E API | مخصص | 7+ |
+| خادم: Storage Tests | مخصص | 48 (وحدة) / 56 (مع Cloudinary) |
 | تطبيق: Vitest | Vitest + Testing Library | 37 |
-| **المجموع** | — | **210** |
+| **المجموع** | — | **217** |
 
 ---
 
@@ -242,6 +243,7 @@ node validate-workflow.mjs
 | scripts المحذوفة | `dev`, `test*`, `format*` محذوفة | ✅ |
 | `devDependencies` | محذوفة كاملاً | ✅ |
 | script `start` | موجود بعد التنظيف (الخادم يشتغل على Heroku) | ✅ |
+| تحقق الاكتمال | كل script يطابق نمطاً محظوراً في `package.json` محذوف من الورك فلو | ✅ |
 
 ### ناتج ناجح مثال
 
@@ -260,12 +262,15 @@ node validate-workflow.mjs
   ✅ rsync excludes "coverage"
 
 ── 3. package.json stripping simulation
-  ✅ "start" script preserved: "node server.js"
+  ✅ "start" script preserved: "node app.js"
   ✅ devDependencies removed
   …
 
+── 4. Completeness check (scripts → workflow sync)
+  ✅ All forbidden-pattern scripts are accounted for in workflow deletions
+
 ────────────────────────────────────────────────────────────
-  Passed: 14   Failed: 0
+  Passed: 15   Failed: 0
 
 [OK] Workflow is valid and ready to push.
 ```

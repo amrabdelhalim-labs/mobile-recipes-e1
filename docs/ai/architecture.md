@@ -222,7 +222,7 @@ const validateRequest = (req, res, next) => {
 ### 2.9 Storage Strategy Pattern
 
 ```javascript
-// Storage is selected by STORAGE_PROVIDER env variable
+// Storage is selected by STORAGE_TYPE env variable
 const storage = getStorageService();        // → StorageService.getInstance()
 
 await storage.uploadFiles(req.files);        // returns [{ url, filename }]
@@ -234,7 +234,22 @@ Available strategies:
 - `cloudinary` — uploads to Cloudinary CDN
 - `s3` — uploads to AWS S3
 
-To switch storage: only change `STORAGE_PROVIDER` env var. No code changes needed.
+To switch storage: only change `STORAGE_TYPE` env var. No code changes needed.
+
+**Cloudinary setup (two options):**
+```env
+# Option A — Heroku Addon (sets CLOUDINARY_URL automatically):
+# heroku addons:create cloudinary:starter
+STORAGE_TYPE=cloudinary
+CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME   # takes priority
+
+# Option B — manual individual vars:
+STORAGE_TYPE=cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloud
+CLOUDINARY_API_KEY=your_key
+CLOUDINARY_API_SECRET=your_secret
+CLOUDINARY_FOLDER=mobile-recipes   # optional
+```
 
 ### 2.10 JWT (`utilities/jwt.js`)
 
@@ -336,12 +351,26 @@ await api.get(GET_POST_BY_ID(postId));
 
 ### Server Tests
 
-| File | Strategy | Runs against |
-|------|----------|-------------|
-| `repositories.test.js` | Unit — per repository method | Real PostgreSQL (test DB) |
-| `comprehensive.test.js` | Integration — full multi-entity workflow | Real PostgreSQL (test DB) |
-| `integration.test.js` | REST API integration tests | Running server |
-| `api.test.js` | E2E — real HTTP requests | Server started on test port || `storage.test.js` | Unit + Integration — storage layer only | No network (local disk only) |
+| File | Tests | Strategy | Runs against |
+|------|-------|----------|--------------|
+| `repositories.test.js` | 36 | Unit — per repository method | Real PostgreSQL (test DB) |
+| `comprehensive.test.js` | 43 | Integration — full multi-entity workflow | Real PostgreSQL (test DB) |
+| `integration.test.js` | 46 | REST API integration tests | Running server |
+| `api.test.js` | 7+ | E2E — real HTTP requests | Server started on test port |
+| `storage.test.js` | 48 unit (56 with live Cloudinary) | Unit + Integration — storage layer only | No network (unit); Cloudinary CDN (live) |
+
+**Total server tests (unit-only): 180** — all run via `npm run test:all`
+
+```bash
+cd server
+npm run test:all            # all 5 suites sequentially
+npm test                    # repositories.test.js (36)
+npm run test:comprehensive  # comprehensive.test.js (43)
+npm run test:integration    # integration.test.js (46) — requires running server
+npm run test:e2e            # api.test.js (7+)
+npm run test:storage        # storage.test.js (48 unit / 56 with live Cloudinary)
+```
+
 **Test helper pattern:**
 ```javascript
 import { assert, logSection, logStep, printSummary } from './test.helpers.js';
