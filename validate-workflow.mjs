@@ -2,13 +2,15 @@
 /**
  * validate-workflow.mjs — Local workflow validator for mobile-recipes-e1 (وصفاتي)
  *
- * Catches CI deploy issues before pushing to GitHub by running four checks:
+ * Catches CI deploy issues before pushing to GitHub by running five checks:
  *   1. YAML structure       — no tabs, required top-level keys present
  *   2. rsync excludes       — critical directories are excluded from server deploy
  *   3. package.json sim.    — extracts deletions from the workflow itself,
  *      applies them to server/package.json, and verifies the result is clean
  *   4. Completeness check   — proactively verifies every forbidden-pattern script
  *      in package.json has a matching delete statement in the workflow
+ *   5. Static assets        — _redirects, 404.html, index.html SPA receiver,
+ *      and manifest.json icon file existence (prevents SPA 404 on page refresh)
  *
  * Usage:
  *   node validate-workflow.mjs        # run all checks, exit 1 on failure
@@ -209,6 +211,77 @@ if (missingFromWorkflow.length === 0) {
       `Script "${name}" matches a forbidden pattern but is NOT deleted by the workflow` +
       ` — add: delete p.scripts['${name}'];`
     );
+  }
+}
+
+// ── 5. Static assets (PWA manifest + SPA routing) ─────────────────────────
+section('5. Static assets (PWA manifest + SPA routing)');
+
+// ── 5a. _redirects (Netlify / Render catch-all) ──────────────────────────
+const REDIRECTS_PATH = path.join(ROOT, 'app/public/_redirects');
+if (!existsSync(REDIRECTS_PATH)) {
+  fail('app/public/_redirects مفقود — مسارات SPA ستعطي 404 على Netlify/Render');
+} else {
+  const redirectsContent = readFileSync(REDIRECTS_PATH, 'utf8');
+  if (!redirectsContent.includes('/* /index.html 200')) {
+    fail('_redirects: قاعدة catch-all "/* /index.html 200" غير موجودة');
+  } else {
+    ok('_redirects: قاعدة catch-all لـ SPA موجودة');
+  }
+}
+
+// ── 5b. 404.html (GitHub Pages SPA redirect) ─────────────────────────────
+const NOT_FOUND_PATH = path.join(ROOT, 'app/public/404.html');
+if (!existsSync(NOT_FOUND_PATH)) {
+  fail('app/public/404.html مفقود — مسارات SPA ستعطي 404 عند التصفح المباشر على GitHub Pages');
+} else {
+  const notFoundContent = readFileSync(NOT_FOUND_PATH, 'utf8');
+  if (!notFoundContent.includes('pathSegmentsToKeep')) {
+    fail('404.html: سكريبت إعادة التوجيه لـ SPA غير موجود (pathSegmentsToKeep مفقود)');
+  } else {
+    ok('404.html: سكريبت إعادة التوجيه لـ GitHub Pages SPA موجود');
+  }
+}
+
+// ── 5c. index.html receiver script ───────────────────────────────────────
+const APP_INDEX_PATH = path.join(ROOT, 'app/index.html');
+if (!existsSync(APP_INDEX_PATH)) {
+  fail('app/index.html مفقود');
+} else {
+  const indexContent = readFileSync(APP_INDEX_PATH, 'utf8');
+  if (!indexContent.includes("l.search[1] === '/'")) {
+    fail('app/index.html: سكريبت استقبال إعادة التوجيه مفقود (مطلوب مع 404.html)');
+  } else {
+    ok('app/index.html: سكريبت استقبال SPA موجود');
+  }
+}
+
+// ── 5d. manifest.json icon sizes match actual files ───────────────────────
+const MANIFEST_PATH = path.join(ROOT, 'app/public/manifest.json');
+if (!existsSync(MANIFEST_PATH)) {
+  warn('app/public/manifest.json غير موجود — لن يتم فحص الأيقونات');
+} else {
+  let manifest;
+  try {
+    manifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
+  } catch {
+    fail('app/public/manifest.json: صيغة JSON غير صحيحة');
+    manifest = null;
+  }
+  if (manifest) {
+    for (const icon of manifest.icons ?? []) {
+      const iconFilePath = path.join(ROOT, 'app/public', icon.src);
+      if (!existsSync(iconFilePath)) {
+        fail(`manifest.json: ملف الأيقونة "${icon.src}" غير موجود في app/public/`);
+      } else if (icon.sizes && !icon.sizes.includes('any')) {
+        ok(`manifest.json: أيقونة "${icon.src}" موجودة (الحجم المُعلَن: ${icon.sizes})`);
+      } else {
+        ok(`manifest.json: أيقونة "${icon.src}" موجودة`);
+      }
+    }
+    if ((manifest.icons ?? []).length === 0) {
+      warn('manifest.json: لا توجد أيقونات مُعرَّفة في icons[]');
+    }
   }
 }
 

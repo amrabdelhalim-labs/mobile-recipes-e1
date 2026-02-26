@@ -5,6 +5,30 @@
     <title>وصفاتي</title>
     
     <!-- base tag is handled by Vite config -->
+
+    <!-- ================================================================
+         GitHub Pages SPA redirect receiver
+         Decodes the path encoded by 404.html and restores it via history API
+         Based on: https://github.com/rafgraph/spa-github-pages
+         ================================================================ -->
+    <script>
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search
+            .slice(1)
+            .split('&')
+            .map(function (s) { return s.replace(/~and~/g, '&'); });
+          // Preserve the repo-name base path (e.g. /mobile-recipes-e1)
+          var basePath = l.pathname.split('/').slice(0, 2).join('/');
+          window.history.replaceState(
+            null, null,
+            basePath + decoded[0] +
+            (decoded[1] ? '?' + decoded[1] : '') +
+            l.hash
+          );
+        }
+      }(window.location));
+    </script>
     
     <meta name="color-scheme" content="light dark" />
     <meta

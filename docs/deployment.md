@@ -12,6 +12,7 @@
 - [ ] جميع التبعيات موجودة في package.json
 - [ ] .gitignore يستثني الملفات الحساسة
 - [ ] معالجة الأخطاء شاملة
+- [ ] SPA routing: `app/public/_redirects`, `app/public/404.html`, وسكريبت receiver في `app/index.html` موجودة (`node validate-workflow.mjs` يتحقق منها تلقائيًا)
 
 ## 🔐 أفضل ممارسات الأمان
 
@@ -500,7 +501,51 @@ heroku ps
 - [ ] راقب استخدام الذاكرة والمعالج
 - [ ] إعداد النسخ الاحتياطية التلقائية
 
-## 📚 موارد إضافية
+## � توجيه SPA على GitHub Pages
+
+تطبيق وصفاتي (واجهة أمامية) يعمل كـ **SPA — Single Page Application**: كل تنقل يخدم `index.html` ويترك React Router يتولى عرض الصفحة الصحيحة. لكن خوادم الاستضافة الثابتة (GitHub Pages, Nginx...) تحاول إيجاد **ملف حقيقي** لكل مسار — فيرجع 404.
+
+### الحل: ثلاثة ملفات
+
+| الملف | الغرض | منصة |
+|------|------|-------|
+| `app/public/_redirects` | يعيد توجيه كل الطلبات إلى `index.html` | Netlify / Render |
+| `app/public/404.html` | يحوّل المسار إلى query string ثم يعيد التوجيه لـ root | GitHub Pages |
+| script in `app/index.html` | يفك التشفير ويرمم المسار باستخدام `history.replaceState` | GitHub Pages |
+
+### كيف يعمل بروتوكول GitHub Pages
+
+```
+1. المستخدم يفتح /mobile-recipes-e1/profile
+2. GitHub Pages: لا يوجد ملف باسم "profile" → يخدم 404.html
+3. 404.html: يحوّل المسار إلى query string:
+   /mobile-recipes-e1/?/profile
+4. index.html يستقبل: يرمم history API إلى المسار الحقيقي
+5. React Router يعرض صفحة الملف الشخصي
+```
+
+### فحص الملفات تلقائيًا
+
+يتحقق `validate-workflow.mjs` (فحص رقم 5) من وجود هذه الملفات قبل كل `git push`:
+
+```bash
+node validate-workflow.mjs
+# 5. Static assets (PWA manifest + SPA routing)
+# ✅ _redirects: قاعدة catch-all لـ SPA موجودة
+# ✅ 404.html: سكريبت إعادة التوجيه لـ GitHub Pages SPA موجود
+# ✅ app/index.html: سكريبت استقبال SPA موجود
+# ✅ manifest.json: أيقونة "favicon.png" موجودة (الحجم المُعلَن: 64x64)
+```
+
+### محيطة مخصصة `_redirects` لـ Netlify/Render
+
+```
+/* /index.html 200
+```
+
+> تحذير: إذا حذفت `_redirects` أو `404.html` ستعود مشكلة 404 عند التحديث مجدديًا.
+
+## �📚 موارد إضافية
 
 - [دليل Heroku Node.js](https://devcenter.heroku.com/articles/getting-started-with-nodejs)
 - [Heroku Postgres](https://devcenter.heroku.com/articles/heroku-postgresql)

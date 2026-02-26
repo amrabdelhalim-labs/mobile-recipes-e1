@@ -1,14 +1,15 @@
 {
-  "short_name": "Recipes",
-  "name": "My Recipes App",
+  "short_name": "وصفاتي",
+  "name": "وصفاتي - My Recipes",
   "icons": [
     {
       "src": "favicon.png",
-      "sizes": "192x192",
+      "sizes": "64x64",
       "type": "image/png"
     }
   ],
   "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "theme_color": "#ffffff",
   "background_color": "#ffffff"

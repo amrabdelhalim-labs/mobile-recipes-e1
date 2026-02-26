@@ -269,8 +269,14 @@ node validate-workflow.mjs
 ── 4. Completeness check (scripts → workflow sync)
   ✅ All forbidden-pattern scripts are accounted for in workflow deletions
 
+── 5. Static assets (PWA manifest + SPA routing)
+  ✅ _redirects: قاعدة catch-all لـ SPA موجودة
+  ✅ 404.html: سكريبت إعادة التوجيه لـ GitHub Pages SPA موجود
+  ✅ app/index.html: سكريبت استقبال SPA موجود
+  ✅ manifest.json: أيقونة "favicon.png" موجودة (الحجم المُعلَن: 64x64)
+
 ────────────────────────────────────────────────────────────
-  Passed: 15   Failed: 0
+  Passed: 19   Failed: 0
 
 [OK] Workflow is valid and ready to push.
 ```
