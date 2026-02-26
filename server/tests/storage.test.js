@@ -28,6 +28,8 @@
  *   • config object takes priority over env vars
  *   • Missing credentials throw a descriptive error
  *   • Malformed CLOUDINARY_URL throws a descriptive error
+ *   • _initPromise is a Promise (init eagerly cached after construction)
+ *   • _ensureInitialized() returns the cached Promise
  *
  * Phase 2 — CloudinaryStorageStrategy: URL utilities
  *   • _extractPublicId() from a Cloudinary CDN URL (with version segment)
@@ -35,6 +37,8 @@
  *   • _extractPublicId() returns plain IDs as-is
  *   • _extractPublicId() handles null/empty inputs
  *   • getFileUrl() returns absolute URLs unchanged (safe regardless of init state)
+ *   • getFileUrl() returns publicId as-is when cloudinary is null (not yet initialized)
+ *   • getFileUrl() returns null/undefined as-is for null/undefined input
  *
  * Phase 3 — StorageService: factory + singleton
  *   • STORAGE_TYPE=local  → LocalStorageStrategy instance
@@ -365,6 +369,28 @@ logStep(8, 'Malformed CLOUDINARY_URL — constructor throws descriptive error');
   );
 }
 
+logStep(9, '_initPromise — constructor eagerly caches initialization Promise');
+{
+  const strategy = withEnv(
+    { CLOUDINARY_URL: 'cloudinary://key:secret@cloud' },
+    () => new CloudinaryStorageStrategy({})
+  );
+  assert(
+    strategy._initPromise instanceof Promise,
+    '_initPromise is a Promise immediately after construction (init cached eagerly)'
+  );
+}
+
+logStep(10, '_ensureInitialized — returns the cached Promise');
+{
+  const strategy = withEnv(
+    { CLOUDINARY_URL: 'cloudinary://key:secret@cloud' },
+    () => new CloudinaryStorageStrategy({})
+  );
+  const result = strategy._ensureInitialized();
+  assert(result instanceof Promise, '_ensureInitialized() returns a Promise');
+}
+
 // ─── Phase 2 — CloudinaryStorageStrategy: URL utilities ──────────────────────
 logSection('Phase 2 — CloudinaryStorageStrategy: URL Utilities');
 
@@ -409,8 +435,31 @@ logStep(5, 'getFileUrl — absolute URL returned unchanged (safe before/after in
     'https://res.cloudinary.com/mycloud/image/upload/v1/mobile-recipes/dish.jpg';
   const result = cloudStrat.getFileUrl(absUrl);
   assert(result === absUrl, 'absolute https URL returned as-is');
-  // Note: calling getFileUrl() with a publicId (non-URL) before init would throw.
-  // Absolute URLs are always safe — stored URLs from Cloudinary will always be absolute.
+}
+
+logStep(6, 'getFileUrl — returns publicId as-is when cloudinary is null (race-condition guard)');
+{
+  // Force cloudinary to null to simulate the window between construction and async init
+  const uninit = withEnv(
+    { CLOUDINARY_URL: 'cloudinary://key:secret@cloud' },
+    () => new CloudinaryStorageStrategy({})
+  );
+  uninit.cloudinary = null;
+  const result = uninit.getFileUrl('mobile-recipes/test-123');
+  assert(
+    result === 'mobile-recipes/test-123',
+    'publicId returned as-is when cloudinary is null (no TypeError)'
+  );
+}
+
+logStep(7, 'getFileUrl — returns null/undefined as-is for falsy input (null guard)');
+{
+  const strategy = withEnv(
+    { CLOUDINARY_URL: 'cloudinary://key:secret@cloud' },
+    () => new CloudinaryStorageStrategy({})
+  );
+  assert(strategy.getFileUrl(null) === null, 'null input returns null');
+  assert(strategy.getFileUrl(undefined) === undefined, 'undefined input returns undefined');
 }
 
 // ─── Phase 3 — StorageService: factory + singleton ───────────────────────────

@@ -26,7 +26,9 @@ const User = db.define(
       allowNull: false,
     },
     ImageUrl: {
-      type: DataTypes.STRING,
+      // Use STRING(500) instead of the default STRING (VARCHAR 255) to safely
+      // accommodate Cloudinary CDN URLs which can approach or exceed 255 chars.
+      type: DataTypes.STRING(500),
       allowNull: false,
       defaultValue: '/images/default-profile.svg',
     },

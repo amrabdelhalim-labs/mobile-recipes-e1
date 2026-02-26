@@ -89,6 +89,13 @@ heroku addons:create cloudinary:starter
 heroku config:set STORAGE_TYPE=cloudinary
 ```
 
+> **ملاحظة مهمة — صورة الملف الشخصي الافتراضية:**
+> عند استخدام Cloudinary في الإنتاج، اضبط `DEFAULT_PROFILE_IMAGE_URL` برابط Cloudinary للصورة الافتراضية حتى تخزن في قاعدة البيانات رابطاً صحيحاً:
+> ```bash
+> heroku config:set DEFAULT_PROFILE_IMAGE_URL=https://res.cloudinary.com/YOUR_CLOUD/image/upload/v1/mobile-recipes/default-profile.svg
+> ```
+> بدونه، تخزين `/images/default-profile.svg` (مسار محلي) في عمود الصورة قد يسبب مشكلة عند إعادة تحميل صورة جديدة لاحقاً.
+
 المتغير الناتج:
 
 ```env
@@ -217,7 +224,7 @@ npm run dev
 
 ### الإنتاج على Heroku مع Cloudinary
 
-1. `cloudinary` مضافة في `optionalDependencies` — يثبتها `npm install` تلقائياً.
+1. `cloudinary` مضافة في `dependencies` — يثبتها `npm install` تلقائياً بشكل موثوق على Heroku.
 
 2. اضبط متغيرات Heroku:
 ```bash
@@ -301,7 +308,7 @@ import { getStorageService } from '../utilities/files.js';
 
 ### المشكلة: "Failed to load cloudinary package"
 
-**الحل:** `cloudinary` مضافة في `optionalDependencies` — `npm install` يثبتها تلقائياً. إذا اختفت، شغّل:
+**الحل:** `cloudinary` مضافة في `dependencies` (وليس `optionalDependencies`) — `npm install` يثبتها تلقائياً وبشكل موثوق. إذا اختفت، شغّل:
 ```bash
 npm install cloudinary
 ```
