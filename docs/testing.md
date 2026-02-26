@@ -3,10 +3,10 @@
 ## نظرة عامة
 
 المشروع يحتوي على مجموعتين من الاختبارات:
-- **اختبارات الخادم:** نظام مخصص بدون مكتبات خارجية — 4 أنواع (121 اختبار)
+- **اختبارات الخادم:** نظام مخصص بدون مكتبات خارجية — 5 أنواع (169 اختبار)
 - **اختبارات التطبيق:** Vitest + Testing Library — 6 ملفات (37 اختبار)
 
-**إجمالي الاختبارات:** 158 اختبار (121 خادم + 37 تطبيق)
+**إجمالي الاختبارات:** 206 اختبار (169 خادم + 37 تطبيق)
 
 ---
 
@@ -25,6 +25,7 @@ npm test                     # repositories.test.js (36 اختبار)
 npm run test:comprehensive   # comprehensive-test.js (43 اختبار)
 npm run test:full-stack      # integration.test.js (46 اختبار) — يتطلب خادماً يعمل
 npm run test:e2e             # api.test.js (7+ اختبار)
+npm run test:storage         # storage.test.js (48 اختبار وحدة — بدون شبكة، أو 56 مع Cloudinary)
 ```
 
 **المتطلبات:** قاعدة بيانات PostgreSQL نشطة — يستخدم قاعدة البيانات من `.env`
@@ -194,8 +195,9 @@ function printSummary() { ... }
 | خادم: Repositories | مخصص | 36 |
 | خادم: Comprehensive | مخصص | 43 |
 | خادم: Full Stack | مخصص | 46 |
+| خادم: Storage Tests | مخصص | 48 |
 | تطبيق: Vitest | Vitest + Testing Library | 37 |
-| **المجموع** | — | **162** |
+| **المجموع** | — | **210** |
 
 ---
 

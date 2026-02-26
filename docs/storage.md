@@ -81,11 +81,21 @@ CLOUDINARY_API_SECRET=your_api_secret
 CLOUDINARY_FOLDER=mobile-recipes  # اختياري، لتنظيم الملفات
 ```
 
-**خطوات الإعداد:**
-1. أنشئ حساب مجاني على [cloudinary.com](https://cloudinary.com)
-2. ثبت الحزمة: `npm install cloudinary`
-3. احصل على البيانات من لوحة التحكم
-4. اضبط متغيرات البيئة
+**أو عبر Heroku addon** (الأسهل للنشر):
+
+```bash
+# addon يُعيّن CLOUDINARY_URL تلقائياً
+heroku addons:create cloudinary:starter
+heroku config:set STORAGE_TYPE=cloudinary
+```
+
+المتغير الناتج:
+
+```env
+CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+```
+
+> `CLOUDINARY_URL` يأخذ الأولوية على المتغيرات المنفصلة عند تواجدهما معاً.
 
 **المزايا:**
 - ✅ طبقة مجانية: 25GB تخزين، 25GB نقل بيانات شهرياً
@@ -207,10 +217,7 @@ npm run dev
 
 ### الإنتاج على Heroku مع Cloudinary
 
-1. ثبت حزمة Cloudinary:
-```bash
-npm install cloudinary
-```
+1. `cloudinary` مضافة في `optionalDependencies` — يثبتها `npm install` تلقائياً.
 
 2. اضبط متغيرات Heroku:
 ```bash
@@ -294,7 +301,7 @@ import { getStorageService } from '../utilities/files.js';
 
 ### المشكلة: "Failed to load cloudinary package"
 
-**الحل:** ثبت الحزمة:
+**الحل:** `cloudinary` مضافة في `optionalDependencies` — `npm install` يثبتها تلقائياً. إذا اختفت، شغّل:
 ```bash
 npm install cloudinary
 ```
