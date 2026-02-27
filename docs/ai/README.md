@@ -5,7 +5,7 @@
 >
 > **Project name in prose:** وصفاتي  
 > **Folder:** `mobile-recipes-e1/`  
-> **Last reviewed:** 2026-02-24
+> **Last reviewed:** 2026-02-28
 
 ---
 
@@ -96,7 +96,7 @@ server/
 │   ├── local.strategy.js           ← LocalStorageStrategy (saves to public/images/)
 │   ├── cloudinary.strategy.js      ← CloudinaryStrategy (uploads to Cloudinary)
 │   ├── s3.strategy.js              ← S3Strategy (uploads to AWS S3)
-│   └── storage.service.js          ← StorageService singleton (selects strategy from STORAGE_PROVIDER env)
+│   └── storage.service.js          ← StorageService singleton (selects strategy from STORAGE_TYPE env)
 ├── utilities/
 │   ├── database.js                 ← Sequelize instance (supports DATABASE_URL or individual params)
 │   ├── files.js                    ← multer config + imagesRoot + extractFileName + getStorageService
@@ -181,11 +181,12 @@ app/src/
 
 ```bash
 # Server (from server/)
-npm run test              # repositories.test.js
-npm run test:comprehensive # comprehensive.test.js
-npm run test:integration  # integration.test.js
-npm run test:e2e          # api.test.js
-npm run test:all          # all four sequentially
+npm run test              # repositories.test.js (36 tests)
+npm run test:comprehensive # comprehensive.test.js (43 tests)
+npm run test:integration  # integration.test.js (46 tests) — requires running server
+npm run test:e2e          # api.test.js (7+ E2E tests)
+npm run test:storage      # storage.test.js (48 unit tests — no network required)
+npm run test:all          # all five sequentially
 
 # Client (from app/)
 npm run test              # vitest run (all tests)
@@ -209,12 +210,16 @@ DB_PORT=5432
 # DATABASE_URL=postgresql://user:password@host:5432/dbname
 JWT_SECRET=your_jwt_secret
 CORS_ORIGINS=http://localhost:5173,http://localhost:8100
-STORAGE_PROVIDER=local  # local | cloudinary | s3
-# Cloudinary (if STORAGE_PROVIDER=cloudinary):
+STORAGE_TYPE=local  # local | cloudinary | s3
+# Cloudinary (if STORAGE_TYPE=cloudinary):
+# Option A — Heroku addon (sets CLOUDINARY_URL automatically):
+# CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+# Option B — manual:
 CLOUDINARY_CLOUD_NAME=...
 CLOUDINARY_API_KEY=...
 CLOUDINARY_API_SECRET=...
-# S3 (if STORAGE_PROVIDER=s3):
+CLOUDINARY_FOLDER=mobile-recipes  # optional
+# S3 (if STORAGE_TYPE=s3):
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
 AWS_BUCKET_NAME=...
