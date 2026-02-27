@@ -161,6 +161,116 @@
 
 ---
 
+### 8️⃣ [نمط المستودع](./server/08-repository-pattern.md)
+**الملفات**: `server/repositories/`
+
+**ما ستتعلمه**:
+- لماذا Repository Pattern؟
+- `BaseRepository` — عمليات CRUD العامة
+- `UserRepository`, `PostRepository`, `CommentRepository`, `LikeRepository`
+- `RepositoryManager` — نقطة وصول مركزية
+
+**المفاهيم**: Repository Pattern, Inheritance, Singleton  
+**الوقت المتوقع**: 30 دقيقة  
+**الصعوبة**: ⭐⭐⭐⭐☆
+
+---
+
+### 9️⃣ [المتحكمات](./server/09-controllers.md)
+**الملفات**: `server/controllers/`
+
+**ما ستتعلمه**:
+- ما هي المتحكمات ولماذا نحتاجها؟
+- `user.controller.js` — تسجيل, دخول, ملف شخصي, حذف حساب
+- `post.controller.js` — إنشاء, جلب, تعديل, حذف الوصفات
+- `comment.controller.js` — إضافة, تعديل, حذف التعليقات
+- `like.controller.js` — تفعيل/إلغاء الإعجاب
+- نمط التحقق المتكرر: مصادقة → مدخلات → وجود → ملكية → تنفيذ
+- منطق تنظيف الملفات عند الخطأ
+
+**المفاهيم**: Controllers, Middleware, REST API, try/catch, Pagination  
+**الوقت المتوقع**: 40 دقيقة  
+**الصعوبة**: ⭐⭐⭐☆☆
+
+---
+
+### 1️⃣0️⃣ [النماذج](./server/10-models.md)
+**الملفات**: `server/models/`
+
+**ما ستتعلمه**:
+- Sequelize DataTypes (INTEGER, STRING, TEXT, JSON)
+- العلاقات: belongsTo, hasMany, belongsToMany
+- جدول الارتباط (junction table) للإعجاب
+- `models/index.js` — تشغيل associate لكل نموذج
+- timestamps, onDelete CASCADE
+
+**المفاهيم**: ORM, Associations, Foreign Key, Junction Table  
+**الوقت المتوقع**: 30 دقيقة  
+**الصعوبة**: ⭐⭐⭐☆☆
+
+---
+
+### 1️⃣1️⃣ [المسارات](./server/11-routes.md)
+**الملفات**: `server/routes/`
+
+**ما ستتعلمه**:
+- Router.use() وتجميع المسارات
+- سلسلة middleware: validator → validateRequest → controller
+- المعامل الديناميكي `/:id`
+- ترتيب `/me` قبل `/:id`
+- خريطة كاملة لجميع مسارات API
+
+**المفاهيم**: Express Router, HTTP Methods, Dynamic Params  
+**الوقت المتوقع**: 25 دقيقة  
+**الصعوبة**: ⭐⭐☆☆☆
+
+---
+
+### 1️⃣2️⃣ [المدققات](./server/12-validators.md)
+**الملفات**: `server/validators/`, `server/middlewares/validator.middleware.js`
+
+**ما ستتعلمه**:
+- express-validator: `body().notEmpty().isEmail().isLength()`
+- مدقق مخصص: `.custom((value) => { JSON.parse(...) })`
+- الحقول الاختيارية: `.optional({ nullable: true, checkFalsy: true })`
+- `validator.middleware.js`: تنظيف الملفات عند فشل التحقق
+
+**المفاهيم**: express-validator, Validation Chain, File Cleanup  
+**الوقت المتوقع**: 30 دقيقة  
+**الصعوبة**: ⭐⭐⭐☆☆
+
+---
+
+### 1️⃣3️⃣ [اختبارات الخادم](./server/13-testing.md)
+**الملفات**: `server/tests/`
+
+**ما ستتعلمه**:
+- E2E واختبارات المستودعات
+- بيئة الاختبار ومتغيرات `.env`
+- تشغيل الاختبارات
+
+**المفاهيم**: Testing, E2E, Integration, Unit Tests  
+**الوقت المتوقع**: 30 دقيقة  
+**الصعوبة**: ⭐⭐⭐⭐☆
+
+---
+
+### 1️⃣4️⃣ [استراتيجيات التخزين السحابي](./server/14-cloud-storage.md)
+**الملفات**: `services/storage/cloudinary.strategy.js`, `s3.strategy.js`, `storage.interface.js`
+
+**ما ستتعلمه**:
+- Strategy Pattern ونمط الواجهة المشتركة
+- صور الوصفات بـ Cloudinary (`crop: 'limit'` — يحافظ على النسب العرضية)
+- `_initPromise` لمنع التهيئة المتكررة عند الطلبات المتزامنة
+- رفع وحذف صور متعددة بالتوازي (Promise.all)
+- AWS S3: PutObjectCommand بدون ACL
+
+**المفاهيم**: Strategy Pattern, Cloudinary, AWS S3, Promise.all, Dynamic Import  
+**الوقت المتوقع**: 30 دقيقة  
+**الصعوبة**: ⭐⭐⭐⭐☆
+
+---
+
 ## 📱 شروحات العميل (Client/App)
 
 ### 1️⃣ [هيكل التطبيق الرئيسي](./client/01-app-structure.md)
@@ -243,6 +353,73 @@
 
 ---
 
+### 6️⃣ [صفحات الدخول والتسجيل](./client/07-pages-auth.md)
+**الملفات**: `app/src/pages/Login.tsx`, `Register.tsx`
+
+**ما ستتعلمه**:
+- نموذج Formik مع Yup (validateOnBlur/Change: false)
+- IonAlert لعرض الأخطاء داخل Ionic
+- حفظ التوكن بـ Capacitor Preferences
+- useHistory للتوجيه بعد نجاح تسجيل الدخول
+- استدعاء AuthContext داخل صفحة
+
+**المفاهيم**: Formik, Yup, Capacitor Preferences, Ionic React  
+**الوقت المتوقع**: 20 دقيقة  
+**الصعوبة**: ⭐⭐⭐☆☆
+
+---
+
+### 7️⃣ [صفحات المنشورات](./client/08-pages-posts.md)
+**الملفات**: `AllPosts.tsx`, `PostDetail.tsx`, `CreatePost.tsx`, `UpdatePost.tsx`, `MyPosts.tsx`, `GetPost.tsx`, `main.tsx`
+
+**ما ستتعلمه**:
+- Infinite Scroll مع `useRef` لمنع التكرار
+- Pull-to-Refresh مع `IonRefresher`
+- Optimistic Update للإعجابات
+- رفع الصور بـ `FormData` (Multipart)
+- قائمة إجراءات الحذف بـ `IonActionSheet`
+- تعديل المنشور: جلب البيانات وتعبئة الحقول
+- اشتراك الصفحات بالأحداث عبر `onPostsChanged`
+
+**المفاهيم**: Infinite Scroll, FormData, IonActionSheet, Draft.js, Swiper  
+**الوقت المتوقع**: 40 دقيقة  
+**الصعوبة**: ⭐⭐⭐⭐☆
+
+---
+
+### 8️⃣ [المكوّنات](./client/09-components.md)
+**الملفات**: `PostCard`, `Like`, `CommentForm`, `CommentList`, `UserAvatar`, `EditableField`, `LocationPicker`, `TextEditor`, `Header`, `Menu`
+
+**ما ستتعلمه**:
+- بنية Props وواجهات TypeScript للمكوّنات
+- Optimistic Update مع Rollback في `Like`
+- `onAdded` callback في `CommentForm`
+- Skeleton Loading في `CommentList`
+- revokeObjectURL لتجنب تسريب الذاكرة في `UserAvatar`
+- Capacitor Geolocation + Nominatim في `LocationPicker`
+- Draft.js و`convertToRaw` في `TextEditor`
+
+**المفاهيم**: Capacitor Geolocation, Draft.js, FormData, Skeleton, Optimistic Update  
+**الوقت المتوقع**: 35 دقيقة  
+**الصعوبة**: ⭐⭐⭐⭐☆
+
+---
+
+### 9️⃣ [الأدوات والأنواع](./client/10-utils-types.md)
+**الملفات**: `utils/postsEvents.ts`, `types/user.types.ts`, `types/post.types.ts`
+
+**ما ستتعلمه**:
+- نظام الأحداث المخصصة (CustomEvent) عبر `window.dispatchEvent`
+- دالة `onPostsChanged` التي تُرجع دالة تنظيف لـ useEffect
+- `UserProfile` و`UserBasic` — أنواع TypeScript للمستخدمين
+- الفرق بين النوع الكامل والمختصر في النظام
+
+**المفاهيم**: CustomEvent, TypeScript Interfaces, Event-driven, Memory Cleanup  
+**الوقت المتوقع**: 15 دقيقة  
+**الصعوبة**: ⭐⭐⭐☆☆
+
+---
+
 ## 📊 جدول المقارنة
 
 | الموضوع | الصعوبة | الوقت | الأولوية |
@@ -255,12 +432,17 @@
 | رفع الملفات | ⭐⭐⭐☆☆ | 25 دقيقة | ⚡ متوسطة |
 | التخزين المحلي | ⭐⭐⭐☆☆ | مراجعة | ⚡ متوسطة |
 | خدمة التخزين | ⭐⭐⭐⭐☆ | 30 دقيقة | ⚡ متوسطة |
+| التخزين السحابي | ⭐⭐⭐⭐☆ | 30 دقيقة | ⚡ متوسطة |
 | هيكل التطبيق | ⭐⭐⭐☆☆ | 25 دقيقة | 🔥 عالية |
 | التكامل مع الخادم | ⭐⭐⭐☆☆ | 20 دقيقة | 🔥 عالية جداً |
 | سياق المصادقة | ⭐⭐⭐⭐☆ | 30 دقيقة | 🔥 عالية جداً |
 | هوك الصور | ⭐⭐⭐☆☆ | 25 دقيقة | ⚡ متوسطة |
 | هندسة المكونات | ⭐⭐☆☆☆ | 15 دقيقة | ⚡ متوسطة |
 | اختبارات العميل | ⭐⭐⭐⭐☆ | 30 دقيقة | 🔥 عالية |
+| صفحات الدخول والتسجيل | ⭐⭐⭐☆☆ | 20 دقيقة | 🔥 عالية |
+| صفحات المنشورات | ⭐⭐⭐⭐☆ | 40 دقيقة | 🔥 عالية جداً |
+| المكوّنات | ⭐⭐⭐⭐☆ | 35 دقيقة | 🔥 عالية |
+| الأدوات والأنواع | ⭐⭐⭐☆☆ | 15 دقيقة | ⚡ متوسطة |
 
 ---
 
@@ -277,12 +459,13 @@
 7. سياق المصادقة
 ```
 
-### 🎯 مسار 2: نظام الملفات (2 ساعة)
+### 🎯 مسار 2: نظام الملفات (2.5 ساعة)
 ```
 1. نظام رفع الملفات
 2. استراتيجية التخزين المحلي
 3. خدمة التخزين
-4. هوك معرض الصور
+4. استراتيجيات التخزين السحابي (Cloudinary + S3)
+5. هوك معرض الصور
 ```
 
 ### 🎯 مسار 3: الأمان والمصادقة (2 ساعة)

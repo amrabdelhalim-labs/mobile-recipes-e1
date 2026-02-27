@@ -39,8 +39,15 @@
 5. [نظام رفع الملفات](./server/05-file-upload-system.md) - شرح `files.js`
 6. [استراتيجية التخزين المحلي](./server/06-storage-strategy.md) - شرح `local.strategy.js`
 7. [خدمة التخزين](./server/07-storage-service.md) - شرح `storage.service.js`
+14. [استراتيجيات التخزين السحابي](./server/14-cloud-storage.md) - شرح `cloudinary.strategy.js`, `s3.strategy.js`, `storage.interface.js`
+
+#### **بنية البيانات والأنماط**
 8. [نمط المستودع](./server/08-repository-pattern.md) - شرح Repository Pattern كامل
-9. [اختبارات الخادم](./server/09-testing.md) - E2E والمستودعات والاختبار الشامل
+9. [المتحكمات](./server/09-controllers.md) - شرح `user.controller.js`, `post.controller.js`, `comment.controller.js`, `like.controller.js`
+10. [النماذج](./server/10-models.md) - شرح User, Post, Comment, Like, Post_Image (Sequelize)
+11. [المسارات](./server/11-routes.md) - شرح جميع مسارات API (خريطة كاملة)
+12. [المدققات](./server/12-validators.md) - شرح express-validator, تجميع الأخطاء, تنظيف الملفات
+13. [اختبارات الخادم](./server/13-testing.md) - E2E والمستودعات والاختبار الشامل
 
 ---
 
@@ -59,6 +66,12 @@
 #### **هندسة المكونات والاختبارات**
 5. [هندسة المكونات وتسمية الملفات](./client/05-component-naming.md) - أفضل الممارسات
 6. [اختبارات العميل](./client/06-client-testing.md) - شرح Vitest والاختبارات
+
+#### **الصفحات والمكوّنات التفصيلية**
+7. [صفحات الدخول والتسجيل](./client/07-pages-auth.md) - شرح `Login.tsx` و`Register.tsx` (Formik, Yup, IonAlert, Preferences)
+8. [صفحات المنشورات](./client/08-pages-posts.md) - شرح `AllPosts`, `PostDetail`, `CreatePost`, `UpdatePost`, `MyPosts`, `GetPost`, `main.tsx`
+9. [المكوّنات](./client/09-components.md) - شرح `PostCard`, `Like`, `CommentForm`, `CommentList`, `UserAvatar`, `EditableField`, `LocationPicker`, `TextEditor`, `Header`, `Menu`
+10. [الأدوات والأنواع](./client/10-utils-types.md) - شرح `postsEvents.ts` (Custom Event) و`user.types.ts` (TypeScript Interfaces)
 
 ---
 
