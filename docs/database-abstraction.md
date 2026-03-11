@@ -18,8 +18,8 @@
 ### المقارنة - بدون Repository Pattern:
 
 ```javascript
-// ❌ السيء - كود مخلوط وصعب الصيانة
 import Post from '../models/posts.model.js';
+// ❌ السيء - كود مخلوط وصعب الصيانة
 
 const controller = async (req, res) => {
   // منطق الوصول للبيانات مخلوط مع منطق العمل!
@@ -40,8 +40,8 @@ const controller = async (req, res) => {
 ### مع Repository Pattern:
 
 ```javascript
-// ✅ الجيد - فصل الاهتمامات (Separation of Concerns)
 import repositories from '../repositories/index.js';
+// ✅ الجيد - فصل الاهتمامات (Separation of Concerns)
 
 const controller = async (req, res) => {
   // استدعاء repository بسيط وواضح
@@ -60,18 +60,18 @@ const controller = async (req, res) => {
 ## لماذا نستخدمه؟
 
 ### 1. **فصل الاهتمامات (Separation of Concerns)**
-```
-Controllers  ← استدعاء
+```text
+Controllers  // استدعاء
       ↓
-Repositories ← استخدام
+Repositories  // استخدام
       ↓
 Database (Sequelize)
 ```
 
 ### 2. **سهولة الاختبار (Testability)**
 ```javascript
-// يمكن عمل Mock repository بسهولة في الاختبارات
 const mockRepo = {
+// يمكن عمل Mock repository بسهولة في الاختبارات
   findByEmail: jest.fn().mockResolvedValue({ id: 1, name: 'Test' })
 };
 
@@ -80,8 +80,8 @@ const result = await authService.login(mockRepo, 'test@example.com');
 
 ### 3. **إعادة الاستخدام (Reusability)**
 ```javascript
-// نفس Repository يمكن استخدامه في:
 // - Controllers
+// نفس Repository يمكن استخدامه في:
 // - Services
 // - Middleware
 // - Scheduled Jobs
@@ -98,26 +98,26 @@ const user = await repositories.user.findByEmail('user@example.com');
 
 ## البنية المعمارية
 
-```
+```text
 Project Structure:
 server/
-├── repositories/              ← طبقة الوصول للبيانات (Data Access Layer)
-│   ├── base.repository.js     ← قاعدة جميع الـ Repositories
+├── repositories/  // طبقة الوصول للبيانات (Data Access Layer)
+│   ├── base.repository.js  // قاعدة جميع الـ Repositories
 │   ├── user.repository.js     ← User-specific operations
 │   ├── post.repository.js     ← Post-specific operations
 │   ├── comment.repository.js  ← Comment-specific operations
 │   ├── like.repository.js     ← Like-specific operations
 │   ├── post-image.repository.js
-│   ├── repository.interface.js ← العقد (Contract)
+│   ├── repository.interface.js  // العقد (Contract)
 │   └── index.js              ← Repository Manager (Singleton)
 │
-├── controllers/               ← طبقة المنطق (Business Logic)
+├── controllers/  // طبقة المنطق (Business Logic)
 │   ├── user.controller.js
 │   ├── post.controller.js
 │   ├── comment.controller.js
 │   └── like.controller.js
 │
-├── models/                    ← طبقة البيانات (Data Models)
+├── models/  // طبقة البيانات (Data Models)
 │   ├── users.model.js
 │   ├── posts.model.js
 │   ├── comments.model.js
@@ -193,8 +193,8 @@ const getUserProfile = async (req, res) => {
 ### مثال 1: إنشاء منشور بصور
 
 ```javascript
-// ❌ بدون Repository
 const createPost = async (req, res) => {
+// ❌ بدون Repository
   try {
     // كود معقد مع Sequelize مباشرة
     const post = await Post.create({
@@ -219,8 +219,8 @@ const createPost = async (req, res) => {
 ```
 
 ```javascript
-// ✅ مع Repository
 const createPost = async (req, res) => {
+// ✅ مع Repository
   try {
     // كود بسيط وواضح
     const post = await repositories.post.createWithImages(
@@ -278,16 +278,16 @@ async search(query, page = 1, limit = 10) {
 
 ### 1. **استخدم Repository Manager (Singleton)**
 ```javascript
-// ✅ صحيح
 import repositories from '../repositories/index.js';
+// ✅ صحيح
 
 const user = await repositories.user.findByPk(1);
 ```
 
 ### 2. **عدم الخلط بين الطبقات**
 ```javascript
-// ❌ خطأ - استخدام Model مباشرة في Controller
 const user = await User.findByPk(1);
+// ❌ خطأ - استخدام Model مباشرة في Controller
 
 // ✅ صحيح - استخدام Repository
 const user = await repositories.user.findByPk(1);
@@ -295,8 +295,8 @@ const user = await repositories.user.findByPk(1);
 
 ### 3. **إضافة عمليات خاصة بالمجال (Domain-Specific)**
 ```javascript
-// ✅ عمليات مخصصة لـ UserRepository
 async findByEmailWithRelations(email) {
+// ✅ عمليات مخصصة لـ UserRepository
   return this.findOne({
     where: { email },
     include: ['Posts', 'Comments']
@@ -364,8 +364,8 @@ async findAll(options = {}) {
 ### `index.js` (Repository Manager)
 نقطة دخول واحدة للوصول لجميع الـ Repositories:
 ```javascript
-// استخدام سهل
 const repos = repositories;
+// استخدام سهل
 const user = await repos.user.findByPk(1);
 const posts = await repos.post.findByUser(userId);
 ```

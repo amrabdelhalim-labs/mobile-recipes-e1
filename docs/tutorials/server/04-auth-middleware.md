@@ -90,12 +90,12 @@ if (!authHeader.startsWith('Bearer '))  // لا يبدأ بـ "Bearer "
 ```
 
 **مثال صحيح**:
-```
+```text
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **مثال خاطئ**:
-```
+```text
 Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...  // ❌ ناقص "Bearer "
 Authorization: Token eyJhbGciOiJ...  // ❌ "Token" بدلاً من "Bearer"
 ```
@@ -254,8 +254,8 @@ catch (error) {
 
 ### الخطوة 2: المستخدم يحفظ Token
 ```javascript
-// في التطبيق
 localStorage.setItem('token', token);
+// في التطبيق
 ```
 
 ### الخطوة 3: طلب محمي
@@ -268,15 +268,15 @@ headers: {
 
 ### الخطوة 4: المرور عبر Middleware
 ```javascript
-// في routes/post.routes.js
 router.get('/my-posts', isAuthenticated, getMyPosts);
+// في routes/post.routes.js
 //                      ↑ هنا يتم الفحص أولاً
 ```
 
 ### الخطوة 5: الوصول للـ Controller
 ```javascript
-// في post.controller.js
 const getMyPosts = async (req, res) => {
+// في post.controller.js
   const userId = req.currentUser.id;  // ✅ متاح لأننا مررنا بـ Middleware
   const posts = await Post.findAll({ where: { UserId: userId } });
   res.json(posts);
@@ -345,8 +345,8 @@ router.delete('/posts/:id', isAuthenticated, deletePost);
 
 ### 3. **حماية جميع مسارات ملف**:
 ```javascript
-// في أول routes/post.routes.js
 router.use(isAuthenticated);
+// في أول routes/post.routes.js
 
 // الآن جميع المسارات محمية تلقائياً
 router.post('/posts', createPost);

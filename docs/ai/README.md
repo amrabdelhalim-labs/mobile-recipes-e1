@@ -48,13 +48,15 @@
 8. **HTTP requests use the `api` axios instance** from `app/src/config/axios.ts` — never use raw `fetch` or `axios` directly
 9. **All Sequelize associations go through `model.associate(models)` in `models/index.js`** — never set associations inside the model files
 10. **All entity repositories are ES module singletons** — use `get{Entity}Repository()` factory functions
+11. **No Arabic characters inside code fences in documentation** — the Arabic comma `,` (U+060C) and other Arabic punctuation trigger the Unicode Bidi algorithm, causing code blocks to render right-to-left. Use only Latin punctuation inside `` ``` `` blocks. Arabic is allowed only in code **comments** (`// عربي`). See `docs/ai-patterns-reference.md §10` for the full rule.
+12. **First line of every code block must start with a Latin character** — The Unicode Bidi Algorithm sets a code block's render direction from its **first strong-directional character**. If the first non-empty line starts with Arabic text (even inside a `// comment`), the **entire block** renders right-to-left. **Rule:** always put a real code line (`import`, `const`, class declaration…) on line 1 and move Arabic label comments to line 2+. Emoji (`✅`, `❌`) and `//` are Bidi-neutral and do **not** protect against this. See `docs/ai-tutorials-guide.md §2.6`.
 
 ---
 
 ## Key File Locations
 
 ### Server
-```
+```text
 server/
 ├── app.js                          ← Express entry point (CORS, middleware, health check, error handler)
 ├── routes/
@@ -110,7 +112,7 @@ server/
 ```
 
 ### Client
-```
+```text
 app/src/
 ├── App.tsx                         ← AuthContextProvider wrapper + IonReactRouter routing
 ├── AppTabs.tsx                     ← IonTabs (Home, MyPosts, Likes, Profile tabs)
@@ -198,7 +200,7 @@ npm run test:all          # all tests
 ## Environment Variables
 
 ### Server (`server/.env`)
-```
+```text
 PORT=3000
 NODE_ENV=development
 DB_NAME=wosafati_dev
@@ -227,7 +229,7 @@ AWS_REGION=...
 ```
 
 ### Client (`app/.env`)
-```
+```text
 VITE_API_URL=http://localhost:3000
 ```
 

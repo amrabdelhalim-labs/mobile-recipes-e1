@@ -209,15 +209,15 @@ limits: { fileSize: 5 * 1024 * 1024 },
 ```
 
 **الحساب**:
-```
+```text
 5 * 1024 * 1024 = 5,242,880 بايت = 5 ميجابايت
 ```
 
 **ماذا يحدث إذا تجاوز المستخدم الحد؟**
 ```javascript
-// رد الخادم
-{
   "message": "File too large"
+{
+// رد الخادم
 }
 // Status: 400
 ```
@@ -284,8 +284,8 @@ const getStorageService = () => StorageService.getInstance();
 
 ### الخطوة 1: المستخدم يرفع صورة
 ```javascript
-// في Frontend
 const formData = new FormData();
+// في Frontend
 formData.append('title', 'وصفة كبسة');
 formData.append('images', imageFile);
 
@@ -297,15 +297,15 @@ fetch('/api/posts', {
 
 ### الخطوة 2: Multer يستقبل الملف
 ```javascript
-// في routes/post.routes.js
 router.post('/posts', upload.array('images', 5), createPost);
+// في routes/post.routes.js
 //                    ↑ يقبل حتى 5 صور
 ```
 
 ### الخطوة 3: فحص نوع الملف
 ```javascript
-// في fileFilter
 if (file.mimetype.startsWith('image/')) {
+// في fileFilter
   // ✅ صورة - مقبول
 } else {
   // ❌ ليس صورة - مرفوض
@@ -325,15 +325,15 @@ file = {
 
 ### الخطوة 5: في Controller، رفع للتخزين
 ```javascript
-// في post.controller.js
 const storage = getStorageService();
+// في post.controller.js
 const uploadResults = await storage.uploadFiles(req.files);
 ```
 
 ### الخطوة 6: حفظ على القرص أو السحابة
 ```javascript
-// في storage.service.js
 await strategy.uploadFile(file);
+// في storage.service.js
 // يحفظ في public/images/ أو AWS S3
 ```
 
@@ -343,8 +343,8 @@ await strategy.uploadFile(file);
 
 ### مثال 1: رفع صورة واحدة
 ```javascript
-// في routes
 router.post('/profile-photo', upload.single('photo'), updateProfilePhoto);
+// في routes
 
 // في controller
 const file = req.file;  // ملف واحد
@@ -352,8 +352,8 @@ const file = req.file;  // ملف واحد
 
 ### مثال 2: رفع عدة صور
 ```javascript
-// في routes
 router.post('/posts', upload.array('images', 5), createPost);
+// في routes
 
 // في controller
 const files = req.files;  // مصفوفة من الملفات

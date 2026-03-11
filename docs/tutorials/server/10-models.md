@@ -10,8 +10,8 @@
 
 فكّر في النموذج كـ**مخطط المعمار** قبل بناء منزل:
 
-```
-المخطط (Model)  →  يصف شكل الجدول  →  Sequelize يبني الجدول الفعلي في PostgreSQL
+```text
+المخطط (Model)  // يصف شكل الجدول  →  Sequelize يبني الجدول الفعلي في PostgreSQL
 ```
 
 | المصطلح | المعنى |
@@ -24,14 +24,14 @@
 
 ### هيكل نماذج المشروع:
 
-```
+```text
 server/models/
-├── index.js           ← يجمع كل النماذج ويُعرِّف العلاقات بينها
-├── users.model.js     ← جدول المستخدمين
-├── posts.model.js     ← جدول الوصفات (المنشورات)
-├── comments.model.js  ← جدول التعليقات
-├── likes.model.js     ← جدول الإعجابات
-└── postImages.model.js ← جدول صور الوصفات
+├── index.js  // يجمع كل النماذج ويُعرِّف العلاقات بينها
+├── users.model.js  // جدول المستخدمين
+├── posts.model.js  // جدول الوصفات (المنشورات)
+├── comments.model.js  // جدول التعليقات
+├── likes.model.js  // جدول الإعجابات
+└── postImages.model.js  // جدول صور الوصفات
 ```
 
 ---
@@ -268,9 +268,9 @@ Like.associate = (models) => {
 
 هذا هو نمط **Many-to-Many (كثير-لكثير)**:
 
-```
-مستخدم واحد → يُعجب بعدة وصفات
-وصفة واحدة → تُعجب عدة مستخدمين
+```text
+مستخدم واحد  // يُعجب بعدة وصفات
+وصفة واحدة  // تُعجب عدة مستخدمين
 ```
 
 الجدول `Like` هو جدول **وِصل (Junction Table)** — يحتوي فقط على:
@@ -351,9 +351,9 @@ Object.values(models).forEach((model) => {
 
 لأن العلاقات تحتاج لمعرفة **كل** النماذج:
 ```javascript
+User.hasMany(models.Post)  // تحتاج لـ models.Post
 // داخل User.associate
-User.hasMany(models.Post)  ← تحتاج لـ models.Post
-User.hasMany(models.Comment)  ← تحتاج لـ models.Comment
+User.hasMany(models.Comment)  // تحتاج لـ models.Comment
 ```
 
 لو استوردت النموذج مباشرة داخل ملف النموذج → **Circular Import** (استيراد دائري يسبب خطأ). الحل: نُمرّر كائن `models` من الخارج.
@@ -367,7 +367,7 @@ export default models;
 
 ## 8. خريطة العلاقات الكاملة
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                   قاعدة بيانات وصفاتي                          │
 │                                                                 │

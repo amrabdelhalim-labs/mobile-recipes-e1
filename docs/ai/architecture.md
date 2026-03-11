@@ -7,7 +7,7 @@
 
 ## 1. Layer Diagram
 
-```
+```text
 ┌────────────────────────────────────────────────────────────────┐
 │                 CLIENT (Ionic React / TypeScript)               │
 │  ┌──────────┐  ┌──────────────┐  ┌─────────────────────────┐  │
@@ -427,7 +427,7 @@ assert(!!post.id, "يجب أن يكون للمنشور معرّف");
 
 ## 6. Data Flow for a Complete Request
 
-```
+```text
 1. Client: User submits create post form (title, content, image files)
 2. Client: api.post(CREATE_POST, formData, { headers: { Content-Type: multipart/form-data } })
            → axios interceptor adds Bearer token from Capacitor Preferences

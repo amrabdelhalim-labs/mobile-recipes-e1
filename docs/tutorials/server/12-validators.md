@@ -1,4 +1,4 @@
-# الدرس الثاني عشر: المدققات (Validators) ✅
+﻿# الدرس الثاني عشر: المدققات (Validators) ✅
 
 > **هدف الدرس:** تفهم كيف تعمل طبقة التحقق من البيانات في وصفاتي — باستخدام مكتبة `express-validator` — لمنع الحفظ في قاعدة البيانات قبل التأكد من صحة البيانات الواردة.
 
@@ -8,23 +8,23 @@
 
 ### مشكلة بدون تحقق:
 
-```
-المستخدم يرسل: { email: "ليس-إيميل", name: "" }
+```text
+bcrypt.hash("", 10)  // كلمة مرور فارغة!
          ↓ (بدون تحقق)
-bcrypt.hash("", 10)  ← كلمة مرور فارغة!
-repositories.user.create(...)  ← يُحفظ في DB
+المستخدم يرسل: { email: "ليس-إيميل", name: "" }
+repositories.user.create(...)  // يُحفظ في DB
          ↓
 خطأ غريب في قاعدة البيانات أو بيانات مكسورة
 ```
 
 ### مع التحقق:
 
-```
+```text
+validator.register  // يكتشف: email غير صحيح, name فارغ
+         ↓
 المستخدم يرسل: { email: "ليس-إيميل", name: "" }
          ↓
-validator.register  ← يكتشف: email غير صحيح، name فارغ
-         ↓
-validateRequest     ← يُرسل 400 مع رسائل واضحة
+validateRequest  // يُرسل 400 مع رسائل واضحة
          ↓
 { errors: ["صيغة الإيميل غير صحيحة", "الاسم مطلوب"] }
          ↓ (لا يصل للمتحكم)
@@ -36,13 +36,13 @@ validateRequest     ← يُرسل 400 مع رسائل واضحة
 
 مكتبة `express-validator` تعمل على **مرحلتين**:
 
-```
-المرحلة 1: التعريف (في ملفات validators/)
+```text
     body('email').isEmail().withMessage('...')
+المرحلة 1: التعريف (في ملفات validators/)
          ↓ (لا تُنفَّذ بعد — فقط تُعرَّف)
 
 المرحلة 2: التنفيذ (في validator.middleware.js)
-    validationResult(req)  ← هنا تُنفَّذ وتُجمَّع الأخطاء
+    validationResult(req)  // هنا تُنفَّذ وتُجمَّع الأخطاء
 ```
 
 تشبه وصفة الطبخ:
@@ -234,7 +234,7 @@ const newPost = [
 
 هذا **مدقق مخصص** (Custom Validator) يستخدم `.custom()`:
 
-```
+```text
 القيمة الواردة (steps) يمكن أن تكون:
 
 الحالة 1: نص JSON   → '[ {"step":1, "text":"اقطع البصل"} ]'
@@ -244,9 +244,9 @@ const newPost = [
 الحالة 2: مصفوفة/كائن مباشرة → [{...}, {...}]
     - نقبله مباشرة
 
-الحالة 3: null أو فارغ → نتجاهله (اختياري)
+الحالة 3: null أو فارغ  // نتجاهله (اختياري)
 
-الحالة 4: أي نوع آخر (رقم، boolean) → نرفضه
+الحالة 4: أي نوع آخر (رقم, boolean)  // نرفضه
 ```
 
 - `.optional({ nullable: true, checkFalsy: true })` ← اختياري تماماً
@@ -349,16 +349,16 @@ const validateRequest = (req, res, next) => {
 
 إذا رُفعت ملفات **ثم** اكتُشف خطأ في بيانات أخرى → الملفات المرفوعة يجب حذفها.
 
-```
+```text
+upload.single()  // رفع الصورة بنجاح → وُضعت في مجلد uploads/
+         ↓
 المستخدم يرسل: صورة + title = ""
          ↓
-upload.single()  ← رفع الصورة بنجاح → وُضعت في مجلد uploads/
+validator.newPost  ← title فارغ  // خطأ!
          ↓
-validator.newPost  ← title فارغ ← خطأ!
-         ↓
-validateRequest  ← يكتشف الخطأ
-                 ← يحذف الصورة التي رُفعت
-                 ← يرسل 400
+validateRequest  // يكتشف الخطأ
+  // يحذف الصورة التي رُفعت
+  // يرسل 400
 ```
 
 بدون هذا الكود: ملفات "يتيمة" تتراكم في السيرفر! (ثم من يحذفها؟)
@@ -380,13 +380,13 @@ validateRequest  ← يكتشف الخطأ
 
 ## 7. كيف تتكامل الطبقات؟
 
-```
+```text
 POST /account/register  { name: "i", email: "wrong", password: "" }
          ↓
 validator.register (المصفوفة)
-   ├── body('name').isLength({min:3})  ← يُسجِّل: "الاسم قصير"
-   ├── body('email').isEmail()         ← يُسجِّل: "صيغة الإيميل غير صحيحة"
-   └── body('password').notEmpty()     ← يُسجِّل: "كلمة المرور مطلوبة"
+   ├── body('name').isLength({min:3})  // يُسجِّل: "الاسم قصير"
+   ├── body('email').isEmail()  // يُسجِّل: "صيغة الإيميل غير صحيحة"
+   └── body('password').notEmpty()  // يُسجِّل: "كلمة المرور مطلوبة"
          ↓
 validateRequest
    errors = validationResult(req)
@@ -397,7 +397,7 @@ validateRequest
        { msg: "كلمة المرور مطلوبة", path: "password" }
      ]})
          ↓ (لا يُكمل)
-controller.register  ← لا تُستدعى أبداً
+controller.register  // لا تُستدعى أبداً
 ```
 
 ---

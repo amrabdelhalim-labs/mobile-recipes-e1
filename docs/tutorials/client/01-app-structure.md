@@ -135,8 +135,8 @@ import '@ionic/react/css/palettes/dark.class.css';
 
 **كيف يعمل؟**
 ```javascript
-// تفعيل
 document.documentElement.classList.add('dark');
+// تفعيل
 
 // تعطيل
 document.documentElement.classList.remove('dark');
@@ -144,8 +144,8 @@ document.documentElement.classList.remove('dark');
 
 **خيارات أخرى**:
 ```tsx
-// الوضع الداكن دائماً
 import '@ionic/react/css/palettes/dark.always.css';
+// الوضع الداكن دائماً
 
 // حسب نظام التشغيل
 import '@ionic/react/css/palettes/dark.system.css';
@@ -359,7 +359,7 @@ const MyComponent = () => {
 - **الثاني**: أي مسار غير محدد أعلاه (Catch-all)
 
 **مثال**:
-```
+```text
 /unknown-page  →  <NotFound />
 /xyz123        →  <NotFound />
 ```
@@ -368,7 +368,7 @@ const MyComponent = () => {
 
 ## 🔄 تدفق التطبيق
 
-```
+```text
 1. المستخدم يفتح التطبيق
    ↓
 2. يتحقق AuthContext من وجود Token محفوظ
@@ -377,8 +377,8 @@ const MyComponent = () => {
    إذا لا → loggedIn = false
    ↓
 4. عرض واجهة المستخدم:
-   ├─ مسجل دخوله → يذهب لـ /tabs/home
-   └─ غير مسجل → يذهب لـ /account/login
+   ├─ مسجل دخوله  // يذهب لـ /tabs/home
+   └─ غير مسجل  // يذهب لـ /account/login
 ```
 
 ---
@@ -388,8 +388,8 @@ const MyComponent = () => {
 ### مثال 1: إضافة مسار جديد
 
 ```tsx
-// إضافة صفحة الإعدادات
 <Route exact path="/settings">
+// إضافة صفحة الإعدادات
   <Settings />
 </Route>
 ```
@@ -433,7 +433,7 @@ const PrivateRoute = ({ children }) => {
 
 ## 🔗 العلاقة مع ملفات أخرى
 
-```
+```text
 App.tsx
 ├── AuthContextProvider (context/AuthContext.tsx)
 ├── Menu (components/Menu/Menu.tsx)

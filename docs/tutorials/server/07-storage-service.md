@@ -10,8 +10,8 @@
 
 ### بدون StorageService:
 ```javascript
-// في كل ملف controller
 if (process.env.STORAGE_TYPE === 'local') {
+// في كل ملف controller
   const storage = new LocalStorageStrategy();
 } else if (process.env.STORAGE_TYPE === 'cloudinary') {
   const storage = new Cloud inaryStorageStrategy();
@@ -23,8 +23,8 @@ if (process.env.STORAGE_TYPE === 'local') {
 
 ### مع StorageService:
 ```javascript
-// في أي controller
 const storage = getStorageService();
+// في أي controller
 // يعطيك الاستراتيجية الصحيحة تلقائياً! ✅
 ```
 
@@ -119,8 +119,8 @@ return StorageService.instance;
 
 **مثال**:
 ```javascript
-// المرة الأولى
 const storage1 = StorageService.getInstance();
+// المرة الأولى
 // ينشئ نسخة جديدة
 
 // المرة الثانية
@@ -180,9 +180,9 @@ const storageType = (process.env.STORAGE_TYPE || 'local').toLowerCase();
 
 💡 **أمثلة في `.env`**:
 ```env
-STORAGE_TYPE=local      → استخدام التخزين المحلي
-STORAGE_TYPE=cloudinary → استخدام Cloudinary
-STORAGE_TYPE=s3         → استخدام AWS S3
+STORAGE_TYPE=local  // استخدام التخزين المحلي
+STORAGE_TYPE=cloudinary  // استخدام Cloudinary
+STORAGE_TYPE=s3  // استخدام AWS S3
 # لا شيء            → local (افتراضي)
 ```
 
@@ -269,8 +269,8 @@ static reset() {
 
 **مثال**:
 ```javascript
-// في الاختبار
 beforeEach(() => {
+// في الاختبار
   StorageService.reset();
   process.env.STORAGE_TYPE = 'local';
 });
@@ -305,18 +305,18 @@ console.log(StorageService.getStorageType());
 
 ## 🔄 كيف يعمل النظام الكامل؟
 
-```
-1. التطبيق يبدأ
+```text
+4. StorageService.getInstance()
    ↓
 2. قراءة STORAGE_TYPE من .env
    ↓
 3. أول استدعاء: getStorageService()
    ↓
-4. StorageService.getInstance()
+1. التطبيق يبدأ
    ↓
 5. هل instance موجود؟
-   ├─ نعم → أرجعه
-   └─ لا → أنشئ جديد
+   ├─ نعم  // أرجعه
+   └─ لا  // أنشئ جديد
         ↓
 6. createStrategy()
    ↓
@@ -339,8 +339,8 @@ console.log(StorageService.getStorageType());
 ### مثال 1: استخدام في Controller
 
 ```javascript
-// في post.controller.js
 import { getStorageService } from '../utilities/files.js';
+// في post.controller.js
 
 const createPost = async (req, res) => {
   // ...
@@ -472,8 +472,8 @@ STORAGE_TYPE=amazons3  # خطأ! ❌
 
 ### 4. **كيف أختبر استراتيجيات مختلفة؟**
 ```javascript
-// في الاختبارات
 beforeEach(() => {
+// في الاختبارات
   StorageService.reset();
 });
 

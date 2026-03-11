@@ -1,4 +1,4 @@
-# الدرس التاسع: المتحكمات — قلب منطق الخادم 🎮
+﻿# الدرس التاسع: المتحكمات — قلب منطق الخادم 🎮
 
 > **هدف الدرس:** تفهم ما هي المتحكمات (Controllers)، وكيف تستقبل الطلبات من المستخدم وتعالجها وترد عليها، وذلك بشرح تفصيلي سطر بسطر لكل دالة في مشروع وصفاتي.
 
@@ -10,15 +10,15 @@
 
 تخيّل مطعماً:
 
-```
-الزبون (المستخدم) → يطلب من النادل (Route) → النادل يعطي الطلب للطباخ (Controller)
-الطباخ يتحقق من المكونات (DB/Repository) → يجهز الطبق → النادل يقدّمه للزبون
+```text
+الزبون (المستخدم)  // يطلب من النادل (Route)  // النادل يعطي الطلب للطباخ (Controller)
+الطباخ يتحقق من المكونات (DB/Repository)  // يجهز الطبق  // النادل يقدّمه للزبون
 ```
 
 في الكود:
 
-```
-HTTP Request → Route → Controller → Repository → قاعدة البيانات → HTTP Response
+```text
+HTTP Request → Route → Controller → Repository  // قاعدة البيانات → HTTP Response
 ```
 
 ### ما الذي يفعله المتحكم تحديداً؟
@@ -36,12 +36,12 @@ HTTP Request → Route → Controller → Repository → قاعدة البيان
 
 ## 2. هيكل ملفات المتحكمات في المشروع
 
-```
+```text
 server/controllers/
-├── user.controller.js     ← إدارة المستخدمين (تسجيل، دخول، ملف شخصي)
-├── post.controller.js     ← إدارة منشورات الوصفات
-├── comment.controller.js  ← إدارة التعليقات على الوصفات
-└── like.controller.js     ← إدارة الإعجابات
+├── user.controller.js  // إدارة المستخدمين (تسجيل, دخول, ملف شخصي)
+├── post.controller.js  // إدارة منشورات الوصفات
+├── comment.controller.js  // إدارة التعليقات على الوصفات
+└── like.controller.js  // إدارة الإعجابات
 ```
 
 ---
@@ -910,7 +910,7 @@ const toggleLike = async (req, res) => {
 
 لاحظ أن كل دالة تتبع **نفس التسلسل**:
 
-```
+```text
 1. التحقق من المصادقة      req.currentUser?.id
          ↓
 2. التحقق من المُدخلات      req.body / req.params / req.query

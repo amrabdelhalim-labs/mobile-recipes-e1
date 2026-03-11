@@ -204,8 +204,8 @@ catch (error) {
 
 ### 1. **تسجيل الدخول**:
 ```javascript
-// في user.controller.js
 const token = jwt.generate({
+// في user.controller.js
   id: user.id,
   email: user.email,
   username: user.username
@@ -221,24 +221,24 @@ res.json({ token });
 
 ### 2. **المستخدم يحفظ Token**:
 ```javascript
-// في التطبيق (Client)
 localStorage.setItem('token', token);
+// في التطبيق (Client)
 // أو
 Preferences.set({ key: 'accessToken', value: token });
 ```
 
 ### 3. **طلبات لاحقة**:
 ```javascript
-// في كل طلب للخادم
 headers: {
+// في كل طلب للخادم
   'Authorization': `Bearer ${token}`
 }
 ```
 
 ### 4. **التحقق في الخادم**:
 ```javascript
-// في user.middleware.js
 const token = req.headers.authorization.split(' ')[1];
+// في user.middleware.js
 const decoded = jwt.verify(token);
 
 if (decoded) {
@@ -255,7 +255,7 @@ if (decoded) {
 
 JWT يتكون من **3 أجزاء** مفصولة بنقطة (`.`):
 
-```
+```text
 xxxxx.yyyyy.zzzzz
 ```
 
@@ -278,7 +278,7 @@ xxxxx.yyyyy.zzzzz
 ```
 
 ### الجزء الثالث: Signature (التوقيع)
-```
+```text
 HMACSHA256(
   base64UrlEncode(header) + "." + base64UrlEncode(payload),
   SECRET
@@ -355,8 +355,8 @@ JWT_SECRET=Kj8#mP2$qR@5vN!9xL&3wT^7bF
 
 2. **لا تخزن معلومات حساسة**:
 ```javascript
-// ❌ سيء
 generate({ id: 1, password: 'secret123' });
+// ❌ سيء
 
 // ✅ جيد
 generate({ id: 1, email: 'user@example.com' });

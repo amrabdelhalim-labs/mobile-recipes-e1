@@ -1,4 +1,4 @@
-# الاختبارات — وصفاتي
+﻿# الاختبارات — وصفاتي
 
 ## نظرة عامة
 
@@ -25,7 +25,7 @@ npm test                     # repositories.test.js (36 اختبار)
 npm run test:comprehensive   # comprehensive-test.js (43 اختبار)
 npm run test:integration     # integration.test.js (46 اختبار) — يتطلب خادماً يعمل
 npm run test:e2e             # api.test.js (7+ اختبار)
-npm run test:storage         # storage.test.js (48 اختبار وحدة — بدون شبكة، أو 56 مع Cloudinary)
+npm run test:storage         # storage.test.js (48 اختبار وحدة — بدون شبكة, أو 56 مع Cloudinary)
 ```
 
 **المتطلبات:** قاعدة بيانات PostgreSQL نشطة — يستخدم قاعدة البيانات من `.env`
@@ -89,7 +89,7 @@ npm run test:comprehensive
 | 6. الحذف والتنظيف | حذف الكل، التحقق من عدم وجود يتامى | 10 |
 
 **الناتج المتوقع:**
-```
+```text
 Total Tests: 43
 Passed: 43
 Failed: 0
@@ -151,7 +151,7 @@ npm run test:integration
 
 ### الناتج المتوقع
 
-```
+```text
 ✓ src/tests/types.test.ts (8 tests)
 ✓ src/tests/urls.test.ts (14 tests)
 ✓ src/tests/postsEvents.test.ts (5 tests)
@@ -205,8 +205,8 @@ function printSummary() { ... }
 ## قائمة فحص ما قبل التضمين (Pre-Commit)
 
 ```bash
-# 1. اختبارات الخادم
 cd server && npm run test:all
+# 1. اختبارات الخادم
 
 # 2. اختبارات التطبيق
 cd app && npm test
@@ -247,7 +247,7 @@ node validate-workflow.mjs
 
 ### ناتج ناجح مثال
 
-```
+```text
 ── 1. YAML structure
   ✅ No hard tab characters
   ✅ Required key present: "name:"

@@ -1,4 +1,4 @@
-# دليل المساهمة — وصفاتي (mobile-recipes-e1)
+﻿# دليل المساهمة — وصفاتي (mobile-recipes-e1)
 
 > **اقرأ هذا الملف قبل إجراء أي تغيير.**
 > هذه القواعد غير قابلة للتفاوض وتُطبَّق عند مراجعة الكود. أي انحراف يتطلب مبرراً صريحاً.
@@ -30,13 +30,13 @@
 
 ## 2. أسماء الفروع
 
-```
-main             ← كود جاهز للإنتاج فقط؛ لا تُودِع مباشرة
-feat/<topic>     ← ميزة جديدة (مثال: feat/recipe-ratings)
-fix/<topic>      ← إصلاح خطأ (مثال: fix/image-upload-cleanup)
-docs/<topic>     ← توثيق فقط (مثال: docs/update-ai-guide)
-chore/<topic>    ← أدوات، اعتماديات، إعداد (مثال: chore/add-prettier)
-refactor/<topic> ← إعادة هيكلة بدون تغيير في السلوك
+```text
+main  // كود جاهز للإنتاج فقط؛ لا تُودِع مباشرة
+feat/<topic>  // ميزة جديدة (مثال: feat/recipe-ratings)
+fix/<topic>  // إصلاح خطأ (مثال: fix/image-upload-cleanup)
+docs/<topic>  // توثيق فقط (مثال: docs/update-ai-guide)
+chore/<topic>  // أدوات, اعتماديات, إعداد (مثال: chore/add-prettier)
+refactor/<topic>  // إعادة هيكلة بدون تغيير في السلوك
 ```
 
 ---
@@ -45,7 +45,7 @@ refactor/<topic> ← إعادة هيكلة بدون تغيير في السلوك
 
 **الصيغة:** [Conventional Commits](https://www.conventionalcommits.org/) — **بالإنجليزية فقط**.
 
-```
+```text
 <type>(<scope>): <short description>
 
 <body — list of changes, one per line starting with ->
@@ -87,8 +87,8 @@ refactor/<topic> ← إعادة هيكلة بدون تغيير في السلوك
 ### أمثلة
 
 ```bash
-# ✅ صحيح
 git commit -m "feat(server): add recipe rating entity with repository + validators
+# ✅ صحيح
 
 - Add Rating Sequelize model with associations to Recipe and User
 - Register in models/index.js and add model.associate()
@@ -143,8 +143,8 @@ git commit -m "feat(server): added rating endpoint"
 ### صيغة التاج — annotated tags حصراً
 
 ```bash
-# تاج موصوف (استخدم دائماً -a — لا lightweight tags)
 git tag -a v1.6.0 -m "v1.6.0 - Add Recipe Rating System
+# تاج موصوف (استخدم دائماً -a — لا lightweight tags)
 
 - Rating Sequelize model with User and Post associations
 - RatingRepository extending BaseRepository
@@ -174,8 +174,8 @@ git push origin v1.6.0
 **جميع الكود منسّق بـ Prettier** قبل كل إيداع. لا قرارات مسافات يدوية.
 
 ```bash
-# تنسيق جميع الملفات (من جذر المشروع — يعمل على جميع الأنظمة)
 node format.mjs
+# تنسيق جميع الملفات (من جذر المشروع — يعمل على جميع الأنظمة)
 
 # التحقق بدون كتابة (CI — يخرج 1 إذا كان غير منسّق)
 node format.mjs --check
@@ -213,8 +213,8 @@ cd app && npm run format
 شغّل هذا قبل كل `git commit`:
 
 ```bash
-# 1. جميع اختبارات الخادم
 cd server && npm run test:all
+# 1. جميع اختبارات الخادم
 
 # 2. جميع اختبارات العميل
 cd app && npm run test

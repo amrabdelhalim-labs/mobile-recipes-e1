@@ -6,7 +6,7 @@
 
 ## 1. خريطة صفحات الوصفات
 
-```
+```text
 /tabs/home          ← AllPosts.tsx   — جميع الوصفات (للاستعراض)
 /tabs/my-recipes    ← MyPosts.tsx    — وصفاتي (للإدارة: تعديل/حذف)
 /tabs/create        ← CreatePost.tsx — إنشاء وصفة جديدة
@@ -21,8 +21,8 @@
 
 ```tsx
 // main.tsx
-moment.locale('ar');         ← تعريب التواريخ لكل التطبيق
-defineCustomElements(window); ← تفعيل Capacitor Camera API
+moment.locale('ar');  // تعريب التواريخ لكل التطبيق
+defineCustomElements(window);  // تفعيل Capacitor Camera API
 root.render(<App />);
 ```
 

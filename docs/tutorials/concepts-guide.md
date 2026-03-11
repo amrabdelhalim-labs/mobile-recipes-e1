@@ -1,4 +1,4 @@
-# دليل سريع للمفاهيم الأساسية
+﻿# دليل سريع للمفاهيم الأساسية
 
 ## 📚 المفاهيم المستخدمة في المشروع
 
@@ -49,8 +49,8 @@ router.post('/posts', isAuthenticated, validatePost, createPost);
 
 **مثال**:
 ```javascript
-// تسجيل الدخول
 const token = jwt.generate({ id: user.id, email: user.email });
+// تسجيل الدخول
 res.json({ token });
 
 // في الطلبات اللاحقة
@@ -67,8 +67,8 @@ headers: {
 
 **مثال**:
 ```javascript
-// بدون ORM (SQL)
 const user = await query('SELECT * FROM users WHERE id = ?', [userId]);
+// بدون ORM (SQL)
 
 // مع ORM
 const user = await User.findByPk(userId);
@@ -138,8 +138,8 @@ class S3Strategy implements StorageStrategy { ... }
 
 **الأساسية**:
 ```javascript
-// حالة
 const [count, setCount] = useState(0);
+// حالة
 
 // تأثير جانبي
 useEffect(() => {
@@ -157,8 +157,8 @@ const inputRef = useRef(null);
 
 **مثال**:
 ```javascript
-// إنشاء
 const AuthContext = createContext();
+// إنشاء
 
 // توفير
 <AuthContext.Provider value={{ user, logout }}>
@@ -240,8 +240,8 @@ const { photo, takePhoto } = usePhotoGallery();
 
 ### 1. **Async/Await**
 ```javascript
-// القديم (Promises)
 fetch('/api/posts')
+// القديم (Promises)
   .then(res => res.json())
   .then(data => console.log(data))
   .catch(err => console.error(err));
@@ -260,8 +260,8 @@ try {
 
 ### 2. **Destructuring**
 ```javascript
-// المصفوفات
 const [first, second] = [1, 2, 3];
+// المصفوفات
 
 // الكائنات
 const { name, age } = user;
@@ -276,8 +276,8 @@ function MyComponent({ title, onClose }) {
 
 ### 3. **Spread Operator**
 ```javascript
-// نسخ المصفوفة
 const newArray = [...oldArray, newItem];
+// نسخ المصفوفة
 
 // نسخ الكائن
 const newUser = { ...user, name: 'أحمد' };
@@ -290,8 +290,8 @@ const merged = { ...obj1, ...obj2 };
 
 ### 4. **Optional Chaining**
 ```javascript
-// بدلاً من
 if (user && user.profile && user.profile.image) {
+// بدلاً من
   console.log(user.profile.image);
 }
 
@@ -303,8 +303,8 @@ console.log(user?.profile?.image);
 
 ### 5. **Nullish Coalescing**
 ```javascript
-// بدلاً من
 const name = user.name || 'افتراضي';  // ❌ يعتبر '' و 0 كـ false
+// بدلاً من
 
 // استخدم
 const name = user.name ?? 'افتراضي';  // ✅ فقط null أو undefined
@@ -314,11 +314,11 @@ const name = user.name ?? 'افتراضي';  // ✅ فقط null أو undefined
 
 ### 6. **Template Literals**
 ```javascript
+const message = 'مرحباً ' + name + ', عمرك ' + age;
 // بدلاً من
-const message = 'مرحباً ' + name + '، عمرك ' + age;
 
 // استخدم
-const message = `مرحباً ${name}، عمرك ${age}`;
+const message = `مرحباً ${name}, عمرك ${age}`;
 ```
 
 ---
@@ -327,8 +327,8 @@ const message = `مرحباً ${name}، عمرك ${age}`;
 
 ### 1. **Hash Password**
 ```javascript
-// ❌ لا تخزن كلمات المرور مباشرة
 user.password = '123456';
+// ❌ لا تخزن كلمات المرور مباشرة
 
 // ✅ استخدم hashing
 const hashedPassword = await bcrypt.hash(password, 10);
@@ -338,8 +338,8 @@ const hashedPassword = await bcrypt.hash(password, 10);
 
 ### 2. **Environment Variables**
 ```javascript
-// ❌ لا تكتب المعلومات الحساسة في الكود
 const secret = 'my-secret-key-123';
+// ❌ لا تكتب المعلومات الحساسة في الكود
 
 // ✅ استخدم .env
 const secret = process.env.JWT_SECRET;
@@ -349,8 +349,8 @@ const secret = process.env.JWT_SECRET;
 
 ### 3. **Input Validation**
 ```javascript
-// ✅ تحقق دائماً من المدخلات
 if (!title || typeof title !== 'string' || !title.trim()) {
+// ✅ تحقق دائماً من المدخلات
   return res.status(400).json({ message: 'العنوان مطلوب' });
 }
 ```
@@ -359,8 +359,8 @@ if (!title || typeof title !== 'string' || !title.trim()) {
 
 ### 4. **SQL Injection Prevention**
 ```javascript
-// ❌ لا تستخدم string concatenation
 const query = `SELECT * FROM users WHERE id = ${userId}`;
+// ❌ لا تستخدم string concatenation
 
 // ✅ استخدم Parameterized Queries أو ORM
 const user = await User.findByPk(userId);
@@ -386,8 +386,8 @@ const user = await User.findByPk(userId);
 
 ### 1. **DRY (Don't Repeat Yourself)**
 ```javascript
-// ❌ تكرار
 const user1 = await User.findByPk(1);
+// ❌ تكرار
 const user2 = await User.findByPk(2);
 
 // ✅ دالة
@@ -400,8 +400,8 @@ const user2 = await getUser(2);
 
 ### 2. **Single Responsibility**
 ```javascript
-// ❌ دالة تفعل كل شيء
 function createAndUploadPost(data, files) {
+// ❌ دالة تفعل كل شيء
   // إنشاء منشور
   // رفع صور
   // إرسال إشعارات
@@ -418,8 +418,8 @@ function sendNotifications(users) { ... }
 
 ### 3. **Error Handling**
 ```javascript
-// ❌ بدون معالجة أخطاء
 const user = await User.findByPk(userId);
+// ❌ بدون معالجة أخطاء
 res.json(user);
 
 // ✅ مع معالجة

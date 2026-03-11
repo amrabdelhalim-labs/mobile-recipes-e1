@@ -54,7 +54,7 @@
 
 ## 📁 هيكل المشروع
 
-```
+```text
 mobile-recipes-e1/
 ├── server/                      # Node.js REST API
 │   ├── app.js                   # نقطة دخول Express
@@ -232,8 +232,8 @@ AWS_S3_FOLDER=uploads/images
 ## 🧪 تشغيل الاختبارات
 
 ```bash
-# من مجلد server/
 npm run test:all   # جميع اختبارات الخادم
+# من مجلد server/
 
 # من مجلد app/
 npm run test       # وضع المراقبة (التطوير)

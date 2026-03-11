@@ -20,10 +20,10 @@
 
 ### سيناريو: بدون Repository Pattern
 
-```
-مثال واقعي - تسجيل دخول مستخدم
-
+```text
 Controllers:
+
+مثال واقعي - تسجيل دخول مستخدم
 ├── user.controller.js
 │   ├── ❌ رمز Sequelize معقد مختلط
 │   ├── ❌ معالجة البيانات والتحقق في نفس المكان
@@ -90,13 +90,13 @@ export const login = async (req, res) => {
 
 ### مع Repository Pattern
 
-```
-المعمارية الصحيحة:
-
+```text
 Controllers (منطق العمل فقط)
-    ↓ يستخدم
+
+المعمارية الصحيحة:
+  // يستخدم
 Repositories (وصول للبيانات)
-    ↓ يستخدم
+  // يستخدم
 Database (Sequelize)
 ```
 
@@ -162,8 +162,8 @@ export const login = async (req, res) => {
 
 **بدون Repository:**
 ```javascript
-// ❌ كود معقد وطويل
 const register = async (req, res) => {
+// ❌ كود معقد وطويل
   const { name, email, password } = req.body;
 
   // تحقق من البريد موجود؟
@@ -188,8 +188,8 @@ const register = async (req, res) => {
 
 **مع Repository:**
 ```javascript
-// ✅ كود بسيط وواضح
 const register = async (req, res) => {
+// ✅ كود بسيط وواضح
   const { name, email, password } = req.body;
 
   // تحقق من البريد موجود؟
@@ -216,8 +216,8 @@ const register = async (req, res) => {
 
 **بدون Repository:**
 ```javascript
-// ❌ كود معقد
 const getMyPosts = async (req, res) => {
+// ❌ كود معقد
   const { page, limit } = req.query;
   const userId = req.currentUser.id;
   const offset = (page - 1) * limit;
@@ -267,8 +267,8 @@ const getMyPosts = async (req, res) => {
 
 **مع Repository:**
 ```javascript
-// ✅ كود بسيط جداً
 const getMyPosts = async (req, res) => {
+// ✅ كود بسيط جداً
   const { page = 1, limit = 10 } = req.query;
   const userId = req.currentUser.id;
 
@@ -292,8 +292,8 @@ const getMyPosts = async (req, res) => {
 
 **بدون Repository - صعب جداً:**
 ```javascript
-// ❌ يحتاج database فعلية
 describe('Auth Controller', () => {
+// ❌ يحتاج database فعلية
   it('should login user', async () => {
     // إنشاء مستخدم حقيقي في DB
     await User.create({
@@ -314,8 +314,8 @@ describe('Auth Controller', () => {
 
 **مع Repository - سهل جداً:**
 ```javascript
-// ✅ يمكن عمل Mock بسهولة
 describe('Auth Controller', () => {
+// ✅ يمكن عمل Mock بسهولة
   it('should login user', async () => {
     // Mock Repository
     repositories.user.findByEmailWithRelations = jest.fn()
@@ -344,8 +344,8 @@ describe('Auth Controller', () => {
 #### 1. UserRepository
 
 ```javascript
-// الشروحات الأساسية
 repositories.user.findAll()                      // جميع المستخدمين
+// الشروحات الأساسية
 repositories.user.findByEmail('test@email.com') // بحث برسالة
 repositories.user.emailExists('test@email.com') // تحقق من وجود البريد
 repositories.user.findWithPosts(1, 10)          // المستخدم مع منشوراته
@@ -391,7 +391,7 @@ repositories.like.countByPost(postId)          // عدد الإعجابات
 ## الفوائد الحقيقية
 
 ### 1. **Maintainability - سهولة الصيانة**
-```
+```text
 مثال: تغيير طريقة البحث
 - بدون Repository: تغيير 5-10 Controllers
 - مع Repository: تغيير 1 Repository فقط!
@@ -399,8 +399,8 @@ repositories.like.countByPost(postId)          // عدد الإعجابات
 
 ### 2. **Testability - سهولة الاختبار**
 ```javascript
-// اختبار Controller بدون الاحتياج لـ Database
 jest.mock('../repositories', () => ({
+// اختبار Controller بدون الاحتياج لـ Database
   user: {
     findByEmail: jest.fn().mockResolvedValue({ id: 1 })
   }
@@ -409,8 +409,8 @@ jest.mock('../repositories', () => ({
 
 ### 3. **Readability - وضوح الكود**
 ```javascript
-// بدلاً من:
 const user = await User.findOne({ where: { email }, include: [...] });
+// بدلاً من:
 
 // اكتب:
 const user = await repositories.user.findByEmail(email);
@@ -419,8 +419,8 @@ const user = await repositories.user.findByEmail(email);
 
 ### 4. **DRY - عدم تكرار الكود**
 ```javascript
-// استخدم نفس العملية في أماكن مختلفة:
 - Controller
+// استخدم نفس العملية في أماكن مختلفة:
 - Middleware
 - Scheduled Jobs
 - API Integration

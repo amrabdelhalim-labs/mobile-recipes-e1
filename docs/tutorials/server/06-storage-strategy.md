@@ -67,7 +67,7 @@ const isHealthy = await strategy.healthCheck();
 
 ## 🏗️ البنية
 
-```
+```text
 LocalStorageStrategy
 ├── constructor() - الإعداد الأولي
 ├── _ensureDirectoryExists() - إنشاء المجلد إذا لم يوجد
@@ -105,15 +105,15 @@ await storage.deleteFile(result.url);
 
 ## 🔗 العلاقة مع الملفات الأخرى
 
-```
+```text
 files.js (Multer)
-    ↓ يرفع الملف للذاكرة
+  // يرفع الملف للذاكرة
 getStorageService()
-    ↓ يحصل على النسخة
+  // يحصل على النسخة
 StorageService
-    ↓ يختار الاستراتيجية
+  // يختار الاستراتيجية
 LocalStorageStrategy
-    ↓ يحفظ على القرص
+  // يحفظ على القرص
 server/public/images/
 ```
 

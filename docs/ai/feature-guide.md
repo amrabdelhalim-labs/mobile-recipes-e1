@@ -501,8 +501,8 @@ function PostDetailPage({ postId }: { postId: number }) {
 ### Pre-Commit Check
 
 ```bash
-# 1. اختبارات الخادم
 cd server && npm run test:all
+# 1. اختبارات الخادم
 
 # 2. اختبارات التطبيق
 cd app && npm test

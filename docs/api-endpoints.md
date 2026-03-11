@@ -12,7 +12,7 @@
 
 ### تسجيل مستخدم جديد
 
-```
+```http
 POST /account/register
 Content-Type: application/json
 ```
@@ -43,7 +43,7 @@ Content-Type: application/json
 
 ### تسجيل الدخول
 
-```
+```http
 POST /account/login
 Content-Type: application/json
 ```
@@ -73,7 +73,7 @@ Content-Type: application/json
 
 ### عرض جميع المنشورات (عام)
 
-```
+```http
 GET /posts
 ```
 
@@ -97,7 +97,7 @@ GET /posts
 
 ### إنشاء منشور 🔒
 
-```
+```http
 POST /posts
 Authorization: Bearer JWT_TOKEN
 Content-Type: multipart/form-data
@@ -119,7 +119,7 @@ Content-Type: multipart/form-data
 
 ### تحديث منشور 🔒 (المالك فقط)
 
-```
+```http
 PUT /posts/:id
 Authorization: Bearer JWT_TOKEN
 Content-Type: application/json
@@ -140,7 +140,7 @@ Content-Type: application/json
 
 ### حذف منشور 🔒 (المالك فقط)
 
-```
+```http
 DELETE /posts/:id
 Authorization: Bearer JWT_TOKEN
 ```
@@ -153,7 +153,7 @@ Authorization: Bearer JWT_TOKEN
 
 ### عرض تعليقات منشور
 
-```
+```http
 GET /posts/:postId/comments
 ```
 
@@ -177,7 +177,7 @@ GET /posts/:postId/comments
 
 ### إضافة تعليق 🔒
 
-```
+```http
 POST /posts/:postId/comments
 Authorization: Bearer JWT_TOKEN
 Content-Type: application/json
@@ -197,7 +197,7 @@ Content-Type: application/json
 
 ### تحديث تعليق 🔒 (المالك فقط)
 
-```
+```http
 PUT /comments/:id
 Authorization: Bearer JWT_TOKEN
 Content-Type: application/json
@@ -217,7 +217,7 @@ Content-Type: application/json
 
 ### حذف تعليق 🔒 (المالك فقط)
 
-```
+```http
 DELETE /comments/:id
 Authorization: Bearer JWT_TOKEN
 ```
@@ -230,7 +230,7 @@ Authorization: Bearer JWT_TOKEN
 
 ### عدد الإعجابات
 
-```
+```http
 GET /posts/:postId/likes
 ```
 
@@ -248,7 +248,7 @@ GET /posts/:postId/likes
 
 ### تبديل الإعجاب 🔒
 
-```
+```http
 POST /posts/:postId/like
 Authorization: Bearer JWT_TOKEN
 ```

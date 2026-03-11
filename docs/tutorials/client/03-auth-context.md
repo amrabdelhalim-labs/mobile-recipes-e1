@@ -207,8 +207,8 @@ const getProfileImageUrl = useCallback((imageUrl?: string | null): string => {
 #### **المنطق**:
 
 ```tsx
-// 1. إذا لا توجد صورة
 if (!imageUrl) return '';
+// 1. إذا لا توجد صورة
 
 // 2. إذا كانت URL كامل
 if (imageUrl.startsWith('http')) 
@@ -256,8 +256,8 @@ const fetchProfile = useCallback(async () => {
 
 **مثال**:
 ```tsx
-// في صفحة Profile
 const { fetchProfile } = useContext(AuthContext);
+// في صفحة Profile
 
 const handleUpdateProfile = async () => {
   await api.put('/users/profile', updatedData);
@@ -491,10 +491,10 @@ const ProfilePage = () => {
 
 ## 🔄 تدفق تسجيل الدخول الكامل
 
-```
-1. المستخدم يكتب email و password
-   ↓
+```text
 2. POST /api/auth/login
+   ↓
+1. المستخدم يكتب email و password
    ↓
 3. الخادم يرجع { token: "..." }
    ↓

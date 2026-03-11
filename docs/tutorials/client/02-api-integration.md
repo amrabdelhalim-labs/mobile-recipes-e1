@@ -17,8 +17,8 @@
 ### ❌ بدون تنظيم:
 
 ```typescript
-// في كل صفحة نكتب الرابط يدوياً... 😫
 const res1 = await axios.get('http://localhost:3000/posts');
+// في كل صفحة نكتب الرابط يدوياً... 😫
 const res2 = await axios.get('http://localhost:3000/posts/5');
 const res3 = await axios.post('http://localhost:3000/posts/create', data);
 
@@ -31,8 +31,8 @@ const res3 = await axios.post('http://localhost:3000/posts/create', data);
 ### ✅ بتنظيم:
 
 ```typescript
-// نستورد من مكان واحد
 import api from '../config/axios';        // Axios مُجهّز مع Token
+// نستورد من مكان واحد
 import { GET_ALL_POSTS } from '../config/urls'; // الرابط كثابت
 
 const res = await api.get(GET_ALL_POSTS);
@@ -95,7 +95,7 @@ export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 | `\|\| 'http://localhost:3000'` | القيمة الافتراضية للتطوير المحلي |
 
 **مثال** ملف `.env`:
-```
+```text
 VITE_API_URL=https://api.myapp.com
 ```
 
@@ -125,8 +125,8 @@ export const GET_POST_BY_ID = (id: string | number) => `posts/${id}`;
 لأن المسار يحتاج معرّف يتغيّر:
 
 ```typescript
-// استخدام:
 GET_POST_BY_ID(5)    // → 'posts/5'
+// استخدام:
 GET_POST_BY_ID('42') // → 'posts/42'
 DELETE_POST(10)      // → 'posts/10'
 ADD_COMMENT(3)       // → 'comments/3'
@@ -201,8 +201,8 @@ const api = axios.create({
 **لماذا `axios.create()` وليس `axios` مباشرة؟**
 
 ```typescript
-// ❌ الاستخدام المباشر — يؤثر على كل الطلبات في التطبيق
 axios.defaults.baseURL = 'http://localhost:3000';
+// ❌ الاستخدام المباشر — يؤثر على كل الطلبات في التطبيق
 
 // ✅ مثيل مخصص — إعدادات منفصلة لكل API
 const api = axios.create({ baseURL: 'http://localhost:3000' });
@@ -227,18 +227,18 @@ api.interceptors.request.use(
 
 هو وسيط يعمل **قبل** إرسال كل طلب:
 
-```
-المكوّن يُرسل طلب → [Interceptor يضيف Token] → الطلب يُرسل للسيرفر
+```text
+المكوّن يُرسل طلب → [Interceptor يضيف Token]  // الطلب يُرسل للسيرفر
 ```
 
 **التدفق**:
-```
-1. المكون: api.get('posts')
-   ↓
+```text
 2. Interceptor: هل يوجد Token مخزّن؟
    ↓
+1. المكون: api.get('posts')
+   ↓
 3. نعم → config.headers.Authorization = 'Bearer eyJ...'
-   لا  → لا شيء (الطلب يُرسل بدون Token)
+   لا  // لا شيء (الطلب يُرسل بدون Token)
    ↓
 4. الطلب يُرسل للسيرفر
 ```
@@ -320,8 +320,8 @@ export interface PostsResponse {
 الاسم في العميل **يجب** أن يطابق اسم الحقل في استجابة السيرفر:
 
 ```typescript
-// السيرفر: posts.model.js
 Post.hasMany(Post_Image, { as: 'images' });
+// السيرفر: posts.model.js
 //                          ↑ الاسم المستعار
 
 // العميل: post.types.ts
@@ -335,9 +335,9 @@ export interface Post {
 #### 2️⃣ **التمييز بين Post و PostDetail**
 
 ```typescript
-// ─── قائمة المنشورات (getAllPosts) ───
-// التعليقات تكون مراجع فقط (عدد)
 Comments: PostCommentRef[]  // [{ id: 1 }, { id: 2 }]
+// التعليقات تكون مراجع فقط (عدد)
+// ─── قائمة المنشورات (getAllPosts) ───
 
 // ─── منشور واحد (getPostById) ───
 // التعليقات تكون كاملة مع بيانات المستخدم
@@ -365,8 +365,8 @@ export type PostSteps = string[] | RawDraftContentState;
 | `RawDraftContentState` | `{ blocks: [...], entityMap: {} }` | محرر النصوص الغني (Draft.js) |
 
 ```typescript
-// التحقق من النوع:
 if (Array.isArray(steps)) {
+// التحقق من النوع:
     // النوع القديم: مصفوفة نصوص
     steps.forEach(step => console.log(step));
 } else {
@@ -379,9 +379,9 @@ if (Array.isArray(steps)) {
 
 ## 🔄 تدفق طلب API كامل
 
-```
-1. المكون يستدعي:
+```text
    const { data } = await api.get(GET_ALL_POSTS);
+1. المكون يستدعي:
    ↓
 2. urls.ts يُرجع المسار:
    GET_ALL_POSTS = 'posts'
@@ -390,7 +390,7 @@ if (Array.isArray(steps)) {
    GET http://localhost:3000/posts
    Headers: {
      Content-Type: application/json,
-     Authorization: Bearer eyJ...   ← من Interceptor
+     Authorization: Bearer eyJ...  // من Interceptor
    }
    ↓
 4. السيرفر يرد:

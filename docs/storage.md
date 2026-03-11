@@ -1,4 +1,4 @@
-# خدمة التخزين - الدليل الشامل
+﻿# خدمة التخزين - الدليل الشامل
 
 ## 📋 نظرة عامة
 
@@ -22,7 +22,7 @@
 
 ## 📁 هيكل الملفات
 
-```
+```text
 server/
 ├── services/
 │   └── storage/
@@ -45,8 +45,8 @@ server/
 اضبط `STORAGE_TYPE` لاختيار موفر التخزين:
 
 ```bash
-# ملف .env
 STORAGE_TYPE=local  # الخيارات: 'local' | 'cloudinary' | 's3'
+# ملف .env
 ```
 
 ### التخزين المحلي (الافتراضي)
@@ -55,8 +55,8 @@ STORAGE_TYPE=local  # الخيارات: 'local' | 'cloudinary' | 's3'
 
 ```bash
 STORAGE_TYPE=local
-LOCAL_UPLOADS_DIR=               # اختياري، افتراضياً server/public/images
-LOCAL_BASE_URL=/images           # اختياري، مسار URL لتقديم الملفات
+LOCAL_UPLOADS_DIR=               # اختياري, افتراضياً server/public/images
+LOCAL_BASE_URL=/images           # اختياري, مسار URL لتقديم الملفات
 ```
 
 **المزايا:**
@@ -78,7 +78,7 @@ STORAGE_TYPE=cloudinary
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
-CLOUDINARY_FOLDER=mobile-recipes  # اختياري، لتنظيم الملفات
+CLOUDINARY_FOLDER=mobile-recipes  # اختياري, لتنظيم الملفات
 ```
 
 **أو عبر Heroku addon** (الأسهل للنشر):
@@ -125,7 +125,7 @@ AWS_S3_BUCKET=your-bucket-name
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=your_access_key_id
 AWS_SECRET_ACCESS_KEY=your_secret_access_key
-AWS_S3_FOLDER=uploads/images     # اختياري، بادئة لمفاتيح الكائنات
+AWS_S3_FOLDER=uploads/images     # اختياري, بادئة لمفاتيح الكائنات
 ```
 
 **خطوات الإعداد:**
@@ -339,8 +339,8 @@ heroku config:set CORS_ORIGINS=https://yourapp.com,http://localhost:5173
 يمكنك التبديل بين الاستراتيجيات دون تغيير الكود:
 
 ```bash
-# اختبار مع التخزين المحلي
 export STORAGE_TYPE=local
+# اختبار مع التخزين المحلي
 npm run dev
 
 # اختبار مع Cloudinary

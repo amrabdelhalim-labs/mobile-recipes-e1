@@ -76,14 +76,14 @@ const sequelize = process.env.DATABASE_URL
 يدعم **طريقتين** للاتصال بقاعدة البيانات:
 
 #### **الطريقة الأولى**: رابط واحد (`DATABASE_URL`)
-```
+```text
 DATABASE_URL=postgres://user:password@host:5432/database_name
 ```
 - **متى؟** في الإنتاج (Production) مثل Heroku أو Railway
 - **الميزة**: رابط واحد يحتوي على كل المعلومات
 
 #### **الطريقة الثانية**: معلومات منفصلة
-```
+```text
 DB_NAME=recipes_db
 DB_USER=postgres
 DB_PASS=mypassword
@@ -221,12 +221,12 @@ import { db } from './utilities/database.js';
 
 ## 🔄 كيف يعمل الاتصال؟
 
-```
+```text
 1. قراءة المتغيرات من .env
    ↓
 2. هل DATABASE_URL موجود؟
-   ├─ نعم → استخدم الطريقة الأولى (مع SSL)
-   └─ لا → استخدم الطريقة الثانية (معلومات منفصلة)
+   ├─ نعم  // استخدم الطريقة الأولى (مع SSL)
+   └─ لا  // استخدم الطريقة الثانية (معلومات منفصلة)
    ↓
 3. إنشاء كائن Sequelize
    ↓
@@ -320,7 +320,7 @@ new Sequelize(DATABASE_URL, {
 
 ### 4. **ماذا لو نسيت إضافة معلومات قاعدة البيانات في `.env`؟**
 سيظهر خطأ:
-```
+```text
 SequelizeConnectionError: password authentication failed
 ```
 

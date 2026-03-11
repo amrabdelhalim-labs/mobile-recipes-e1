@@ -115,8 +115,8 @@ source: CameraSource
 
 **مثال**:
 ```typescript
-// فتح الكاميرا
 await takePhoto(CameraSource.Camera);
+// فتح الكاميرا
 
 // فتح المعرض
 await takePhoto(CameraSource.Photos);

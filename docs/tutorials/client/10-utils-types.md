@@ -8,7 +8,7 @@
 
 ### 1.1 المشكلة التي يحلها
 
-```
+```text
 المستخدم يحذف وصفة في MyPosts
          ↓
 كيف تعرف AllPosts أنها بحاجة للتحديث؟
@@ -50,8 +50,8 @@ export const onPostsChanged = (handler: () => void) => {
 - `return () => window.removeEventListener(...)` ← تُرجع دالة تنظيف!
 
 ```typescript
-// في AllPosts.tsx:
 useEffect(() => {
+// في AllPosts.tsx:
   return onPostsChanged(() => {
     fetchPosts(1, true);
   });
@@ -61,14 +61,14 @@ useEffect(() => {
 
 ### 1.4 ماذا يحدث عند إطلاق الحدث؟
 
-```
-المستخدم يحذف وصفة في MyPosts
-         ↓
+```text
 emitPostsChanged()
+         ↓
+المستخدم يحذف وصفة في MyPosts
          ↓
 window يُطلق 'posts:changed'
          ↓ (لحظي — بدون انتظار)
-AllPosts لها مستمع → تستدعي fetchPosts(1, true)
+AllPosts لها مستمع  // تستدعي fetchPosts(1, true)
          ↓
 القائمة تتحدث بدون أي تواصل مباشر بين الصفحتين
 ```
@@ -78,8 +78,8 @@ AllPosts لها مستمع → تستدعي fetchPosts(1, true)
 ## 2. أنواع TypeScript — `types/user.types.ts`
 
 ```typescript
-/** بيانات المستخدم الكاملة (بدون كلمة المرور) */
 export interface UserProfile {
+/** بيانات المستخدم الكاملة (بدون كلمة المرور) */
   id: number;
   name: string;
   email: string;
@@ -91,8 +91,8 @@ export interface UserProfile {
 `interface` = تعريف شكل كائن في TypeScript — مثل "قالب" يجب أن يتبعه أي كائن.
 
 ```typescript
-/** بيانات المستخدم المختصرة (تُستخدم في المنشورات والتعليقات) */
 export interface UserBasic {
+/** بيانات المستخدم المختصرة (تُستخدم في المنشورات والتعليقات) */
   id: number;
   name: string;
   ImageUrl: string;
@@ -103,8 +103,8 @@ export interface UserBasic {
 ### 2.1 أين تُستخدم الأنواع؟
 
 ```typescript
-// في AuthContext.tsx:
 const [user, setUser] = useState<UserProfile | null>(null);
+// في AuthContext.tsx:
 
 // في PostCard.tsx:
 const { getProfileImageUrl } = useContext<AuthContextType>(AuthContext);
@@ -142,7 +142,7 @@ root.render(<App />);          // تثبيت التطبيق
 
 ## 5. علاقة الملفات ببعضها
 
-```
+```text
 utils/postsEvents.ts ←─── AllPosts.tsx (يستمع لـ onPostsChanged)
                     ←─── MyPosts.tsx (يُطلق emitPostsChanged)
                     ←─── Like.tsx (يُطلق emitPostsChanged)

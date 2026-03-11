@@ -36,14 +36,14 @@
 
 وصفاتي تدعم **صوراً متعددة لكل وصفة** (جدول `post_images`). كل وصفة قد تحتوي على 1-10 صور. المتحكم يستدعي `uploadFiles(req.files)` مرة واحدة لرفع كل الصور معاً.
 
-```
-نشر وصفة جديدة برفع 3 صور
-         ↓
+```text
 post.controller → storage.uploadFiles([img1, img2, img3])
+         ↓
+نشر وصفة جديدة برفع 3 صور
          ↓ (Cloudinary: رفع 3 ملفات متوازية بـ Promise.all)
 Results: [{url1, publicId1}, {url2, publicId2}, {url3, publicId3}]
          ↓
-postImages.repository.createMany([...])  ← حفظ جميع الروابط
+postImages.repository.createMany([...])  // حفظ جميع الروابط
 ```
 
 ---
@@ -91,13 +91,13 @@ async _ensureInitialized() {
 ```
 
 **مشاركة الـ Promise:**
-```
-الخادم يبدأ → _initPromise = _initializeCloudinary() (غير منتهية بعد)
-         ↓
-طلب 1 يصل → _ensureInitialized() ← ينتظر نفس _initPromise
-طلب 2 يصل → _ensureInitialized() ← ينتظر نفس _initPromise
-         ↓
+```text
 Cloudinary ينتهي من التهيئة
+         ↓
+طلب 1 يصل → _ensureInitialized()  // ينتظر نفس _initPromise
+طلب 2 يصل → _ensureInitialized()  // ينتظر نفس _initPromise
+         ↓
+الخادم يبدأ → _initPromise = _initializeCloudinary() (غير منتهية بعد)
          ↓
 طلب 1 وطلب 2 يستمران معاً ✅ (لا تهيئة مزدوجة)
 ```
@@ -165,12 +165,12 @@ _extractPublicId(urlOrId) {
 ```
 
 مثال:
-```
+```text
 https://res.cloudinary.com/mycloud/image/upload/v1735/mobile-recipes/photo.jpg
                                                         ↑ uploadIndex
 → slice(uploadIndex + 2) = ['mobile-recipes', 'photo.jpg']
 → join('/') = 'mobile-recipes/photo.jpg'
-→ حذف الامتداد = 'mobile-recipes/photo'  ← publicId لـ API
+  // حذف الامتداد = 'mobile-recipes/photo'  ← publicId لـ API
 ```
 
 عند **تعديل الوصفة** في المتحكم:
@@ -259,19 +259,19 @@ function createStorageStrategy() {
 
 ## 6. رحلة رفع صور الوصفة من البداية للنهاية
 
-```
-المستخدم يرفع وصفة بـ 3 صور
-         ↓
+```text
 POST /posts/
+         ↓
+المستخدم يرفع وصفة بـ 3 صور
 req.files = [img1, img2, img3]  (Multer: memoryStorage)
          ↓
-validator.newPost  ← يتحقق من title, content, location...
+validator.newPost  // يتحقق من title, content, location...
          ↓ (نجح)
-validateRequest  ← لا أخطاء → next()
+validateRequest  // لا أخطاء → next()
          ↓
 post.controller.createPost()
   1. posts.repository.create({ title, content, location, userId })
-  2. storage.uploadFiles([img1, img2, img3])  ← رفع الصور للسحابة
+  2. storage.uploadFiles([img1, img2, img3])  // رفع الصور للسحابة
   3. postImages.repository.createMany([{url1}, {url2}, {url3}])
          ↓
 { id: 42, title: "...", images: [{url: "https://res.cloudinary.com/..."}, ...] }

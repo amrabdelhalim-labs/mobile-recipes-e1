@@ -15,8 +15,8 @@ import { repositories } from '../repositories/index.js';
 ## عمليات المستخدم (User)
 
 ```javascript
-// البحث
 await repositories.user.findByPk(1)              // معرّف
+// البحث
 await repositories.user.findByEmail('test@example.com')
 await repositories.user.findAll()                // الكل
 await repositories.user.findWithPosts(1, 10)     // مع المنشورات
@@ -46,8 +46,8 @@ await repositories.user.exists(1)
 ## عمليات المنشورات (Post)
 
 ```javascript
-// البحث
 await repositories.post.findAll({ limit: 10 })
+// البحث
 await repositories.post.findByPk(1)
 await repositories.post.findWithDetails(1)      // مع جميع العلاقات
 await repositories.post.findByUser(userId, 1, 10)
@@ -89,8 +89,8 @@ await repositories.post.findTrending(10)
 ## عمليات التعليقات (Comment)
 
 ```javascript
-// البحث
 await repositories.comment.findByPost(postId, 1, 20)
+// البحث
 await repositories.comment.findByUser(userId, 1, 20)
 await repositories.comment.findByPk(1)
 
@@ -112,8 +112,8 @@ await repositories.comment.countByPost(postId)
 ## عمليات الإعجابات (Like)
 
 ```javascript
-// البحث
 await repositories.like.findByPost(postId, 1, 20)    // من يحب؟
+// البحث
 await repositories.like.findByUser(userId, 1, 20)   // ماذا يحب؟
 await repositories.like.findUserLike(userId, postId)
 
@@ -134,8 +134,8 @@ await repositories.like.getTopPosts(10)
 ## عمليات صور المنشورات (PostImage)
 
 ```javascript
-// البحث
 await repositories.postImage.findByPost(postId)
+// البحث
 
 // الإنشاء
 await repositories.postImage.create({ imageUrl, PostId })

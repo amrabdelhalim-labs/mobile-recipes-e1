@@ -10,16 +10,16 @@
 
 تخيّل مبنى فيه عدة شبابيك خدمة:
 
-```
+```text
 الزبون يأتي للباب الرئيسي (URL: /posts/create)
          ↓
 الحارس (Router) يقرأ التذكرة (HTTP Method: POST)
          ↓
-يرسله لشباك الوصفات (post.routes.js) → غرفة 3 (controller.newPost)
+يرسله لشباك الوصفات (post.routes.js)  // غرفة 3 (controller.newPost)
 ```
 
 في الكود:
-```
+```text
 HTTP Request  →  app.js (الباب الرئيسي)
                    ↓ router.use('/posts', postRouter)
              post.routes.js (شباك الوصفات)
@@ -106,14 +106,14 @@ router.post('/register', validator.register, validateRequest, controller.registe
 
 الطلب يمرّ عبر **سلسلة من الوسائط** بهذا الترتيب:
 
-```
+```http
 POST /account/register
         ↓
-validator.register       ← يُعرِّف قواعد التحقق (هل email صحيح؟ هل name ≥ 3 أحرف؟)
+validator.register  // يُعرِّف قواعد التحقق (هل email صحيح؟ هل name ≥ 3 أحرف؟)
         ↓
-validateRequest          ← يُنفِّذ التحقق ويُرسل 400 إذا فشل
+validateRequest  // يُنفِّذ التحقق ويُرسل 400 إذا فشل
         ↓
-controller.register      ← يُكمل العملية (hash + save + response)
+controller.register  // يُكمل العملية (hash + save + response)
 ```
 
 **لماذا الترتيب مهم؟**
@@ -147,12 +147,12 @@ router.put(
 ```
 
 ثلاثة وسائط قبل المتحكم:
-```
-isAuthenticated    ← هل مسجل دخول؟
+```text
+isAuthenticated  // هل مسجل دخول؟
        ↓
-upload.single('profileImage')  ← يستقبل ملفاً واحداً باسم الحقل 'profileImage'
+upload.single('profileImage')  // يستقبل ملفاً واحداً باسم الحقل 'profileImage'
        ↓
-controller.updateImage  ← يجد الملف في req.file
+controller.updateImage  // يجد الملف في req.file
 ```
 
 ### إعادة الصورة الافتراضية:
@@ -293,9 +293,9 @@ export default router;
 
 ## 7. خريطة جميع المسارات
 
-```
-الخادم (app.js)
+```text
 └── /api (routes/index.js)
+الخادم (app.js)
     ├── /account (user.routes.js)
     │   ├── POST   /register      ← validator + controller
     │   ├── POST   /login         ← validator + controller

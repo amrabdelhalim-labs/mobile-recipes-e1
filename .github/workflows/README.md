@@ -51,7 +51,7 @@
 4. احفظ التغييرات
 
 سيكون الموقع متاحاً على:
-```
+```text
 https://[username].github.io/mobile-recipes-e1/
 ```
 
@@ -76,6 +76,6 @@ VITE_API_URL=http://localhost:3000
 | خطأ `not a git repository` | المنطق الحالي يحافظ على `.git` أثناء الحذف |
 
 راجع سجلات الـ Actions في:
-```
+```text
 Repository → Actions → Build & Deploy
 ```

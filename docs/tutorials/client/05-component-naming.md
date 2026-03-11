@@ -1,4 +1,4 @@
-# شرح هندسة المكونات وتسمية الملفات (Component Architecture)
+﻿# شرح هندسة المكونات وتسمية الملفات (Component Architecture)
 
 ## 📋 نظرة عامة
 
@@ -10,16 +10,16 @@
 
 ### ❌ التسمية السيئة (بادئة فعل):
 
-```
+```text
 components/
   Comment/
-    GetComment.tsx      ← فعل! (اجلب) — يبدو كدالة وليس مكوّن
-    CreateComment.tsx    ← فعل! (أنشئ) — غير واضح الغرض
+    GetComment.tsx  // فعل! (اجلب) — يبدو كدالة وليس مكوّن
+    CreateComment.tsx  // فعل! (أنشئ) — غير واضح الغرض
   Location/
-    GetLocation.tsx      ← فعل! (اجلب) — أي موقع؟
+    GetLocation.tsx  // فعل! (اجلب) — أي موقع؟
 
 pages/
-    GetPost.tsx          ← فعل! — هل هي صفحة أم دالة؟
+    GetPost.tsx  // فعل! — هل هي صفحة أم دالة؟
 ```
 
 **المشاكل**:
@@ -29,16 +29,16 @@ pages/
 
 ### ✅ التسمية الصحيحة (أسماء وصفية):
 
-```
+```text
 components/
   Comment/
-    CommentList.tsx      ← واضح: قائمة التعليقات
-    CommentForm.tsx      ← واضح: نموذج إضافة تعليق
+    CommentList.tsx  // واضح: قائمة التعليقات
+    CommentForm.tsx  // واضح: نموذج إضافة تعليق
   Location/
-    LocationPicker.tsx   ← واضح: أداة اختيار الموقع
+    LocationPicker.tsx  // واضح: أداة اختيار الموقع
 
 pages/
-    PostDetail.tsx       ← واضح: صفحة تفاصيل المنشور
+    PostDetail.tsx  // واضح: صفحة تفاصيل المنشور
 ```
 
 ---
@@ -47,7 +47,7 @@ pages/
 
 ### القاعدة 1: **PascalCase دائماً**
 
-```
+```text
 ✅ CommentList.tsx
 ✅ PostDetail.tsx
 ✅ LocationPicker.tsx
@@ -59,7 +59,7 @@ pages/
 
 ### القاعدة 2: **أسماء وصفية (Nouns) وليست أفعال**
 
-```
+```text
 ✅ CommentList    — "قائمة التعليقات" (ماذا يعرض)
 ❌ GetComment     — "اجلب التعليق" (ماذا يفعل)
 
@@ -88,8 +88,8 @@ pages/
 ### القاعدة 4: **المكوّن يطابق اسم الملف**
 
 ```typescript
-// الملف: CommentList.tsx
 const CommentList: React.FC<CommentListProps> = ({ ... }) => {
+// الملف: CommentList.tsx
 //    ↑ نفس اسم الملف
     return ( ... );
 };
@@ -100,8 +100,8 @@ export default CommentList;
 ### القاعدة 5: **الواجهات تتبع نمط `[ComponentName]Props`**
 
 ```typescript
-// ✅ صحيح
 interface CommentListProps { ... }
+// ✅ صحيح
 interface CommentFormProps { ... }
 interface LocationPickerProps { ... }
 
@@ -183,7 +183,7 @@ const CommentForm: React.FC<CommentFormProps> = ({ ... }) => {
 /**
  * مكون الموقع الجغرافي (LocationPicker)
  * ────────────────────────────────────
- * يستخدم Capacitor Geolocation API لجلب إحداثيات المستخدم الحالية،
+ * يستخدم Capacitor Geolocation API لجلب إحداثيات المستخدم الحالية,
  * ثم يستعلم من OpenStreetMap Nominatim API لتحويل الإحداثيات لأسماء.
  */
 interface LocationPickerProps {
@@ -206,8 +206,8 @@ const LocationPicker: FC<LocationPickerProps> = ({ ... }) => {
 **الملف**: `pages/PostDetail.tsx`
 
 ```typescript
-// ─── قبل ───
 const GetPost: React.FC = () => { ... };
+// ─── قبل ───
 
 // ─── بعد ───
 const PostDetailPage: React.FC = () => { ... };
@@ -221,40 +221,40 @@ const PostDetailPage: React.FC = () => { ... };
 
 ## 📂 هيكل المجلدات النموذجي
 
-```
+```text
 src/
-├── components/         ← مكونات قابلة لإعادة الاستخدام
+├── components/  // مكونات قابلة لإعادة الاستخدام
 │   ├── Comment/
 │   │   ├── Comment.css
-│   │   ├── CommentList.tsx    ← عرض قائمة التعليقات
-│   │   └── CommentForm.tsx    ← نموذج إضافة تعليق
+│   │   ├── CommentList.tsx  // عرض قائمة التعليقات
+│   │   └── CommentForm.tsx  // نموذج إضافة تعليق
 │   ├── Location/
-│   │   └── LocationPicker.tsx ← أداة اختيار الموقع
+│   │   └── LocationPicker.tsx  // أداة اختيار الموقع
 │   ├── PostCard/
 │   │   ├── PostCard.css
-│   │   └── PostCard.tsx       ← بطاقة منشور واحد
+│   │   └── PostCard.tsx  // بطاقة منشور واحد
 │   └── Menu/
-│       └── Menu.tsx           ← القائمة الجانبية
+│       └── Menu.tsx  // القائمة الجانبية
 │
-├── pages/              ← صفحات كاملة (مرتبطة بـ Routes)
-│   ├── AllPosts.tsx     ← صفحة جميع المنشورات
-│   ├── MyPosts.tsx      ← صفحة منشوراتي
-│   ├── PostDetail.tsx   ← صفحة تفاصيل منشور
+├── pages/  // صفحات كاملة (مرتبطة بـ Routes)
+│   ├── AllPosts.tsx  // صفحة جميع المنشورات
+│   ├── MyPosts.tsx  // صفحة منشوراتي
+│   ├── PostDetail.tsx  // صفحة تفاصيل منشور
 │   ├── CreatePost.tsx   ← ⚡ استثناء: Create هنا مقبول لأنها صفحة إنشاء
 │   └── UpdatePost.tsx   ← ⚡ استثناء: Update هنا مقبول لأنها صفحة تعديل
 │
 ├── hooks/              ← Custom Hooks
 │   └── usePhotoGallery.ts
 │
-├── config/             ← إعدادات
+├── config/  // إعدادات
 │   ├── axios.ts
 │   └── urls.ts
 │
-├── types/              ← واجهات TypeScript
+├── types/  // واجهات TypeScript
 │   ├── post.types.ts
 │   └── user.types.ts
 │
-└── utils/              ← دوال مساعدة
+└── utils/  // دوال مساعدة
     └── postsEvents.ts
 ```
 
@@ -265,8 +265,8 @@ src/
 عند إعادة تسمية ملف، يجب تحديث **جميع** الملفات التي تستورده:
 
 ```typescript
-// ─── قبل ───
 import GetComment from '../Comment/GetComment';
+// ─── قبل ───
 import CreateComment from '../Comment/CreateComment';
 import GetLocation from '../Location/GetLocation';
 
@@ -277,8 +277,8 @@ import LocationPicker from '../Location/LocationPicker';
 ```
 
 ```typescript
-// ─── قبل (في JSX) ───
 <GetComment comments={post.Comments} ... />
+// ─── قبل (في JSX) ───
 <CreateComment postId={post.id} ... />
 <GetLocation onLocationChange={handleLocation} />
 

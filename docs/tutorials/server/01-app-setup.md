@@ -328,7 +328,7 @@ catch (error) {
 
 ## 📊 ملخص تدفق التنفيذ
 
-```
+```text
 1. قراءة متغيرات البيئة (.env)
    ↓
 2. إنشاء تطبيق Express
@@ -359,7 +359,7 @@ catch (error) {
 npm run dev
 ```
 **الناتج**:
-```
+```text
 ✅ Database connection established successfully
 ✅ Database synced successfully
 🌐 CORS allowed origins: http://localhost:5173, http://localhost:8100
