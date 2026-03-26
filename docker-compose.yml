@@ -23,6 +23,7 @@ services:
     build:
       context: .
       dockerfile: docker/server.Dockerfile
+    restart: unless-stopped
     ports:
       - "3002:3000"
     environment:
@@ -45,6 +46,7 @@ services:
     build:
       context: .
       dockerfile: docker/app.Dockerfile
+    restart: unless-stopped
     ports:
       - "4173:4173"
     environment:
