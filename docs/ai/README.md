@@ -23,7 +23,7 @@
 | Architecture | Repository Pattern (JavaScript/Sequelize) + Storage Strategy Pattern |
 | Testing — server | Node.js (ESM, no framework) custom helpers |
 | Testing — client | Vitest + @testing-library/react |
-| Deployment | GitHub Pages (client) + Heroku/Railway (server) |
+| Deployment | GitHub Pages/Heroku + Docker delivery workflow |
 
 ---
 

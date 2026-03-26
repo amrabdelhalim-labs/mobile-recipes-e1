@@ -1,0 +1,14 @@
+.git
+.github
+node_modules
+**/node_modules
+**/dist
+**/coverage
+**/.env
+**/.env.*
+**/*.log
+**/.DS_Store
+**/.idea
+**/.vscode
+terminals
+agent-transcripts

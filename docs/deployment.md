@@ -1,4 +1,4 @@
-﻿# دليل النشر الإنتاجي
+# دليل النشر الإنتاجي
 
 ## 📋 قائمة التحقق قبل النشر
 
@@ -86,6 +86,61 @@ const limiter = rateLimit({
 app.use('/account/', limiter); // تطبيق على مسارات المصادقة
 ```
 
+## 🐳 Docker Delivery (جديد)
+
+تم اعتماد مسار Docker مستقل بجانب مسار النشر التقليدي:
+
+- Workflow: `.github/workflows/docker-delivery.yml`
+- سكربت مركزي: `scripts/docker/deliver.mjs`
+- فحص بنية Docker: `scripts/infra/validate-docker.mjs`
+
+### الأنماط المدعومة
+
+- `build-only`: يبني الصور ويفحصها بـ Trivy كتقرير (غير حاجز افتراضيا).
+- `publish`: يبني + يفحص + ينشر الصور، وفحص Trivy يكون حاجزا افتراضيا.
+
+### أولوية متغيرات بيئة التطبيق داخل الحاوية
+
+عند تشغيل صورة `app`:
+
+1. قيمة وقت التشغيل (`docker run -e VITE_API_URL=...`)
+2. القيمة المخبوزة وقت البناء (`ARG -> ENV`)
+3. fallback ثابت داخل `docker/app-entrypoint.sh`
+
+### أمثلة
+
+```bash
+# بناء وفحص فقط
+node scripts/docker/deliver.mjs --mode build-only --service all
+
+# نشر صورة الخادم إلى GHCR
+docker login ghcr.io
+node scripts/docker/deliver.mjs --mode publish --service server --registry ghcr.io/<owner> --tag latest
+```
+
+### سياسة Trivy في CI
+
+- الافتراضي في السكربت: فحص الشدّات `CRITICAL` و`HIGH`؛ في `build-only` لا يفشل التنفيذ افتراضيا، وفي `publish` يفشل عند وجود ثغرات ضمن تلك الشدّات.
+- يمكن ضبط السياسة من المستودع عبر متغيرات Actions: `TRIVY_SEVERITY` و`TRIVY_PKG_TYPES`، أو من تشغيل workflow يدويًا (الحقول `trivy_severity` و`trivy_pkg_types`).
+
+### تشغيل محلي بـ Compose
+
+```bash
+docker compose up --build
+```
+
+- الواجهة: `http://localhost:4173`
+- الـ API (على المضيف): `http://localhost:3002` — المنفذ 3002 مُعرَّف في `docker-compose.yml` لتفادي التعارض مع خدمات أخرى على 3000
+- قاعدة البيانات: PostgreSQL على منفذ المضيف `${POSTGRES_HOST_PORT:-5433}` (القيمة الافتراضية `5433` لتفادي التعارض؛ داخليًا تبقى `5432`)
+
+لتجاوز `JWT_SECRET` في التطوير المحلي أنشئ ملف `.env` في جذر المشروع (انظر `docker/compose.env.example`).
+
+فحص تلقائي مع احتياطات تنظيف (يشغّل Compose مؤقتا، يفحص الروابط، ثم ينفذ `down` تلقائيا حتى عند الفشل):
+
+```bash
+node scripts/infra/validate-docker.mjs --smoke
+```
+
 ## 🚀 النشر على Heroku
 
 ### الإعداد الأولي
@@ -151,7 +206,7 @@ heroku config:set AWS_SECRET_ACCESS_KEY=your_secret_key
 
 ### النشر عبر GitHub Actions
 
-المشروع يتضمن workflow لـ GitHub Actions (`.github/workflows/deploy.yml`) ينشر تلقائياً إلى Heroku.
+المشروع يتضمن workflow لـ GitHub Actions (`.github/workflows/build-and-deploy.yml`) ينشر تلقائياً إلى Heroku.
 
 **الإعداد:**
 
@@ -473,7 +528,7 @@ heroku ps
 
 ## 🔄 خط أنابيب CI/CD
 
-يوفر workflow GitHub Actions (`.github/workflows/deploy.yml`):
+يوفر workflow GitHub Actions (`.github/workflows/build-and-deploy.yml`):
 
 - ✅ نشر تلقائي عند الدفع إلى `main`
 - ✅ بناء منفصل للخادم والتطبيق

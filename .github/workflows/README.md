@@ -41,6 +41,38 @@
 
 ---
 
+## 🐳 Docker Workflow (إضافي)
+
+يوجد workflow منفصل باسم `Docker Delivery` داخل:
+
+- `.github/workflows/docker-delivery.yml`
+
+هذا المسار يستخدم سكربت مركزي واحد:
+
+- `scripts/docker/deliver.mjs`
+
+الأنماط:
+
+- `build-only`: Build + Trivy report (non-blocking افتراضيا)
+- `publish`: Build + Trivy gate + Push للريجستري
+- `run_smoke`: خيار يدوي لتشغيل `validate-docker --smoke` داخل CI (يشغّل Compose مؤقتا ثم ينظف تلقائيا)
+
+**متغيرات اختيارية في المستودع (Actions → Variables):**
+
+- `TRIVY_SEVERITY` — مثال: `CRITICAL,HIGH`
+- `TRIVY_PKG_TYPES` — مثال: `os,library`
+
+**Compose محلي:** `docker compose up --build` (انظر `docker-compose.yml`).
+
+قبل مرحلة Docker نفسها، workflow ينفذ preflight quality gates:
+
+- `node format.mjs --check`
+- فحص merge markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+- `node validate-workflow.mjs`
+- اختبارات `server` و`app`
+
+---
+
 ## ✅ إعداد GitHub Pages (اختياري)
 
 لرؤية التطبيق على GitHub Pages:

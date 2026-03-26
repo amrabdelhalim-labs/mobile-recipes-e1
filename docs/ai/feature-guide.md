@@ -512,6 +512,12 @@ node format.mjs --check
 
 # 4. فحص الورك فلو (لازم عند تعديل أي شيء في .github/workflows أو package.json)
 node validate-workflow.mjs
+
+# 5. فحص بنية Docker (عند تعديل docker-compose أو Dockerfiles أو سكربت التسليم)
+node scripts/infra/validate-docker.mjs
+
+# 6. فحص تشغيل Docker فعلي مع تنظيف تلقائي (اختياري قبل الدمج)
+node scripts/infra/validate-docker.mjs --smoke
 ```
 
 All steps must pass before committing. See `CONTRIBUTING.md` for full standards.

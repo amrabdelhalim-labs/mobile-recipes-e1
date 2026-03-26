@@ -1,0 +1,161 @@
+name: Docker Delivery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Delivery mode"
+        type: choice
+        required: true
+        default: build-only
+        options:
+          - build-only
+          - publish
+      service:
+        description: "Target service"
+        type: choice
+        required: true
+        default: all
+        options:
+          - all
+          - server
+          - app
+      web_api_url:
+        description: "Build-time default for VITE_API_URL"
+        type: string
+        required: false
+      web_base_url:
+        description: "Build-time default for VITE_BASE_URL"
+        type: string
+        required: false
+      trivy_severity:
+        description: "Trivy --severity (فارغ = متغير المستودع أو الافتراضي في السكربت)"
+        type: string
+        required: false
+      trivy_pkg_types:
+        description: "Trivy --pkg-types (فارغ = متغير المستودع أو الافتراضي)"
+        type: string
+        required: false
+      run_smoke:
+        description: "Run Docker smoke check with automatic cleanup"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: docker-delivery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docker:
+    name: Build/Scan/Publish Docker Images
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: "123456"
+          POSTGRES_DB: myrecipes_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            app/package-lock.json
+
+      - name: Format check
+        run: node format.mjs --check
+
+      - name: Scan merge markers
+        run: |
+          set -euo pipefail
+          if rg -n "^(\x3C\x3C\x3C\x3C\x3C\x3C\x3C|\x3D\x3D\x3D\x3D\x3D\x3D\x3D|\x3E\x3E\x3E\x3E\x3E\x3E\x3E)" .; then
+            echo "Merge markers detected."
+            exit 1
+          fi
+
+      - name: Validate base workflow
+        run: node validate-workflow.mjs
+
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Run server tests
+        working-directory: server
+        run: npm run test:all
+        env:
+          DB_USER: postgres
+          DB_PASS: "123456"
+          DB_HOST: localhost
+          DB_PORT: "5432"
+          DB_NAME: myrecipes_test
+          NODE_ENV: test
+          JWT_SECRET: test_jwt_secret_key_for_ci_testing_only_32chars
+
+      - name: Install app dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Run app tests
+        working-directory: app
+        run: npm test
+
+      - name: Validate docker configuration files
+        run: node scripts/infra/validate-docker.mjs
+
+      - name: Docker smoke check (optional)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_smoke }}
+        run: node scripts/infra/validate-docker.mjs --smoke
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'publish' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deliver images via centralized script
+        env:
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'build-only' }}
+          SERVICE: ${{ github.event_name == 'workflow_dispatch' && inputs.service || 'all' }}
+          WEB_API_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.web_api_url || vars.VITE_API_URL || 'http://localhost:3000' }}
+          WEB_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.web_base_url || vars.VITE_BASE_URL || '/' }}
+          TAG: ${{ github.sha }}
+          REGISTRY: ghcr.io/${{ github.repository_owner }}
+          TRIVY_SEVERITY: ${{ github.event_name == 'workflow_dispatch' && inputs.trivy_severity || vars.TRIVY_SEVERITY }}
+          TRIVY_PKG_TYPES: ${{ github.event_name == 'workflow_dispatch' && inputs.trivy_pkg_types || vars.TRIVY_PKG_TYPES }}
+        run: |
+          set -euo pipefail
+          ARGS=(node scripts/docker/deliver.mjs --mode "$MODE" --service "$SERVICE" --registry "$REGISTRY" --tag "$TAG" --build-api-url "$WEB_API_URL" --build-base-url "$WEB_BASE_URL")
+          if [ -n "${TRIVY_SEVERITY:-}" ]; then
+            ARGS+=(--severity "$TRIVY_SEVERITY")
+          fi
+          if [ -n "${TRIVY_PKG_TYPES:-}" ]; then
+            ARGS+=(--pkg-types "$TRIVY_PKG_TYPES")
+          fi
+          "${ARGS[@]}"

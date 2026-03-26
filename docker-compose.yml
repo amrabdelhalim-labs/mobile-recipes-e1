@@ -1,0 +1,58 @@
+# تشغيل محلي: PostgreSQL + API + واجهة Vite (preview)
+# الاستخدام: docker compose up --build
+# المتصفح: http://localhost:4173 — يتصل بالـ API عبر http://localhost:3002 (منفذ المضيف؛ 3002 لتفادي تعارض مع تطبيقات أخرى على 3000)
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "123456"
+      POSTGRES_DB: myrecipes
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+    ports:
+      - "3002:3000"
+    environment:
+      # production: avoids dynamic import of morgan (devDependency) omitted by npm ci --omit=dev in the image
+      NODE_ENV: production
+      PORT: "3000"
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_me_for_local_compose_only_32}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: myrecipes
+      DB_USER: postgres
+      DB_PASS: "123456"
+      STORAGE_TYPE: local
+      CORS_ORIGINS: http://localhost:4173,http://localhost:5173,http://localhost:8100
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    ports:
+      - "4173:4173"
+    environment:
+      APP_PORT: "4173"
+      VITE_API_URL: http://localhost:3002
+      VITE_BASE_URL: /
+    depends_on:
+      - server
+
+volumes:
+  pgdata:

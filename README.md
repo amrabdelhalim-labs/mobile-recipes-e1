@@ -1,4 +1,4 @@
-﻿# وصفاتي — تطبيق الوصفات الاجتماعي
+# وصفاتي — تطبيق الوصفات الاجتماعي
 
 تطبيق جوال اجتماعي متكامل لمشاركة وصفات الطعام. يتيح للمستخدمين نشر الوصفات مع الصور التعليق وتسجيل الإعجاب. مبني بـ **Ionic/React + TypeScript** للواجهة الأمامية و**Node.js/Express/PostgreSQL** للخلفية مع بنية تخزين ملفات مرنة تدعم Local وCloudinary وAWS S3.
 
@@ -245,6 +245,39 @@ npm run test:all   # Vitest + Cypress
 ## 🌐 النشر
 
 راجع **[docs/deployment.md](docs/deployment.md)** للدليل الكامل.
+
+### 🐳 النشر عبر Docker
+
+تمت إضافة مسار Docker مركزي للخادم والتطبيق:
+
+- `docker/server.Dockerfile` لصورة الخادم
+- `docker/app.Dockerfile` + `docker/app-entrypoint.sh` لصورة التطبيق (يبني وقت التشغيل حسب البيئة)
+- `scripts/docker/deliver.mjs` كسكربت موحد للبناء/الفحص/النشر
+- `scripts/infra/validate-docker.mjs` لفحص ملفات ومؤشرات Docker (config-as-test)
+- `docker-compose.yml` لتشغيل PostgreSQL + الخادم + الواجهة محلياً
+
+أمثلة تشغيل محلي:
+
+```bash
+# تشغيل كامل عبر Compose (قاعدة بيانات + API على المضيف 3002 + واجهة على 4173)
+docker compose up --build
+
+# بناء وفحص فقط (لا يفشل افتراضيا عند وجود ثغرات)
+node scripts/docker/deliver.mjs --mode build-only --service all
+
+# فحص Docker تلقائي شامل + تنظيف تلقائي بعد الاختبار
+node scripts/infra/validate-docker.mjs --smoke
+
+# بناء + فحص صارم + نشر (يتطلب تسجيل دخول docker registry مسبقا)
+node scripts/docker/deliver.mjs --mode publish --service server --registry ghcr.io/<owner> --tag latest
+```
+
+ملاحظات مهمة:
+
+- وضع `build-only`: Trivy يعمل بصيغة تقرير (exit code افتراضي = 0).
+- وضع `publish`: Trivy يعمل كـ gate افتراضي (exit code افتراضي = 1 لشدات `CRITICAL,HIGH`).
+- يدعم السكربت توافق الأعلام القديمة والجديدة: `--trivy-vuln-type` و`--pkg-types`.
+- يمكن ضبط سياسة الشدّات عبر متغيرات Actions: `TRIVY_SEVERITY` و`TRIVY_PKG_TYPES` أو مدخلات التشغيل اليدوي في `Docker Delivery`.
 
 ### النشر السريع على Heroku
 
