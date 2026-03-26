@@ -62,7 +62,7 @@
 - `TRIVY_SEVERITY` — مثال: `CRITICAL,HIGH`
 - `TRIVY_PKG_TYPES` — مثال: `os,library`
 
-**Compose محلي:** `docker compose up --build` (انظر `docker-compose.yml`).
+**Compose محلي:** `docker compose up --build` (انظر `docker-compose.yml`). خدمتا `server` و`app` تستخدمان `restart: unless-stopped` لاستقرار أفضل بعد إعادة تشغيل Docker؛ `postgres` يبقى مع فحص صحة واعتمادية السيرفر عليه كما في الملف.
 
 قبل مرحلة Docker نفسها، workflow ينفذ preflight quality gates:
 

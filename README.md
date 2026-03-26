@@ -254,7 +254,7 @@ npm run test:all   # Vitest + Cypress
 - `docker/app.Dockerfile` + `docker/app-entrypoint.sh` لصورة التطبيق (يبني وقت التشغيل حسب البيئة)
 - `scripts/docker/deliver.mjs` كسكربت موحد للبناء/الفحص/النشر
 - `scripts/infra/validate-docker.mjs` لفحص ملفات ومؤشرات Docker (config-as-test)
-- `docker-compose.yml` لتشغيل PostgreSQL + الخادم + الواجهة محلياً
+- `docker-compose.yml` لتشغيل PostgreSQL + الخادم + الواجهة محلياً (مع `restart: unless-stopped` للسيرفر والواجهة لموثوقية أعلى بعد إعادة التشغيل)
 
 أمثلة تشغيل محلي:
 
