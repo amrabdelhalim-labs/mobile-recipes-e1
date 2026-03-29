@@ -56,7 +56,14 @@ function runStaticChecks() {
     'VITE_BASE_URL:-${BAKED_VITE_BASE_URL:-/}',
     'npm run build',
   ]);
-  assertContains('scripts/docker/deliver.mjs', ['--pkg-types', '--ignorefile', 'trivy-vuln-type', "mode === 'publish' ? '1' : '0'"]);
+  assertContains('scripts/docker/deliver.mjs', [
+    '--pkg-types',
+    '--ignorefile',
+    'trivy-vuln-type',
+    "mode === 'publish' ? '1' : '0'",
+    'mobile-recipes-e1-server',
+    'mobile-recipes-e1-app',
+  ]);
   assertContains('docker-compose.yml', [
     'services:',
     'postgres:',

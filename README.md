@@ -270,6 +270,10 @@ node scripts/infra/validate-docker.mjs --smoke
 
 # بناء + فحص صارم + نشر (يتطلب تسجيل دخول docker registry مسبقا)
 node scripts/docker/deliver.mjs --mode publish --service server --registry ghcr.io/<owner> --tag latest
+
+# أسماء الحزم على GHCR بعد النشر:
+# ghcr.io/<owner>/mobile-recipes-e1-server:<tag> و ghcr.io/<owner>/mobile-recipes-e1-app:<tag>
+# أوامر السحب والتشغيل: docs/deployment.md (قسم Docker Delivery — جدول أسماء الصور)
 ```
 
 ملاحظات مهمة:

@@ -99,7 +99,8 @@ function normalizeServices(serviceValue) {
 }
 
 function buildImageRef({ service, registry, tag }) {
-  const imageName = `mobile-recipes-${service}`;
+  // GHCR: <repository>-<artifact> e.g. mobile-recipes-e1-server, mobile-recipes-e1-app
+  const imageName = `mobile-recipes-e1-${service}`;
   return registry ? `${registry}/${imageName}:${tag}` : `${imageName}:${tag}`;
 }
 

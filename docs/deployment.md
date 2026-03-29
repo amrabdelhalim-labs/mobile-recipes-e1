@@ -116,7 +116,64 @@ node scripts/docker/deliver.mjs --mode build-only --service all
 # نشر صورة الخادم إلى GHCR
 docker login ghcr.io
 node scripts/docker/deliver.mjs --mode publish --service server --registry ghcr.io/<owner> --tag latest
+
+# نشر الخادم والواجهة معاً
+node scripts/docker/deliver.mjs --mode publish --service all --registry ghcr.io/<owner> --tag latest
 ```
+
+### أسماء الصور على GHCR وسحبها وتشغيلها
+
+بعد نشر ناجح (`publish`) تُرفَع الصور بالأسماء التالية (استبدل `<OWNER>` بمالك المستودع على GitHub، أحرف صغيرة في عنوان الصورة):
+
+| الصورة | الوصف |
+|--------|--------|
+| `ghcr.io/<OWNER>/mobile-recipes-e1-server:<tag>` | API (Express + Sequelize) |
+| `ghcr.io/<OWNER>/mobile-recipes-e1-app:<tag>` | واجهة Vite + `preview` (entrypoint يعيد البناء عند التشغيل إن لزم) |
+
+**سحب:**
+
+```bash
+docker pull ghcr.io/<OWNER>/mobile-recipes-e1-server:<tag>
+docker pull ghcr.io/<OWNER>/mobile-recipes-e1-app:<tag>
+```
+
+**تشغيل الخادم (مثال مع PostgreSQL على شبكة Docker):**
+
+مرّر متغيرات قاعدة البيانات و`JWT_SECRET` و`CORS_ORIGINS` و`STORAGE_TYPE` و`PORT` في وقت التشغيل (`-e` أو ملف بيئة). الافتراضيات داخل الصورة قابلة للاستبدال.
+
+```bash
+docker network create recipes-net
+docker run -d --name recipes-pg --network recipes-net -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=myrecipes postgres:15-alpine
+
+docker run -d --name recipes-api --network recipes-net -p 3002:3000 \
+  -e NODE_ENV=production \
+  -e PORT=3000 \
+  -e DB_HOST=recipes-pg \
+  -e DB_PORT=5432 \
+  -e DB_NAME=myrecipes \
+  -e DB_USER=postgres \
+  -e DB_PASS=secret \
+  -e JWT_SECRET=replace_with_strong_secret \
+  -e CORS_ORIGINS=http://localhost:4173 \
+  -e STORAGE_TYPE=local \
+  ghcr.io/<OWNER>/mobile-recipes-e1-server:<tag>
+```
+
+التحقق: `curl -fsS http://localhost:3002/health`
+
+**تشغيل الواجهة:**
+
+```bash
+docker run -d -p 4173:4173 \
+  -e VITE_API_URL=http://localhost:3002 \
+  -e VITE_BASE_URL=/ \
+  -e APP_PORT=4173 \
+  ghcr.io/<OWNER>/mobile-recipes-e1-app:<tag>
+```
+
+`VITE_API_URL` يجب أن يصل إليه **المتصفح** (عنوان عام أو نفس المضيف والمنفذ الظاهر للمستخدم).
+
+**PowerShell (Windows):** لا تستخدم `\` لاستمرار السطر؛ استخدم سطرًا واحدًا أو backtick `` ` ``.
 
 ### سياسة Trivy في CI
 
@@ -403,22 +460,7 @@ heroku local
 
 ### استخدام Docker (بديل)
 
-أنشئ `Dockerfile`:
-```dockerfile
-FROM node:22-alpine
-WORKDIR /app
-COPY server/package*.json ./
-RUN npm ci --only=production
-COPY server/ ./
-EXPOSE 3000
-CMD ["node", "app.js"]
-```
-
-بناء وتشغيل:
-```bash
-docker build -t mobile-recipes-api .
-docker run -p 3000:3000 --env-file .env mobile-recipes-api
-```
+للإنتاج استخدم الصور الرسمية في المستودع: `docker/server.Dockerfile` و`docker/app.Dockerfile` مع `docker compose up --build` أو الصور المنشورة على GHCR كما في قسم **Docker Delivery** أعلى هذا الملف. تجنّب نسخ `Dockerfile` مبسّط هنا لأنه قديم ولا يعكس سياسة الأمان والطبقات الحالية.
 
 ## 📊 تحسين الأداء
 
