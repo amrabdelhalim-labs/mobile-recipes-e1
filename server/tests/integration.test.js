@@ -269,6 +269,20 @@ async function runFullStackTests() {
     const commentCount = await commentRepo.countByPost(post1.id);
     assert(commentCount >= 1, `Post has ${commentCount} comments`);
 
+    const userPostsWithComments = await postRepo.findByUser(user1.id, 1, 10);
+    const postWithComments = userPostsWithComments.rows.find((post) => post.id === post1.id);
+    assert(
+      Array.isArray(postWithComments?.Comments) &&
+        postWithComments.Comments.length === commentCount,
+      'User post listing includes id-only comment references'
+    );
+    assert(
+      postWithComments.Comments.every(
+        (comment) => Object.keys(comment.toJSON()).length === 1 && comment.id
+      ),
+      'User post listing comment references contain only id'
+    );
+
     // ============================================================
     // PHASE 4: LIKE SYSTEM & INTERACTIONS
     // ============================================================

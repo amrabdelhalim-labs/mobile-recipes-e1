@@ -57,6 +57,10 @@ class PostRepository extends BaseRepository {
           association: 'images',
           attributes: ['id', 'imageUrl'],
         },
+        {
+          association: 'Comments',
+          attributes: ['id'],
+        },
       ],
       order: [['createdAt', 'DESC']],
     });
