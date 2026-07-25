@@ -23,8 +23,8 @@ const AuthContextProvider: React.FC<AuthContextProviderProps> = ({ children }) =
     if (!imageUrl) return '';
     // إذا كان الرابط كاملًا (يبدأ بـ http) نرجعه مباشرة
     if (imageUrl.startsWith('http')) return imageUrl;
-    // وإلا نضيف عنوان السيرفر
-    return `${API_URL}${imageUrl}`;
+    // وإلا نضيف عنوان السيرفر مع شرطة مائلة واحدة فقط
+    return `${API_URL.replace(/\/+$/, '')}/${imageUrl.replace(/^\/+/, '')}`;
   }, []);
 
   // جلب بيانات المستخدم من السيرفر
